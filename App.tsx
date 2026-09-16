@@ -18,7 +18,7 @@
 
 import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
-import LeftHandNav from '../Downloads/hello-world-fire-tv-react-native-main/navigation/LeftHandNav';
+import LeftHandNav from './navigation/LeftHandNav';
 
 const App = () => {
   return (
