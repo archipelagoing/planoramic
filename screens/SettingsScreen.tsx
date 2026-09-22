@@ -1,3 +1,4 @@
+import Text from '../components/AppText';
 /*
  * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  * SPDX-License-Identifier: MIT-0
@@ -19,11 +20,27 @@
 import React from 'react';
 import {StyleSheet, SafeAreaView} from 'react-native';
 import {Header} from '../components';
+import {useTheme} from '../theme/ThemeProvider';
+import ThemeControl from '../components/ThemeControl';
+import {View} from 'react-native';
 
 const SettingsScreen = () => {
+  const {colors, storageError} = useTheme();
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, {backgroundColor: colors.background}]}>
       <Header headerText="Settings" />
+      <View style={{padding: 32, paddingLeft: 88, gap: 20}}>
+        <Text style={{color: colors.text, fontSize: 22, fontWeight: '600'}}>
+          Appearance
+        </Text>
+        <ThemeControl />
+        {!!storageError && (
+          <Text accessibilityRole="alert" style={{color: colors.error}}>
+            {storageError}
+          </Text>
+        )}
+      </View>
     </SafeAreaView>
   );
 };
@@ -31,7 +48,6 @@ const SettingsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#12181F',
   },
 });
 

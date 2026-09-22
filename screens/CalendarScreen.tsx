@@ -1,13 +1,12 @@
+import Text from '../components/AppText';
 import React, {useEffect, useMemo, useState} from 'react';
 import {
   ActivityIndicator,
   Linking,
   Platform,
   Pressable,
-  SafeAreaView,
   SectionList,
   StyleSheet,
-  Text,
   View,
 } from 'react-native';
 import {
@@ -21,6 +20,14 @@ import {
   eventSections,
   request,
 } from '../services/calendar';
+import GlassButton from '../components/GlassButton';
+import ThemeControl from '../components/ThemeControl';
+import CalendarCanvas from '../components/CalendarCanvas';
+import DarkGlassEdges, {
+  darkGlassCard,
+  darkGlassFocus,
+} from '../components/DarkGlassEdges';
+import {Colors, focusStyle, glassStyle, useTheme} from '../theme/ThemeProvider';
 import {sampleEvents} from '../services/sampleEvents';
 import {clearDevice, loadDevice, saveDevice} from '../services/deviceStorage';
 
@@ -33,27 +40,26 @@ function Action({
   onPress: () => void;
   disabled?: boolean;
 }) {
-  const [focused, setFocused] = useState(false);
+  const refresh = label === 'Refresh' || label.startsWith('Refreshing');
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      disabled={disabled}
-      onFocus={() => setFocused(true)}
-      onBlur={() => setFocused(false)}
+    <GlassButton
+      label={label}
       onPress={onPress}
-      style={({pressed}) => [
-        styles.button,
-        (focused || pressed) && styles.focused,
-        disabled && styles.disabled,
-      ]}>
-      <Text style={[styles.buttonText, focused && styles.focusedButtonText]}>
-        {label}
-      </Text>
-    </Pressable>
+      disabled={disabled}
+      icon={
+        refresh
+          ? 'refresh'
+          : label.includes('Preview')
+            ? 'calendar-outline'
+            : 'link-variant'
+      }
+      iconOnly={refresh}
+    />
   );
 }
 function EventRow({event}: {event: CalendarEvent}) {
+  const {colors, dark, reduceMotion} = useTheme();
+  const styles = makeStyles(colors);
   const [focused, setFocused] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const time = event.allDay
@@ -72,8 +78,13 @@ function EventRow({event}: {event: CalendarEvent}) {
       onBlur={() => setFocused(false)}
       style={({pressed}) => [
         styles.event,
+        glassStyle(colors, dark, focused || pressed),
         (focused || pressed) && styles.focused,
+        focusStyle(colors, dark, focused, reduceMotion, 1.015),
+        dark && darkGlassCard,
+        dark && focused && darkGlassFocus,
       ]}>
+      {dark && <DarkGlassEdges />}
       <Text style={styles.time}>{time}</Text>
       <View style={styles.eventBody}>
         <Text style={styles.eventTitle}>{event.title}</Text>
@@ -92,6 +103,8 @@ function EventRow({event}: {event: CalendarEvent}) {
 }
 
 export default function CalendarScreen() {
+  const {colors, storageError} = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const [preview, setPreview] = useState(true);
   const [restoring, setRestoring] = useState(true);
   const [restoreAttempt, setRestoreAttempt] = useState(0);
@@ -268,11 +281,11 @@ export default function CalendarScreen() {
 
   if (restoring || restoreError) {
     return (
-      <SafeAreaView style={styles.page}>
+      <CalendarCanvas style={styles.page}>
         <View style={styles.center}>
           {restoring ? (
             <>
-              <ActivityIndicator size="large" color="#FF9900" />
+              <ActivityIndicator size="large" color={colors.accent} />
               <Text style={styles.secondary}>Restoring display...</Text>
             </>
           ) : (
@@ -287,12 +300,12 @@ export default function CalendarScreen() {
             </>
           )}
         </View>
-      </SafeAreaView>
+      </CalendarCanvas>
     );
   }
 
   return (
-    <SafeAreaView style={styles.page}>
+    <CalendarCanvas style={styles.page}>
       <View style={styles.header}>
         <View style={styles.heading}>
           <Text style={styles.eyebrow}>PLANORAMIC</Text>
@@ -305,21 +318,32 @@ export default function CalendarScreen() {
               : `Next seven days${response ? ` · ${response.calendarCount} calendars` : ''}`}
           </Text>
         </View>
-        {preview ? (
-          <Action label="Connect calendar" onPress={() => setPreview(false)} />
-        ) : device ? (
-          <Action
-            label={loading ? 'Refreshing…' : 'Refresh'}
-            disabled={loading}
-            onPress={() => setRefresh(value => value + 1)}
-          />
-        ) : (
-          <Action
-            label="Preview sample events"
-            onPress={() => setPreview(true)}
-          />
-        )}
+        <View style={styles.tools}>
+          <ThemeControl />
+          {preview ? (
+            <Action
+              label="Connect calendar"
+              onPress={() => setPreview(false)}
+            />
+          ) : device ? (
+            <Action
+              label={loading ? 'Refreshing…' : 'Refresh'}
+              disabled={loading}
+              onPress={() => setRefresh(value => value + 1)}
+            />
+          ) : (
+            <Action
+              label="Preview sample events"
+              onPress={() => setPreview(true)}
+            />
+          )}
+        </View>
       </View>
+      {!!storageError && (
+        <Text accessibilityRole="alert" style={styles.error}>
+          {storageError}
+        </Text>
+      )}
       {!preview && !device ? (
         <View style={styles.pairCard}>
           <Text style={styles.eventTitle}>Connect this display</Text>
@@ -339,7 +363,7 @@ export default function CalendarScreen() {
               </Text>
             </>
           ) : (
-            !error && <ActivityIndicator size="large" color="#FF9900" />
+            !error && <ActivityIndicator size="large" color={colors.accent} />
           )}
           {Platform.OS === 'web' && API_URL && (
             <Action
@@ -365,11 +389,6 @@ export default function CalendarScreen() {
         </View>
       ) : (
         <>
-          {preview && (
-            <Text style={styles.secondary}>
-              Use Up / Down to browse. Select an event to show details.
-            </Text>
-          )}
           {!preview && !!error && (
             <Text accessibilityRole="alert" style={styles.error}>
               {error}
@@ -404,7 +423,7 @@ export default function CalendarScreen() {
           )}
           {!preview && loading && !response ? (
             <View style={styles.center}>
-              <ActivityIndicator size="large" color="#FF9900" />
+              <ActivityIndicator size="large" color={colors.accent} />
               <Text style={styles.secondary}>Loading your calendars…</Text>
             </View>
           ) : (
@@ -430,85 +449,101 @@ export default function CalendarScreen() {
           )}
         </>
       )}
-    </SafeAreaView>
+    </CalendarCanvas>
   );
 }
-const styles = StyleSheet.create({
-  page: {
-    flex: 1,
-    backgroundColor: '#12181F',
-    paddingLeft: Platform.OS === 'web' ? 28 : 88,
-    paddingRight: 28,
-    paddingTop: 24,
-  },
-  header: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 20,
-    gap: 16,
-  },
-  heading: {flexShrink: 1},
-  eyebrow: {
-    color: '#FF9900',
-    fontSize: 16,
-    letterSpacing: 3,
-    fontWeight: '700',
-  },
-  title: {color: '#F5F7FA', fontSize: 38, fontWeight: '700', marginVertical: 8},
-  secondary: {color: '#B9C8D8', fontSize: 20, lineHeight: 28},
-  button: {
-    backgroundColor: '#FF9900',
-    borderWidth: 3,
-    borderColor: 'transparent',
-    borderRadius: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 22,
-    alignSelf: 'flex-start',
-  },
-  buttonText: {color: '#12181F', fontSize: 21, fontWeight: '700'},
-  disabled: {opacity: 0.5},
-  focusedButtonText: {color: '#FFFFFF'},
-  focused: {borderColor: '#FFFFFF', backgroundColor: '#396080'},
-  event: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 20,
-    borderWidth: 3,
-    borderColor: 'transparent',
-    borderRadius: 12,
-    backgroundColor: '#232F3E',
-    padding: 20,
-    marginBottom: 12,
-  },
-  time: {color: '#FFBB55', fontSize: 23, minWidth: 130},
-  eventBody: {flex: 1, minWidth: 180},
-  eventTitle: {
-    color: '#F5F7FA',
-    fontSize: 25,
-    fontWeight: '600',
-    marginBottom: 8,
-  },
-  description: {color: '#F5F7FA', fontSize: 20, lineHeight: 28, marginTop: 14},
-  day: {
-    color: '#F5F7FA',
-    fontSize: 24,
-    fontWeight: '600',
-    marginTop: 20,
-    marginBottom: 14,
-  },
-  list: {paddingBottom: 40},
-  updated: {color: '#B9C8D8', fontSize: 16, marginBottom: 6},
-  error: {color: '#FFB4AB', fontSize: 20, lineHeight: 28, marginVertical: 16},
-  center: {padding: 40, alignItems: 'center', gap: 16},
-  reconnect: {gap: 12, marginBottom: 16},
-  pairCard: {
-    padding: 24,
-    borderRadius: 12,
-    backgroundColor: '#232F3E',
-    gap: 16,
-  },
-  address: {color: '#9FD0FF', fontSize: 22},
-  code: {color: '#FF9900', fontSize: 44, letterSpacing: 6, fontWeight: '700'},
-});
+const makeStyles = (colors: Colors) =>
+  StyleSheet.create({
+    page: {
+      flex: 1,
+      backgroundColor: 'transparent',
+      paddingLeft: Platform.OS === 'web' ? 28 : 88,
+      paddingRight: 28,
+      paddingTop: 24,
+    },
+    header: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: 20,
+      gap: 16,
+    },
+    tools: {
+      maxWidth: '100%',
+      flexShrink: 1,
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      alignItems: 'center',
+      gap: 16,
+      zIndex: 10,
+    },
+    heading: {flexShrink: 1},
+    eyebrow: {
+      color: colors.accent,
+      fontSize: 16,
+      letterSpacing: 0,
+      fontWeight: '700',
+    },
+    title: {
+      color: colors.text,
+      fontSize: 32,
+      fontWeight: '700',
+      marginVertical: 8,
+    },
+    secondary: {color: colors.muted, fontSize: 20, lineHeight: 28},
+    focused: {borderColor: colors.accent},
+    event: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 20,
+      borderWidth: 2,
+      borderColor: colors.border,
+      borderRadius: 8,
+      backgroundColor: colors.surface,
+      padding: 20,
+      marginBottom: 12,
+    },
+    time: {color: colors.rose, fontSize: 23, minWidth: 130},
+    eventBody: {flex: 1, minWidth: 180},
+    eventTitle: {
+      color: colors.text,
+      fontSize: 25,
+      fontWeight: '600',
+      marginBottom: 8,
+    },
+    description: {
+      color: colors.text,
+      fontSize: 20,
+      lineHeight: 28,
+      marginTop: 14,
+    },
+    day: {
+      color: colors.text,
+      fontSize: 24,
+      fontWeight: '600',
+      marginTop: 20,
+      marginBottom: 14,
+    },
+    list: {paddingBottom: 40, paddingHorizontal: 16},
+    updated: {color: colors.muted, fontSize: 16, marginBottom: 6},
+    error: {
+      color: colors.error,
+      fontSize: 20,
+      lineHeight: 28,
+      marginVertical: 16,
+    },
+    center: {padding: 40, alignItems: 'center', gap: 16},
+    reconnect: {gap: 12, marginBottom: 16},
+    pairCard: {
+      paddingVertical: 24,
+      gap: 16,
+    },
+    address: {color: colors.accent, fontSize: 22},
+    code: {
+      color: colors.accent,
+      fontSize: 44,
+      letterSpacing: 0,
+      fontWeight: '700',
+    },
+  });

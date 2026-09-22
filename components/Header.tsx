@@ -1,3 +1,4 @@
+import Text from './AppText';
 /*
  * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  * SPDX-License-Identifier: MIT-0
@@ -17,16 +18,20 @@
  */
 
 import React from 'react';
-import {TouchableHighlight, Text, StyleSheet} from 'react-native';
+import {TouchableHighlight, StyleSheet} from 'react-native';
+import {useTheme} from '../theme/ThemeProvider';
 
 interface HeaderProps {
   headerText: string;
 }
 
 const Header = ({headerText}: HeaderProps) => {
+  const {colors} = useTheme();
   return (
     <TouchableHighlight style={styles.headerContainer}>
-      <Text style={styles.headerText}>{headerText}</Text>
+      <Text style={[styles.headerText, {color: colors.text}]}>
+        {headerText}
+      </Text>
     </TouchableHighlight>
   );
 };
@@ -40,7 +45,6 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#FF9900',
   },
 });
 

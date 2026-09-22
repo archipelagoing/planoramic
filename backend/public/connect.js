@@ -1,4 +1,41 @@
 const element = id => document.getElementById(id);
+const appearanceKey = 'planoramic.appearance';
+const systemAppearance = window.matchMedia('(prefers-color-scheme: dark)');
+let appearance = 'system';
+try {
+  const saved = localStorage.getItem(appearanceKey);
+  if (['light', 'dark', 'system'].includes(saved)) appearance = saved;
+} catch {}
+function applyAppearance() {
+  document.documentElement.dataset.theme =
+    appearance === 'system'
+      ? systemAppearance.matches
+        ? 'dark'
+        : 'light'
+      : appearance;
+  document.querySelectorAll('button[data-theme]').forEach(button => {
+    button.setAttribute(
+      'aria-pressed',
+      String(button.dataset.theme === appearance),
+    );
+  });
+}
+document.querySelectorAll('button[data-theme]').forEach(button => {
+  button.addEventListener('click', () => {
+    appearance = button.dataset.theme;
+    applyAppearance();
+    try {
+      localStorage.setItem(appearanceKey, appearance);
+      element('appearance-feedback').hidden = true;
+    } catch {
+      element('appearance-feedback').hidden = false;
+      element('appearance-feedback').textContent =
+        'Appearance will only be saved for this session.';
+    }
+  });
+});
+systemAppearance.addEventListener('change', applyAppearance);
+applyAppearance();
 async function api(path, options) {
   const response = await fetch(path, {credentials: 'same-origin', ...options});
   const data = response.status === 204 ? null : await response.json();

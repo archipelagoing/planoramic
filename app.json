@@ -8,7 +8,8 @@
           "isTV": true,
           "androidTVBanner": "./assets/images/icon-400x240.png"
         }
-      ]
+      ],
+      "expo-font"
     ],
     "name": "ExpoTVDemo",
     "slug": "ExpoTVDemo"

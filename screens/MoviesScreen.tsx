@@ -19,10 +19,13 @@
 import React from 'react';
 import {StyleSheet, SafeAreaView} from 'react-native';
 import {Header} from '../components';
+import {useTheme} from '../theme/ThemeProvider';
 
 const MoviesScreen = () => {
+  const {colors} = useTheme();
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, {backgroundColor: colors.background}]}>
       <Header headerText="Movies" />
     </SafeAreaView>
   );
@@ -31,7 +34,6 @@ const MoviesScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#12181F',
   },
 });
 

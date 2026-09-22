@@ -115,6 +115,38 @@ async function calendarApi(page: Page, initiallyPaired = true) {
   return state;
 }
 
+test('dark TV focus is visible, keeps layout stable, and respects reduced motion', async ({
+  page,
+}, testInfo) => {
+  await page.setViewportSize({width: 1920, height: 1080});
+  await page.emulateMedia({
+    colorScheme: 'dark',
+    reducedMotion: 'no-preference',
+  });
+  await calendarApi(page);
+  await page.goto('/');
+  const event = page.getByRole('button', {name: /Planning session/});
+  await expect(event).toBeVisible();
+  const before = await event.boundingBox();
+  await event.focus();
+  await expect(event).toHaveCSS('outline-color', 'rgb(255, 240, 242)');
+  await expect
+    .poll(async () => (await event.boundingBox())!.width)
+    .toBeGreaterThan(before!.width);
+  const focused = (await event.boundingBox())!;
+  expect(focused.x).toBeGreaterThanOrEqual(0);
+  expect(focused.x + focused.width).toBeLessThanOrEqual(1920);
+  await page.keyboard.press('Enter');
+  await expect(page.getByText('Agenda details', {exact: true})).toBeVisible();
+  await page.screenshot({
+    path: testInfo.outputPath('tv-focus.png'),
+    fullPage: true,
+  });
+  await page.emulateMedia({reducedMotion: 'reduce'});
+  await expect(event).toHaveCSS('transform', 'matrix(1, 0, 0, 1, 0, 0)');
+  await expect(event).toHaveCSS('outline-color', 'rgb(255, 240, 242)');
+});
+
 test('pairing restores after reload and event details expand', async ({
   page,
 }) => {
@@ -210,4 +242,112 @@ for (const viewport of [
       fullPage: true,
     });
   });
+}
+
+test('appearance follows system, persists overrides, and updates navigation', async ({
+  page,
+}) => {
+  await page.emulateMedia({colorScheme: 'light'});
+  await calendarApi(page);
+  await page.goto('/');
+  await expect(page.getByRole('radio', {name: 'System theme'})).toBeChecked();
+  const lightBackground = await page
+    .getByRole('heading', {name: 'Upcoming Events'})
+    .evaluate(element => getComputedStyle(element).color);
+  await page.getByRole('radio', {name: 'Dark theme'}).click();
+  await expect(page.getByRole('radio', {name: 'Dark theme'})).toBeChecked();
+  const darkBackground = await page
+    .getByRole('heading', {name: 'Upcoming Events'})
+    .evaluate(element => getComputedStyle(element).color);
+  expect(darkBackground).not.toBe(lightBackground);
+  await page.reload();
+  await expect(page.getByRole('radio', {name: 'Dark theme'})).toBeChecked();
+  await page.getByText('Settings', {exact: true}).click();
+  await expect(page.getByRole('radio', {name: 'Dark theme'})).toBeChecked();
+  await page.getByRole('radio', {name: 'System theme'}).click();
+  await page.emulateMedia({colorScheme: 'dark'});
+  await page.getByText('Calendar', {exact: true}).click();
+  await expect(page.getByRole('heading', {name: 'Upcoming Events'})).toHaveCSS(
+    'color',
+    darkBackground,
+  );
+  await page.emulateMedia({colorScheme: 'light'});
+  await expect(page.getByRole('heading', {name: 'Upcoming Events'})).toHaveCSS(
+    'color',
+    lightBackground,
+  );
+});
+
+for (const mode of ['light', 'dark']) {
+  for (const width of [1440, 390]) {
+    test(`glass appearance ${mode} ${width}`, async ({page}, testInfo) => {
+      await page.setViewportSize({width, height: 900});
+      await calendarApi(page, false);
+      await page.goto('/');
+      const control = page.getByRole('radio', {
+        name: `${mode === 'light' ? 'Light' : 'Dark'} theme`,
+      });
+      await control.click();
+      await control.blur();
+      await page.mouse.move(0, 0);
+      const connect = page.getByRole('button', {
+        name: 'Connect calendar',
+        exact: true,
+      });
+      await expect(connect).toBeVisible();
+      if (mode === 'dark') {
+        const card = page.getByRole('button', {name: /Weekly planning/});
+        await expect(card).toHaveCSS(
+          'background-color',
+          'rgba(255, 255, 255, 0.08)',
+        );
+        await expect(card).toHaveCSS('border-radius', '20px');
+        await expect(card).toHaveCSS(
+          'border-color',
+          'rgba(255, 255, 255, 0.3)',
+        );
+        await expect(card).toHaveCSS('background-image', 'none');
+        await expect(card).toHaveCSS(
+          'box-shadow',
+          'rgba(0, 0, 0, 0.1) 0px 8px 32px 0px, rgba(255, 255, 255, 0.5) 0px 1px 0px 0px inset, rgba(255, 255, 255, 0.1) 0px -1px 0px 0px inset, rgba(255, 255, 255, 0.7) 0px 0px 14px 7px inset',
+        );
+      }
+      await expect(control).toHaveCSS('width', '48px');
+      await expect(control).toHaveCSS('height', '48px');
+      await expect(control).toHaveCSS('border-radius', '24px');
+      await expect(
+        page.getByRole('heading', {name: 'Upcoming Events'}),
+      ).toHaveCSS('font-family', /Montserrat_500Medium/);
+      expect(
+        await page.evaluate(() =>
+          document.fonts.check('16px Montserrat_500Medium'),
+        ),
+      ).toBe(true);
+      await expect(page.getByText('PLANORAMIC', {exact: true})).toHaveCSS(
+        'color',
+        mode === 'dark' ? 'rgb(255, 146, 153)' : 'rgb(180, 35, 50)',
+      );
+      await expect(
+        page.getByTestId('fireplace-background').locator('img'),
+      ).toHaveJSProperty('naturalWidth', 1920);
+      const backdrop = await page
+        .getByTestId('fireplace-background')
+        .boundingBox();
+      expect(backdrop!.width).toBeLessThanOrEqual(width);
+      expect(backdrop!.height).toBeLessThanOrEqual(900);
+      const bounds = await connect.boundingBox();
+      expect(bounds).not.toBeNull();
+      expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(width);
+      await expect(connect).toHaveCSS('backdrop-filter', 'blur(15px)');
+      expect(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= window.innerWidth,
+        ),
+      ).toBe(true);
+      await page.screenshot({
+        path: testInfo.outputPath('appearance.png'),
+        fullPage: true,
+      });
+    });
+  }
 }

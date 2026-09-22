@@ -25,6 +25,7 @@ import {
 } from 'react-native';
 import DrawerItem from './DrawerItem';
 import {menuItems} from './menuItems';
+import {useTheme} from '../theme/ThemeProvider';
 
 const COLLAPSED_WIDTH = 60;
 const EXPANDED_WIDTH = 160;
@@ -35,6 +36,7 @@ interface DrawerContentProps {
 }
 
 const DrawerContent = ({route}: DrawerContentProps) => {
+  const {colors} = useTheme();
   const [isExpanded, setIsExpanded] = useState(false);
   const widthAnim = useRef(new Animated.Value(COLLAPSED_WIDTH)).current;
   const textOpacityAnim = useRef(new Animated.Value(0)).current;
@@ -83,7 +85,11 @@ const DrawerContent = ({route}: DrawerContentProps) => {
   });
 
   return (
-    <Animated.View style={[styles.drawer, {width: widthAnim}]}>
+    <Animated.View
+      style={[
+        styles.drawer,
+        {width: widthAnim, backgroundColor: colors.sidebar},
+      ]}>
       <TVFocusGuideView trapFocusDown>
         {menuItems.map((item, index) => (
           <DrawerItem
@@ -106,7 +112,6 @@ export default DrawerContent;
 const styles = StyleSheet.create({
   drawer: {
     flex: 1,
-    backgroundColor: '#232F3E',
     paddingTop: 50,
     position: 'absolute',
     left: 0,

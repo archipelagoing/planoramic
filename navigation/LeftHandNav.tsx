@@ -30,10 +30,13 @@ import {
   TVShowsScreen,
 } from '../screens';
 import DrawerContent from './DrawerContent';
+import {useTheme} from '../theme/ThemeProvider';
+import {fonts} from '../components/AppText';
 
 const Drawer = createDrawerNavigator();
 
 const LeftHandNav = () => {
+  const {colors} = useTheme();
   const {width} = useWindowDimensions();
   const compact = Platform.OS === 'web' && width < 700;
   return (
@@ -49,8 +52,9 @@ const LeftHandNav = () => {
           width: Platform.OS === 'web' ? 200 : 'auto',
         },
         headerShown: compact,
-        headerStyle: {backgroundColor: '#232F3E'},
-        headerTintColor: '#FFFFFF',
+        headerStyle: {backgroundColor: colors.sidebar},
+        headerTintColor: colors.text,
+        headerTitleStyle: {fontFamily: fonts.medium, fontWeight: 'normal'},
       }}>
       <Drawer.Screen name="Calendar" component={CalendarScreen} />
       <Drawer.Screen name="Home" component={HomeScreen} />

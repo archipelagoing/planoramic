@@ -17,12 +17,55 @@
  */
 
 import React from 'react';
-import {NavigationContainer} from '@react-navigation/native';
+import {
+  NavigationContainer,
+  DefaultTheme,
+  DarkTheme,
+} from '@react-navigation/native';
+import {ThemeProvider, useTheme} from './theme/ThemeProvider';
 import LeftHandNav from './navigation/LeftHandNav';
+import {ActivityIndicator, View} from 'react-native';
+import {useFonts} from 'expo-font';
+import {Montserrat_500Medium} from '@expo-google-fonts/montserrat/500Medium';
 
 const App = () => {
+  const [loaded, error] = useFonts({
+    Montserrat_500Medium,
+  });
+  if (!loaded && !error)
+    return (
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: '#171719',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}>
+        <ActivityIndicator size="large" color="#F08080" />
+      </View>
+    );
   return (
-    <NavigationContainer>
+    <ThemeProvider>
+      <ThemedApp />
+    </ThemeProvider>
+  );
+};
+
+const ThemedApp = () => {
+  const {colors, dark} = useTheme();
+  return (
+    <NavigationContainer
+      theme={{
+        ...(dark ? DarkTheme : DefaultTheme),
+        colors: {
+          ...DefaultTheme.colors,
+          primary: colors.accent,
+          background: colors.background,
+          card: colors.sidebar,
+          text: colors.text,
+          border: colors.border,
+        },
+      }}>
       <LeftHandNav />
     </NavigationContainer>
   );

@@ -79,7 +79,10 @@ Reopening the browser display keeps it paired, provided cookies are enabled.
 **Restarting the backend still clears sign-ins and pairings**, so you'll need to
 connect Google and pair again afterward. Persistent backend storage is planned.
 
-Calendar is the working screen. Home, Movies, TV Shows, and Settings are placeholders,
+Choose Light, Dark, or System using the appearance controls above the calendar or
+in Settings. Your selection is remembered on this device.
+
+Calendar is the working screen. Home, Movies, and TV Shows are placeholders,
 and the separate phone control app hasn't been built yet.
 
 ## When something isn't working

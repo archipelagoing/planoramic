@@ -21,6 +21,8 @@ import {View, StyleSheet, TouchableOpacity, Animated} from 'react-native';
 import {Icon} from 'react-native-paper';
 import {useNavigation, ParamListBase} from '@react-navigation/native';
 import {DrawerNavigationProp} from '@react-navigation/drawer';
+import {useTheme} from '../theme/ThemeProvider';
+import {fonts} from '../components/AppText';
 
 interface MenuItem {
   name: string;
@@ -45,6 +47,7 @@ const DrawerItem = ({
   textOpacityAnim,
   hasTVPreferredFocus,
 }: DrawerItemProps) => {
+  const {colors} = useTheme();
   const navigation = useNavigation<DrawerNavigationProp<ParamListBase>>();
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const isActive = item.screen === route;
@@ -65,17 +68,24 @@ const DrawerItem = ({
       onPress={() => {
         navigation.navigate(item.screen);
       }}>
-      <View style={styles.menuItem}>
+      <View
+        style={[
+          styles.menuItem,
+          isFocused && {backgroundColor: colors.accentSoft},
+        ]}>
         <Icon
           source={item.icon}
           size={24}
-          color={isActive ? '#FF9900' : 'white'}
+          color={isActive ? colors.accent : colors.text}
         />
         <Animated.Text
           style={[
             styles.menuItemText,
-            {opacity: textOpacityAnim},
-            isFocused && styles.focusedMenuItem,
+            {opacity: textOpacityAnim, color: colors.text},
+            isFocused && [
+              styles.focusedMenuItem,
+              {borderBottomColor: colors.accent},
+            ],
           ]}>
           {item.name}
         </Animated.Text>
@@ -94,12 +104,11 @@ const styles = StyleSheet.create({
     height: 54,
   },
   menuItemText: {
-    color: 'white',
+    fontFamily: fonts.medium,
     marginLeft: 10,
     paddingBottom: 4,
   },
   focusedMenuItem: {
-    borderBottomColor: '#FF9900',
     borderBottomWidth: 2,
   },
 });

@@ -9,13 +9,42 @@
   </head>
   <body>
     <main>
-      <p class="brand">PLANORAMIC</p>
+      <header>
+        <p class="brand">PLANORAMIC</p>
+        <div class="appearance" role="group" aria-label="Appearance">
+          <button
+            type="button"
+            data-theme="light"
+            aria-label="Light theme"
+            title="Light theme"
+            aria-pressed="false">
+            <span class="icon" aria-hidden="true">&#xf05a8;</span>
+          </button>
+          <button
+            type="button"
+            data-theme="dark"
+            aria-label="Dark theme"
+            title="Dark theme"
+            aria-pressed="false">
+            <span class="icon" aria-hidden="true">&#xf0594;</span>
+          </button>
+          <button
+            type="button"
+            data-theme="system"
+            aria-label="System theme"
+            title="System theme"
+            aria-pressed="true">
+            <span class="icon" aria-hidden="true">&#xf050e;</span>
+          </button>
+        </div>
+      </header>
       <h1>Connect your calendar</h1>
       <p>
         Sign in with Google to display your upcoming events. Planoramic requests
         read-only access to your calendar events and calendar list.
       </p>
       <p id="status" role="status">Checking connection…</p>
+      <p id="appearance-feedback" role="status" hidden></p>
       <a id="login" href="/auth/google" hidden>Connect Google Calendar</a>
       <div id="controls" hidden>
         <form id="pair-form">
