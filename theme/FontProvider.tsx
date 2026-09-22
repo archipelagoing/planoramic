@@ -56,16 +56,28 @@ export function FontProvider({children}: {children: React.ReactNode}) {
     let active = true;
     (async () => {
       try {
-        const saved = Platform.OS === 'web'
-          ? localStorage.getItem('planoramic.fontScale')
-          : await SecureStore.getItemAsync('planoramic.fontScale');
+        const saved =
+          Platform.OS === 'web'
+            ? localStorage.getItem('planoramic.fontScale')
+            : await SecureStore.getItemAsync('planoramic.fontScale');
         const scale = Number(saved);
-        if (active && !scaleChanged.current && saved && Number.isFinite(scale) && scale >= 0.9 && scale <= 1.3) updateScale(scale);
+        if (
+          active &&
+          !scaleChanged.current &&
+          saved &&
+          Number.isFinite(scale) &&
+          scale >= 0.9 &&
+          scale <= 1.3
+        )
+          updateScale(scale);
       } catch {
-        if (active) setScaleError('Font size will only be saved for this session.');
+        if (active)
+          setScaleError('Font size will only be saved for this session.');
       }
     })();
-    return () => {active = false;};
+    return () => {
+      active = false;
+    };
   }, []);
   const setFontScale = (value: number) => {
     if (!Number.isFinite(value)) return;
@@ -74,10 +86,14 @@ export function FontProvider({children}: {children: React.ReactNode}) {
     updateScale(scale);
     writes.current = writes.current.then(async () => {
       try {
-        if (Platform.OS === 'web') localStorage.setItem('planoramic.fontScale', String(scale));
-        else await SecureStore.setItemAsync('planoramic.fontScale', String(scale));
+        if (Platform.OS === 'web')
+          localStorage.setItem('planoramic.fontScale', String(scale));
+        else
+          await SecureStore.setItemAsync('planoramic.fontScale', String(scale));
         setScaleError('');
-      } catch {setScaleError('Font size will only be saved for this session.');}
+      } catch {
+        setScaleError('Font size will only be saved for this session.');
+      }
     });
   };
   useEffect(() => {

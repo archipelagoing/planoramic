@@ -23,7 +23,9 @@ export default React.forwardRef<Text, TextProps>(function AppText(
           fontStyle: isLoaded(face) ? 'normal' : italic ? 'italic' : 'normal',
           fontWeight: 'normal',
           fontSize: (flattened?.fontSize ?? 14) * fontScale,
-          ...(flattened?.lineHeight ? {lineHeight: flattened.lineHeight * fontScale} : {}),
+          ...(flattened?.lineHeight
+            ? {lineHeight: flattened.lineHeight * fontScale}
+            : {}),
         },
       ]}
     />
