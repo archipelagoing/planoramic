@@ -304,7 +304,9 @@
     gap: 12px;
     flex-shrink: 0;
   }
-  .weather-location { flex-basis: 100%; }
+  .weather-location {
+    flex-basis: 100%;
+  }
   .mini-calendar {
     width: 210px;
     box-sizing: border-box;

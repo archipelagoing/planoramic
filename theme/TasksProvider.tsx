@@ -54,19 +54,43 @@ function useTasksState() {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [revision, setRevision] = useState(0);
+  const [restoreAttempt, setRestoreAttempt] = useState(0);
   const lock = useRef(false);
   const writes = useRef(Promise.resolve());
   const key = useRef('planoramic.tasks.local');
   useEffect(() => {
     let active = true;
+    setReady(false);
     (async () => {
       try {
+        await writes.current;
         const device = await loadDevice(new AbortController().signal);
-        key.current = `planoramic.tasks.${device?.deviceId || 'local'}`;
+        if (!active) return;
+        const fallback =
+          key.current === 'planoramic.tasks.local' ? current.current : empty;
+        key.current = `planoramic.tasks.${device?.workspaceId || device?.deviceId || 'local'}`;
         const raw =
           Platform.OS === 'web'
             ? localStorage.getItem(key.current)
             : await SecureStore.getItemAsync(key.current);
+        if (!raw && active) {
+          current.current = fallback;
+          setData(fallback);
+          if (
+            fallback.tasks.length ||
+            fallback.people.length ||
+            fallback.calendarId ||
+            Object.keys(fallback.owners).length
+          ) {
+            if (Platform.OS === 'web')
+              localStorage.setItem(key.current, JSON.stringify(fallback));
+            else
+              await SecureStore.setItemAsync(
+                key.current,
+                JSON.stringify(fallback),
+              );
+          }
+        }
         if (raw) {
           const saved = JSON.parse(raw);
           if (
@@ -112,17 +136,18 @@ function useTasksState() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [restoreAttempt]);
   const update = (fn: (value: Data) => Data) => {
     if (!ready) return;
     const next = fn(current.current);
     current.current = next;
     setData(next);
+    const storageKey = key.current;
     writes.current = writes.current.then(async () => {
       try {
         if (Platform.OS === 'web')
-          localStorage.setItem(key.current, JSON.stringify(next));
-        else await SecureStore.setItemAsync(key.current, JSON.stringify(next));
+          localStorage.setItem(storageKey, JSON.stringify(next));
+        else await SecureStore.setItemAsync(storageKey, JSON.stringify(next));
       } catch {
         setError('Changes could not be saved on this device.');
       }
@@ -228,6 +253,7 @@ function useTasksState() {
   return {
     ...data,
     revision,
+    reloadWorkspace: () => setRestoreAttempt(value => value + 1),
     ready,
     busy,
     error,

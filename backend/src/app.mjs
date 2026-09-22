@@ -404,7 +404,13 @@ export function createApp(
     res.json({deviceId: device.id, deviceCredential: ''});
   });
   app.get('/api/display/session', browserDevice, (req, res) => {
-    res.json({deviceId: req.device.id, deviceCredential: ''});
+    res.json({
+      deviceId: req.device.id,
+      deviceCredential: '',
+      workspaceId: createHash('sha256')
+        .update(req.device.ownerId)
+        .digest('hex'),
+    });
   });
   app.get('/api/display/events', browserDevice, events);
   const taskClient = req =>

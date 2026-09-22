@@ -5,6 +5,12 @@ calendar events working end to end in the browser display. Earlier verification
 confirmed upcoming events across 29 calendars in the connection preview.
 
 ## Next implementation steps
+- [x] Add Tasks with due dates, completion, editing, deletion, and named person colors
+- [x] Choose an editable shared calendar in Settings and sync dated tasks as all-day events, with pending/error states and explicit retry
+- [x] Add daily weather for 08816 to the browser calendar and clickable single-day schedules
+- [x] Test shared-task loading across browser contexts, failed-sync retry, and mobile layout using API fixtures
+- [ ] Reconnect Google with write permission and verify task creation, completion, and deletion in a real shared calendar on another device
+- [ ] Verify Tasks on Fire TV; bring daily weather and the detailed day grid to native
 - [x] Add a browser timed Week view with hourly rows, circular date selection, side month navigation, and range-based event loading
 - [x] Keep the seven-day Agenda list as an alternate view
 - [x] Add compact live analog and digital clocks using device-local time

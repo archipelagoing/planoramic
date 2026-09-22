@@ -120,6 +120,10 @@ for (const width of [1440, 390]) {
       .click();
     await expect(planning).toBeVisible();
     fail = true;
+    await page
+      .getByRole('radiogroup', {name: 'Schedule view'})
+      .getByRole('radio', {name: 'Week', exact: true})
+      .click();
     await page.getByRole('button', {name: 'Next week', exact: true}).click();
     await expect(grid.getByRole('alert')).toContainText('Week unavailable');
     fail = false;

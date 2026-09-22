@@ -164,7 +164,10 @@ for (const width of [1440, 390]) {
           page.getByRole('button', {name, exact: true}),
         ).not.toBeInViewport();
     };
-    await page.getByRole('radio', {name: 'Week', exact: true}).click();
+    await page
+      .getByRole('radiogroup', {name: 'Calendar range'})
+      .getByRole('radio', {name: 'Week', exact: true})
+      .click();
     await expect(page.getByTestId('timed-week')).toBeVisible();
     await page.getByRole('radio', {name: 'Agenda', exact: true}).click();
     await navigate('Household');

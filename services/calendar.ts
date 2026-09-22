@@ -19,6 +19,7 @@ export interface CalendarEvent {
   personColor?: string;
 }
 export interface Device {
+  workspaceId?: string;
   deviceId: string;
   deviceCredential: string;
 }

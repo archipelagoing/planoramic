@@ -89,7 +89,10 @@ function EventRow({event}: {event: CalendarEvent}) {
         focusStyle(colors, dark, focused, reduceMotion, 1.015),
         dark && darkGlassCard,
         dark && focused && darkGlassFocus,
-        (person || event.personColor) && {borderLeftWidth: 4, borderLeftColor: person?.color || event.personColor},
+        (person || event.personColor) && {
+          borderLeftWidth: 4,
+          borderLeftColor: person?.color || event.personColor,
+        },
       ]}>
       <FlameText neutral style={styles.time}>
         {time}
@@ -97,7 +100,9 @@ function EventRow({event}: {event: CalendarEvent}) {
       <View style={styles.eventBody}>
         <Text style={styles.eventTitle}>{event.title}</Text>
         <Text style={[styles.secondary, styles.context]}>
-          {(person?.name || event.person) ? `${person?.name || event.person} · ` : ''}
+          {person?.name || event.person
+            ? `${person?.name || event.person} · `
+            : ''}
           {event.calendarName}
           {event.location ? ` · ${event.location}` : ''}
         </Text>
@@ -112,7 +117,7 @@ function EventRow({event}: {event: CalendarEvent}) {
 }
 
 export default function CalendarScreen() {
-  const {revision} = useTasks();
+  const {revision, reloadWorkspace} = useTasks();
   const {hidden, setSnapshot} = useWorkspace();
   const [range, setRange] = useState<'agenda' | 'week'>('week');
   const {colors, storageError, dark} = useTheme();
@@ -225,6 +230,7 @@ export default function CalendarScreen() {
           if (!active()) return;
           setDevice(saved);
           setPairing(null);
+          reloadWorkspace();
           return;
         }
         timer = setTimeout(() => {

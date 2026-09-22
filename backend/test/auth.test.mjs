@@ -156,7 +156,9 @@ test('authorization URL requests task-write offline access, state, nonce and PKC
     redirect_uri: config.googleRedirectUri,
   }))
     assert.equal(url.searchParams.get(key), value);
-  assert.ok(url.searchParams.get('scope').split(' ').includes(CALENDAR_WRITE_SCOPE));
+  assert.ok(
+    url.searchParams.get('scope').split(' ').includes(CALENDAR_WRITE_SCOPE),
+  );
   assert.ok(
     url.searchParams.get('scope').split(' ').includes(CALENDAR_LIST_SCOPE),
   );
