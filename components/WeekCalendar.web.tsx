@@ -27,7 +27,7 @@ export default function WeekCalendar({
   refreshToken,
 }: WeekCalendarProps) {
   const {colors, dark} = useTheme();
-  const {family} = useFont();
+  const {family, fontScale} = useFont();
   const main = useRef<FullCalendar>(null);
   const mini = useRef<FullCalendar>(null);
   const dialog = useRef<HTMLDialogElement>(null);
@@ -115,6 +115,7 @@ export default function WeekCalendar({
           '--accent': colors.accent,
           '--line': colors.glassBorder,
           '--italic': `${family}_Italic`,
+          '--font-scale': fontScale,
           fontFamily: family,
         } as React.CSSProperties
       }>

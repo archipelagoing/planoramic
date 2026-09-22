@@ -18,7 +18,7 @@ export default function FlameText({
 }: FlameTextProps) {
   const ref = useRef<NativeText>(null);
   const {flameText, dark} = useTheme();
-  const {family} = useFont();
+  const {family, fontScale} = useFont();
   useEffect(() => {
     if (!flameText || neutral || (dark && neutralInDark) || !ref.current)
       return;
@@ -36,6 +36,7 @@ export default function FlameText({
     neutralInDark,
     neutral,
     family,
+    fontScale,
     props.children,
     intensity,
     distortion,

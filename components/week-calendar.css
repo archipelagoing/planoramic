@@ -140,6 +140,9 @@
   background: var(--accent);
   color: #fff;
 }
+.week-calendar.dark .date-circle.today {
+  color: #181716;
+}
 .week-calendar .date-circle.selected {
   outline: 2px solid var(--ink);
   outline-offset: 2px;
@@ -252,6 +255,12 @@
 }
 .event-dialog::backdrop {
   background: rgba(0, 0, 0, 0.65);
+}
+.week-calendar.light .event-dialog {
+  background: rgba(248, 247, 245, 0.96);
+}
+.week-calendar.dark .event-dialog {
+  background: rgba(24, 22, 21, 0.96);
 }
 .event-dialog h2 {
   font-size: 24px;

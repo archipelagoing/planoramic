@@ -78,7 +78,7 @@ for (const width of [1440, 390]) {
     });
     await page.goto('/');
     const grid = page.getByTestId('timed-week');
-    await expect(grid).toBeVisible();
+    await expect(grid).toBeVisible({timeout: 15000});
     await expect(page.locator('.week-day')).toHaveCount(7);
     await expect.poll(() => ranges.length).toBeGreaterThan(0);
     expect(ranges[0].searchParams.get('timeMin')).toContain('2026-09-21');

@@ -259,6 +259,7 @@ test('real backend cookie restores a paired display in a new browser context', a
     const restored = await reopened.newPage();
     await proxy(restored);
     await restored.goto('http://localhost:8088');
+    await restored.getByRole('radio', {name: 'Agenda', exact: true}).click();
     await expect(
       restored.getByText('No upcoming events in the next seven days.'),
     ).toBeVisible();

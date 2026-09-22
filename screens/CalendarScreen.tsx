@@ -445,7 +445,9 @@ export default function CalendarScreen() {
           {!preview && !!error && (
             <Text accessibilityRole="alert" style={styles.error}>
               {error}
-              {response ? ' Showing previously loaded events.' : ''}
+              {response && range === 'agenda'
+                ? ' Showing previously loaded events.'
+                : ''}
             </Text>
           )}
           {!preview && reconnect && (
