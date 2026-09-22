@@ -7,8 +7,6 @@ import {
   Platform,
   Pressable,
   SectionList,
-  ScrollView,
-  useWindowDimensions,
   StyleSheet,
   View,
 } from 'react-native';
@@ -29,6 +27,7 @@ import CalendarCanvas from '../components/CalendarCanvas';
 import {darkGlassCard, darkGlassFocus} from '../components/DarkGlassEdges';
 import {lightGlassCard} from '../components/lightGlassCard';
 import CalendarOverview from '../components/CalendarOverview';
+import CalendarWidgets from '../components/CalendarWidgets';
 import {useWorkspace} from '../theme/WorkspaceProvider';
 import {Colors, focusStyle, glassStyle, useTheme} from '../theme/ThemeProvider';
 import {sampleEvents} from '../services/sampleEvents';
@@ -108,8 +107,6 @@ function EventRow({event}: {event: CalendarEvent}) {
 }
 
 export default function CalendarScreen() {
-  const {width} = useWindowDimensions();
-  const sidePanel = width >= 1200;
   const {hidden, setSnapshot} = useWorkspace();
   const [range, setRange] = useState<'today' | 'week'>('week');
   const {colors, storageError, dark} = useTheme();
@@ -360,6 +357,7 @@ export default function CalendarScreen() {
           </Text>
         </View>
         <View style={styles.tools}>
+          <CalendarWidgets />
           <ThemeControl />
           {preview ? (
             <Action
@@ -492,7 +490,7 @@ export default function CalendarScreen() {
                 ListHeaderComponent={
                   range === 'week' ? (
                     <CalendarOverview
-                      variant={sidePanel ? 'week' : 'all'}
+                      variant="week"
                       events={preview ? examples : response?.events || []}
                       device={device}
                       preview={preview}
@@ -526,20 +524,6 @@ export default function CalendarScreen() {
                   </Text>
                 }
               />
-              {sidePanel && (
-                <ScrollView
-                  style={{width: 300, flexGrow: 0}}
-                  contentContainerStyle={{paddingBottom: 24}}>
-                  <CalendarOverview
-                    variant="panel"
-                    events={preview ? examples : response?.events || []}
-                    device={device}
-                    preview={preview}
-                    hidden={hidden}
-                    refreshToken={refresh}
-                  />
-                </ScrollView>
-              )}
             </View>
           )}
         </>

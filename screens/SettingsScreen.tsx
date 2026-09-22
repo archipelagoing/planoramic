@@ -22,6 +22,8 @@ import {StyleSheet, SafeAreaView, Switch, ScrollView} from 'react-native';
 import {Header} from '../components';
 import {useTheme} from '../theme/ThemeProvider';
 import ThemeControl from '../components/ThemeControl';
+import FontControl from '../components/FontControl';
+import FlameControl from '../components/FlameControl';
 import {View} from 'react-native';
 
 const SettingsScreen = () => {
@@ -41,6 +43,9 @@ const SettingsScreen = () => {
           Appearance
         </Text>
         <ThemeControl />
+        <Text style={{color: colors.text, fontSize: 18}}>Font</Text>
+        <FontControl />
+        <FlameControl />
         <View
           style={{
             flexDirection: 'row',

@@ -1,17 +1,10 @@
 import React from 'react';
-import {View} from 'react-native';
-import GlassButton from './GlassButton';
-import FontControl from './FontControl';
-import FlameControl from './FlameControl';
-import {ThemeMode, useTheme} from '../theme/ThemeProvider';
+import {Switch, View} from 'react-native';
+import Text from './AppText';
+import {useTheme} from '../theme/ThemeProvider';
 
-const modes: {value: ThemeMode; label: string; icon: string}[] = [
-  {value: 'light', label: 'Light theme', icon: 'white-balance-sunny'},
-  {value: 'dark', label: 'Dark theme', icon: 'weather-night'},
-  {value: 'system', label: 'System theme', icon: 'theme-light-dark'},
-];
 export default function ThemeControl() {
-  const {mode, setMode} = useTheme();
+  const {dark, setMode, colors} = useTheme();
   return (
     <View
       style={{
@@ -20,25 +13,14 @@ export default function ThemeControl() {
         gap: 10,
         maxWidth: '100%',
       }}>
-      <View
-        accessibilityRole="radiogroup"
-        accessibilityLabel="Appearance"
-        style={{flexDirection: 'row', gap: 6, zIndex: 10}}>
-        {modes.map(item => (
-          <GlassButton
-            key={item.value}
-            label={item.label}
-            icon={item.icon}
-            iconOnly
-            circular
-            radio
-            selected={mode === item.value}
-            onPress={() => setMode(item.value)}
-          />
-        ))}
-      </View>
-      <FontControl />
-      <FlameControl />
+      <Text style={{color: colors.text, fontSize: 16}}>Dark mode</Text>
+      <Switch
+        accessibilityLabel="Dark mode"
+        value={dark}
+        onValueChange={value => setMode(value ? 'dark' : 'light')}
+        trackColor={{false: colors.muted, true: colors.accent}}
+        thumbColor={colors.surface}
+      />
     </View>
   );
 }

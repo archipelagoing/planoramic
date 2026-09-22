@@ -90,117 +90,127 @@ function DateButton({
   );
 }
 
-function Clock({now}: {now: Date}) {
+export function Clock({now, compact = false}: {now: Date; compact?: boolean}) {
   const {colors} = useTheme();
   const hour = (now.getHours() % 12) * 30 + now.getMinutes() / 2;
   const minute = now.getMinutes() * 6 + now.getSeconds() / 10;
   return (
-    <View style={{alignItems: 'center', gap: 12}}>
-      <View
-        testID="analog-clock"
-        accessibilityLabel={`Analog clock, ${now.toLocaleTimeString(undefined, {hour: 'numeric', minute: '2-digit'})}`}
-        style={{
-          width: 180,
-          height: 180,
-          borderRadius: 90,
-          borderWidth: 1,
-          borderColor: colors.glassBorder,
-          position: 'relative',
-        }}>
-        {Array.from({length: 12}, (_, i) => (
+    <View style={{alignItems: 'center', gap: compact ? 6 : 12}}>
+      <View style={compact ? {width: 72, height: 72} : undefined}>
+        <View
+          testID="analog-clock"
+          accessibilityLabel={`Analog clock, ${now.toLocaleTimeString(undefined, {hour: 'numeric', minute: '2-digit'})}`}
+          style={{
+            width: 180,
+            height: 180,
+            borderRadius: 90,
+            borderWidth: 1,
+            borderColor: colors.glassBorder,
+            position: 'relative',
+            ...(compact
+              ? ({
+                  position: 'absolute',
+                  left: -54,
+                  top: -54,
+                  transform: [{scale: 0.4}],
+                } as const)
+              : {}),
+          }}>
+          {Array.from({length: 12}, (_, i) => (
+            <View
+              key={i}
+              style={{
+                position: 'absolute',
+                left: 88,
+                top: 7,
+                width: 2,
+                height: 164,
+                transform: [{rotate: `${i * 30}deg`}],
+              }}>
+              <View
+                style={{
+                  width: 2,
+                  height: i % 3 === 0 ? 12 : 6,
+                  backgroundColor: colors.muted,
+                }}
+              />
+            </View>
+          ))}
+          {[
+            ['12', 76, 19],
+            ['3', 139, 75],
+            ['6', 76, 135],
+            ['9', 15, 75],
+          ].map(([label, left, top]) => (
+            <Text
+              key={label}
+              style={{
+                position: 'absolute',
+                left: left as number,
+                top: top as number,
+                width: 28,
+                textAlign: 'center',
+                fontSize: 20,
+                color: colors.text,
+              }}>
+              {label}
+            </Text>
+          ))}
           <View
-            key={i}
+            testID="clock-hour-hand"
+            style={{
+              position: 'absolute',
+              left: 87,
+              top: 42,
+              width: 4,
+              height: 94,
+              transform: [{rotate: `${hour}deg`}],
+            }}>
+            <View
+              style={{
+                width: 4,
+                height: 49,
+                borderRadius: 2,
+                backgroundColor: colors.text,
+              }}
+            />
+          </View>
+          <View
+            testID="clock-minute-hand"
             style={{
               position: 'absolute',
               left: 88,
-              top: 7,
+              top: 23,
               width: 2,
-              height: 164,
-              transform: [{rotate: `${i * 30}deg`}],
+              height: 132,
+              transform: [{rotate: `${minute}deg`}],
             }}>
             <View
               style={{
                 width: 2,
-                height: i % 3 === 0 ? 12 : 6,
-                backgroundColor: colors.muted,
+                height: 68,
+                borderRadius: 1,
+                backgroundColor: colors.text,
               }}
             />
           </View>
-        ))}
-        {[
-          ['12', 76, 19],
-          ['3', 139, 75],
-          ['6', 76, 135],
-          ['9', 15, 75],
-        ].map(([label, left, top]) => (
-          <Text
-            key={label}
+          <View
             style={{
               position: 'absolute',
-              left: left as number,
-              top: top as number,
-              width: 28,
-              textAlign: 'center',
-              fontSize: 20,
-              color: colors.text,
-            }}>
-            {label}
-          </Text>
-        ))}
-        <View
-          testID="clock-hour-hand"
-          style={{
-            position: 'absolute',
-            left: 87,
-            top: 42,
-            width: 4,
-            height: 94,
-            transform: [{rotate: `${hour}deg`}],
-          }}>
-          <View
-            style={{
-              width: 4,
-              height: 49,
-              borderRadius: 2,
-              backgroundColor: colors.text,
+              left: 85,
+              top: 85,
+              width: 8,
+              height: 8,
+              borderRadius: 4,
+              backgroundColor: colors.accent,
             }}
           />
         </View>
-        <View
-          testID="clock-minute-hand"
-          style={{
-            position: 'absolute',
-            left: 88,
-            top: 23,
-            width: 2,
-            height: 132,
-            transform: [{rotate: `${minute}deg`}],
-          }}>
-          <View
-            style={{
-              width: 2,
-              height: 68,
-              borderRadius: 1,
-              backgroundColor: colors.text,
-            }}
-          />
-        </View>
-        <View
-          style={{
-            position: 'absolute',
-            left: 85,
-            top: 85,
-            width: 8,
-            height: 8,
-            borderRadius: 4,
-            backgroundColor: colors.accent,
-          }}
-        />
       </View>
       <Text
         testID="digital-clock"
         style={{
-          fontSize: 30,
+          fontSize: compact ? 16 : 30,
           color: colors.text,
           fontVariant: ['tabular-nums'],
         }}>
@@ -209,13 +219,15 @@ function Clock({now}: {now: Date}) {
           minute: '2-digit',
         })}
       </Text>
-      <Text style={{fontSize: 16, color: colors.muted, fontStyle: 'italic'}}>
-        {now.toLocaleDateString(undefined, {
-          weekday: 'long',
-          month: 'short',
-          day: 'numeric',
-        })}
-      </Text>
+      {!compact && (
+        <Text style={{fontSize: 16, color: colors.muted, fontStyle: 'italic'}}>
+          {now.toLocaleDateString(undefined, {
+            weekday: 'long',
+            month: 'short',
+            day: 'numeric',
+          })}
+        </Text>
+      )}
     </View>
   );
 }
