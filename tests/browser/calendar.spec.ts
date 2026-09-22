@@ -1,6 +1,164 @@
 import {test, expect, Page} from '@playwright/test';
 
 for (const width of [1440, 390]) {
+  test(`calendar month and clocks ${width}`, async ({page}, testInfo) => {
+    await page.setViewportSize({width, height: 1000});
+    await calendarApi(page);
+    const ranges: string[] = [];
+    page.on('request', req => {
+      if (req.url().includes('/api/display/events?')) ranges.push(req.url());
+    });
+    await page.goto('/');
+    const month = page.getByTestId('month-overview');
+    await expect(month).toBeVisible();
+    await expect(
+      page.getByTestId('week-overview').locator(':scope > div'),
+    ).toHaveCount(7);
+    await expect.poll(() => ranges.length).toBeGreaterThan(0);
+    const today = await page.evaluate(() =>
+      new Date().toLocaleDateString(undefined, {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+      }),
+    );
+    await month
+      .getByRole('button', {name: `View ${today}, 1 events`, exact: true})
+      .click();
+    await expect(month.getByText(/Planning session/)).toBeVisible();
+    const first = new URL(ranges[0]);
+    await page.getByRole('button', {name: 'Next month', exact: true}).click();
+    await expect.poll(() => ranges.length).toBeGreaterThan(1);
+    const next = new URL(ranges[ranges.length - 1]);
+    expect(next.searchParams.get('timeMin')).toBe(
+      first.searchParams.get('timeMax'),
+    );
+    await page
+      .getByRole('button', {name: 'Current month', exact: true})
+      .click();
+    await expect(
+      month.getByRole('button', {name: `View ${today}, 1 events`, exact: true}),
+    ).toBeVisible();
+    await page.clock.install();
+    const hand = page.getByTestId('clock-minute-hand');
+    const before = await hand.evaluate(
+      node => getComputedStyle(node).transform,
+    );
+    await page.clock.fastForward(60000);
+    await expect
+      .poll(() => hand.evaluate(node => getComputedStyle(node).transform))
+      .not.toBe(before);
+    await expect(page.getByTestId('digital-clock')).toContainText(
+      /\d{1,2}:\d{2}/,
+    );
+    for (const theme of ['Light', 'Dark']) {
+      await page.getByRole('radio', {name: `${theme} theme`}).click();
+      await month.scrollIntoViewIfNeeded();
+      await page.screenshot({
+        path: testInfo.outputPath(`${theme}.png`),
+        fullPage: true,
+      });
+    }
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+  });
+}
+
+for (const width of [1440, 390]) {
+  test(`workspace navigation filters and timer ${width}`, async ({
+    page,
+  }, testInfo) => {
+    await page.setViewportSize({width, height: 1000});
+    await calendarApi(page, false);
+    await page.goto('/');
+    await expect(
+      page.getByText('Weekly planning', {exact: true}),
+    ).toBeVisible();
+    const navigate = async (name: string) => {
+      if (width === 390)
+        await page.getByRole('button', {name: 'Open navigation'}).click();
+      await page.getByRole('button', {name, exact: true}).click();
+      if (width === 390)
+        await expect(
+          page.getByRole('button', {name, exact: true}),
+        ).not.toBeInViewport();
+    };
+    await page.getByRole('radio', {name: 'Today', exact: true}).click();
+    await expect(
+      page.getByText('No events today.', {exact: true}),
+    ).toBeVisible();
+    await page.getByRole('radio', {name: 'Week', exact: true}).click();
+    await navigate('Household');
+    await page.getByRole('switch', {name: 'Show Work', exact: true}).click();
+    await navigate('Calendar');
+    await expect(page.getByText('Weekly planning', {exact: true})).toHaveCount(
+      0,
+    );
+    await navigate('Brief');
+    await expect(
+      page.getByText('Dinner together', {exact: true}).filter({visible: true}),
+    ).toBeVisible();
+    await page.screenshot({
+      path: testInfo.outputPath('brief.png'),
+      fullPage: true,
+    });
+    await navigate('Household');
+    await page.screenshot({
+      path: testInfo.outputPath('household.png'),
+      fullPage: true,
+    });
+    await page.reload();
+    await navigate('Household');
+    await expect(
+      page.getByRole('switch', {name: 'Show Work', exact: true}),
+    ).not.toBeChecked();
+    await page.getByRole('switch', {name: 'Show Work', exact: true}).click();
+    await navigate('Pomo');
+    await page.clock.install();
+    await expect(page.getByTestId('pomo-time')).toHaveText('25:00');
+    await page.getByRole('button', {name: 'Start', exact: true}).click();
+    await page.clock.fastForward(5000);
+    await expect(page.getByTestId('pomo-time')).toHaveText('24:55');
+    await navigate('Brief');
+    await page.clock.fastForward(5000);
+    await navigate('Pomo');
+    const seconds = (await page.getByTestId('pomo-time').innerText())
+      .split(':')
+      .map(Number);
+    expect(seconds[0] * 60 + seconds[1]).toBeLessThanOrEqual(24 * 60 + 50);
+    expect(seconds[0] * 60 + seconds[1]).toBeGreaterThan(24 * 60 + 30);
+    await page.getByRole('button', {name: 'Pause', exact: true}).click();
+    const paused = await page.getByTestId('pomo-time').innerText();
+    await page.clock.fastForward(10000);
+    await expect(page.getByTestId('pomo-time')).toHaveText(paused);
+    await page.getByRole('button', {name: 'Start', exact: true}).click();
+    await page.clock.fastForward(25 * 60 * 1000);
+    await expect(page.getByTestId('pomo-time')).toHaveText('00:00');
+    await expect(page.getByText('1 focus session completed')).toBeVisible();
+    await page.clock.fastForward(10000);
+    await expect(page.getByText('1 focus session completed')).toBeVisible();
+    await page.getByRole('radio', {name: 'Short break', exact: true}).click();
+    await expect(page.getByTestId('pomo-time')).toHaveText('05:00');
+    await page.getByRole('button', {name: 'Decrease duration'}).click();
+    await expect(page.getByTestId('pomo-time')).toHaveText('04:00');
+    await page.getByRole('button', {name: 'Reset timer'}).click();
+    await expect(page.getByTestId('pomo-time')).toHaveText('04:00');
+    await page.screenshot({
+      path: testInfo.outputPath('pomo.png'),
+      fullPage: true,
+    });
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+  });
+}
+
+for (const width of [1440, 390]) {
   test(`background image preference persists ${width}`, async ({
     page,
   }, testInfo) => {
@@ -224,9 +382,15 @@ test('loading, refresh, empty, and stale-data recovery', async ({page}) => {
   await expect(page.getByText('Planning session', {exact: true})).toBeVisible();
   state.offline = true;
   await page.getByRole('button', {name: 'Refresh', exact: true}).click();
-  await expect(page.getByRole('alert')).toContainText(
-    'Showing previously loaded events',
-  );
+  await expect(
+    page
+      .getByRole('alert')
+      .filter({hasText: 'Showing previously loaded events'}),
+  ).toBeVisible();
+  await expect(
+    page.getByTestId('month-overview').getByRole('alert'),
+  ).toBeVisible();
+  await expect(page.getByRole('button', {name: 'Retry month'})).toBeVisible();
   await expect(page.getByText('Planning session', {exact: true})).toBeVisible();
   state.offline = false;
   state.events = [];

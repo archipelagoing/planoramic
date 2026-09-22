@@ -7,6 +7,8 @@ import {
   Platform,
   Pressable,
   SectionList,
+  ScrollView,
+  useWindowDimensions,
   StyleSheet,
   View,
 } from 'react-native';
@@ -26,6 +28,8 @@ import ThemeControl from '../components/ThemeControl';
 import CalendarCanvas from '../components/CalendarCanvas';
 import {darkGlassCard, darkGlassFocus} from '../components/DarkGlassEdges';
 import {lightGlassCard} from '../components/lightGlassCard';
+import CalendarOverview from '../components/CalendarOverview';
+import {useWorkspace} from '../theme/WorkspaceProvider';
 import {Colors, focusStyle, glassStyle, useTheme} from '../theme/ThemeProvider';
 import {sampleEvents} from '../services/sampleEvents';
 import {clearDevice, loadDevice, saveDevice} from '../services/deviceStorage';
@@ -104,6 +108,10 @@ function EventRow({event}: {event: CalendarEvent}) {
 }
 
 export default function CalendarScreen() {
+  const {width} = useWindowDimensions();
+  const sidePanel = width >= 1200;
+  const {hidden, setSnapshot} = useWorkspace();
+  const [range, setRange] = useState<'today' | 'week'>('week');
   const {colors, storageError, dark} = useTheme();
   const styles = useMemo(() => makeStyles(colors, dark), [colors, dark]);
   const [preview, setPreview] = useState(true);
@@ -121,9 +129,41 @@ export default function CalendarScreen() {
   const [reconnect, setReconnect] = useState(false);
   const [updatedAt, setUpdatedAt] = useState<Date | null>(null);
   const sections = useMemo(
-    () => eventSections(preview ? examples : response?.events || []),
-    [preview, examples, response],
+    () =>
+      eventSections(
+        (preview ? examples : response?.events || []).filter(
+          event =>
+            !hidden.includes(event.calendarId) &&
+            (range === 'week' ||
+              eventDate(event).toDateString() === new Date().toDateString()),
+        ),
+      ),
+    [preview, examples, response, hidden, range],
   );
+  useEffect(() => {
+    setSnapshot({
+      events:
+        restoring || restoreError
+          ? []
+          : preview
+            ? examples
+            : response?.events || [],
+      preview: !restoring && preview,
+      loading: restoring || loading,
+      error: restoreError || error,
+      updatedAt,
+    });
+  }, [
+    preview,
+    examples,
+    response,
+    loading,
+    restoring,
+    restoreError,
+    error,
+    updatedAt,
+    setSnapshot,
+  ]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -340,6 +380,23 @@ export default function CalendarScreen() {
           )}
         </View>
       </View>
+      <View
+        accessibilityRole="radiogroup"
+        accessibilityLabel="Calendar range"
+        style={{flexDirection: 'row', gap: 10, marginBottom: 16}}>
+        <GlassButton
+          label="Today"
+          radio
+          selected={range === 'today'}
+          onPress={() => setRange('today')}
+        />
+        <GlassButton
+          label="Week"
+          radio
+          selected={range === 'week'}
+          onPress={() => setRange('week')}
+        />
+      </View>
       {!!storageError && (
         <Text accessibilityRole="alert" style={styles.error}>
           {storageError}
@@ -428,28 +485,62 @@ export default function CalendarScreen() {
               <Text style={styles.secondary}>Loading your calendars…</Text>
             </View>
           ) : (
-            <SectionList
-              sections={sections}
-              keyExtractor={item => `${item.calendarId}:${item.id}`}
-              contentContainerStyle={styles.list}
-              stickySectionHeadersEnabled={false}
-              renderSectionHeader={({section}) => (
-                <FlameText
-                  neutral
-                  accessibilityRole="header"
-                  style={styles.day}>
-                  {section.title}
-                </FlameText>
+            <View
+              style={{flex: 1, flexDirection: 'row', gap: 20, minHeight: 0}}>
+              <SectionList
+                style={{flex: 1, minWidth: 0}}
+                ListHeaderComponent={
+                  range === 'week' ? (
+                    <CalendarOverview
+                      variant={sidePanel ? 'week' : 'all'}
+                      events={preview ? examples : response?.events || []}
+                      device={device}
+                      preview={preview}
+                      hidden={hidden}
+                      refreshToken={refresh}
+                    />
+                  ) : null
+                }
+                sections={sections}
+                keyExtractor={item => `${item.calendarId}:${item.id}`}
+                contentContainerStyle={styles.list}
+                stickySectionHeadersEnabled={false}
+                renderSectionHeader={({section}) => (
+                  <FlameText
+                    neutral
+                    accessibilityRole="header"
+                    style={styles.day}>
+                    {section.title}
+                  </FlameText>
+                )}
+                renderItem={({item}) => <EventRow event={item} />}
+                ListEmptyComponent={
+                  <Text style={styles.secondary}>
+                    {error
+                      ? 'Use Refresh to try again.'
+                      : hidden.length
+                        ? 'No events in your visible calendars for this view.'
+                        : range === 'today'
+                          ? 'No events today.'
+                          : 'No upcoming events in the next seven days.'}
+                  </Text>
+                }
+              />
+              {sidePanel && (
+                <ScrollView
+                  style={{width: 300, flexGrow: 0}}
+                  contentContainerStyle={{paddingBottom: 24}}>
+                  <CalendarOverview
+                    variant="panel"
+                    events={preview ? examples : response?.events || []}
+                    device={device}
+                    preview={preview}
+                    hidden={hidden}
+                    refreshToken={refresh}
+                  />
+                </ScrollView>
               )}
-              renderItem={({item}) => <EventRow event={item} />}
-              ListEmptyComponent={
-                <Text style={styles.secondary}>
-                  {error
-                    ? 'Use Refresh to try again.'
-                    : 'No upcoming events in the next seven days.'}
-                </Text>
-              }
-            />
+            </View>
           )}
         </>
       )}

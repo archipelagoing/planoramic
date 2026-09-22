@@ -5,6 +5,14 @@ calendar events working end to end in the browser display. Earlier verification
 confirmed upcoming events across 29 calendars in the connection preview.
 
 ## Next implementation steps
+- [x] Add a seven-day overview and glass month-at-a-glance panel with month navigation and date selection
+- [x] Fetch full selected-month events for the month panel, respecting calendar visibility filters
+- [x] Add live analog and digital clocks using device-local time
+- [x] Replace starter sidebar sections with Brief, Household, and Pomo
+- [x] Add Today/Week calendar views and persistent calendar-source visibility filters
+- [x] Add a deterministic Brief with today's events and next upcoming timed event
+- [x] Add a Pomo timer with focus/break modes, adjustable durations, pause/resume/reset, and session completion count (continues across tabs; resets on app reload)
+- [ ] Verify the new sections and timer controls with the Fire TV remote
 - [x] Add a pairing-code entry form to the signed-in connection page
 - [x] Register the shared display app with the backend and show its pairing code (verified in browser)
 - [x] Implement secure device credential persistence (HttpOnly browser cookie; native SecureStore)

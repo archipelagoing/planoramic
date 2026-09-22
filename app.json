@@ -13,7 +13,7 @@
     ],
     "name": "ExpoTVDemo",
     "web": {
-      "favicon": "./assets/images/hourglass.png"
+      "favicon": "./hearthIcon.png"
     },
     "slug": "ExpoTVDemo"
   }

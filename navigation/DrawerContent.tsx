@@ -28,7 +28,7 @@ import {menuItems} from './menuItems';
 import {useTheme} from '../theme/ThemeProvider';
 
 const COLLAPSED_WIDTH = 60;
-const EXPANDED_WIDTH = 160;
+const EXPANDED_WIDTH = 200;
 const ANIMATION_DURATION = 300;
 
 interface DrawerContentProps {

@@ -38,6 +38,7 @@ import {InstrumentSerif_400Regular} from '@expo-google-fonts/instrument-serif/40
 import {CormorantGaramond_500Medium} from '@expo-google-fonts/cormorant-garamond/500Medium';
 import {CormorantInfant_500Medium} from '@expo-google-fonts/cormorant-infant/500Medium';
 import {FontProvider} from './theme/FontProvider';
+import {WorkspaceProvider} from './theme/WorkspaceProvider';
 import {AveriaSerifLibre_300Light_Italic} from '@expo-google-fonts/averia-serif-libre/300Light_Italic';
 import {AveriaSerifLibre_300Light} from '@expo-google-fonts/averia-serif-libre/300Light';
 import {Montserrat_500Medium_Italic} from '@expo-google-fonts/montserrat/500Medium_Italic';
@@ -74,7 +75,9 @@ const App = () => {
   return (
     <ThemeProvider>
       <FontProvider>
-        <ThemedApp />
+        <WorkspaceProvider>
+          <ThemedApp />
+        </WorkspaceProvider>
       </FontProvider>
     </ThemeProvider>
   );

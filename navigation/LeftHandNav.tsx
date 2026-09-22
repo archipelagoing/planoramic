@@ -22,17 +22,14 @@ import {
   createDrawerNavigator,
   DrawerContentComponentProps,
 } from '@react-navigation/drawer';
-import {
-  HomeScreen,
-  CalendarScreen,
-  MoviesScreen,
-  SettingsScreen,
-  TVShowsScreen,
-} from '../screens';
+import {CalendarScreen, SettingsScreen} from '../screens';
 import DrawerContent from './DrawerContent';
 import {useTheme} from '../theme/ThemeProvider';
 import {useFont} from '../theme/FontProvider';
 import GlassButton from '../components/GlassButton';
+import BriefScreen from '../screens/BriefScreen';
+import HouseholdScreen from '../screens/HouseholdScreen';
+import PomoScreen from '../screens/PomoScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -51,7 +48,7 @@ const LeftHandNav = () => {
       screenOptions={({navigation}) => ({
         drawerType: compact ? 'front' : 'permanent',
         drawerStyle: {
-          width: Platform.OS === 'web' ? 200 : 'auto',
+          width: Platform.OS === 'web' ? 240 : 'auto',
           backgroundColor:
             Platform.OS === 'web' ? 'transparent' : colors.sidebar,
         },
@@ -71,9 +68,9 @@ const LeftHandNav = () => {
           : undefined,
       })}>
       <Drawer.Screen name="Calendar" component={CalendarScreen} />
-      <Drawer.Screen name="Home" component={HomeScreen} />
-      <Drawer.Screen name="Movies" component={MoviesScreen} />
-      <Drawer.Screen name="TVShows" component={TVShowsScreen} />
+      <Drawer.Screen name="Brief" component={BriefScreen} />
+      <Drawer.Screen name="Household" component={HouseholdScreen} />
+      <Drawer.Screen name="Pomo" component={PomoScreen} />
       <Drawer.Screen name="Settings" component={SettingsScreen} />
     </Drawer.Navigator>
   );
