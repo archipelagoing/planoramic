@@ -30,7 +30,7 @@ export default function WeekCalendar({
 }: WeekCalendarProps) {
   const {colors, dark} = useTheme();
   const {family, fontScale} = useFont();
-  const {personForCalendar, owners, people} = useTasks();
+  const {personForCalendar, owners, people, revision} = useTasks();
   const weather = useWeather();
   const [view, setView] = useState<'week' | 'day'>('week');
   const main = useRef<FullCalendar>(null);
@@ -69,7 +69,7 @@ export default function WeekCalendar({
         if (!controller.signal.aborted) setLoading(false);
       });
     return () => controller.abort();
-  }, [range.start, range.end, preview, device, refreshToken, retry]);
+  }, [range.start, range.end, preview, device, refreshToken, retry, revision]);
   useEffect(() => {
     if (detail) dialog.current?.showModal();
   }, [detail]);

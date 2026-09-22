@@ -45,7 +45,7 @@ export default function TaskSyncSettings() {
           label="Reconnect Google"
           icon="open-in-new"
           onPress={() => {
-            Linking.openURL(`${API_URL}/connect`).catch(() =>
+                Linking.openURL(`${API_URL}/auth/google`).catch(() =>
               setFailure('Could not open the connection page.'),
             );
           }}

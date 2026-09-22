@@ -1,6 +1,6 @@
 # Connect Google Calendar locally
 
-The backend implements Google sign-in, read-only event access, per-user device
+The backend implements Google sign-in, calendar event access, per-user device
 ownership, and automatic access-token refresh. Google Cloud configuration must be
 completed in your account before a live calendar can be fetched.
 
@@ -17,7 +17,7 @@ completed in your account before a live calendar can be fetched.
 5. Under **Data Access**, add these scopes:
    - `openid`
    - `https://www.googleapis.com/auth/userinfo.email`
-   - `https://www.googleapis.com/auth/calendar.events.readonly`
+   - `https://www.googleapis.com/auth/calendar.events`
    - `https://www.googleapis.com/auth/calendar.calendarlist.readonly`
 6. Under **Clients**, create an OAuth client with application type **Web application**.
    Add this exact **Authorized redirect URI**:
@@ -57,7 +57,7 @@ npm run dev
    Use `localhost` consistently, including before sign-in; a cookie set on
    `127.0.0.1` will not accompany a callback to `localhost`.
 2. Choose **Connect Google Calendar**, select your test account, and grant the
-   requested read-only calendar access.
+   requested calendar access. Event writes are used only for Planoramic tasks in the calendar selected in Settings.
 3. Google returns you to `/connect`. Choose **Load upcoming events** to see the
    next seven days across all readable calendars on your Google Calendar list,
    including subsidiary/shared calendars and hidden or unchecked calendars. Each

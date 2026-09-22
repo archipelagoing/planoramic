@@ -8,6 +8,7 @@ import {ApiError} from '../src/errors.mjs';
 import {
   createGoogleProvider,
   CALENDAR_SCOPE,
+  CALENDAR_WRITE_SCOPE,
   CALENDAR_LIST_SCOPE,
 } from '../src/google.mjs';
 
@@ -137,7 +138,7 @@ function setup() {
   };
 }
 
-test('authorization URL requests read-only offline access, state, nonce and PKCE', () => {
+test('authorization URL requests task-write offline access, state, nonce and PKCE', () => {
   const url = new URL(
     createGoogleProvider(config).authorizationUrl({
       state: 'state',
@@ -155,7 +156,7 @@ test('authorization URL requests read-only offline access, state, nonce and PKCE
     redirect_uri: config.googleRedirectUri,
   }))
     assert.equal(url.searchParams.get(key), value);
-  assert.ok(url.searchParams.get('scope').split(' ').includes(CALENDAR_SCOPE));
+  assert.ok(url.searchParams.get('scope').split(' ').includes(CALENDAR_WRITE_SCOPE));
   assert.ok(
     url.searchParams.get('scope').split(' ').includes(CALENDAR_LIST_SCOPE),
   );

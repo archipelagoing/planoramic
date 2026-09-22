@@ -299,10 +299,12 @@
   .week-sidebar {
     width: 100%;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 12px;
     flex-shrink: 0;
   }
+  .weather-location { flex-basis: 100%; }
   .mini-calendar {
     width: 210px;
     box-sizing: border-box;

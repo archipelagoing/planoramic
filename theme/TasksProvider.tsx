@@ -53,6 +53,7 @@ function useTasksState() {
   const [ready, setReady] = useState(false);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [revision, setRevision] = useState(0);
   const lock = useRef(false);
   const writes = useRef(Promise.resolve());
   const key = useRef('planoramic.tasks.local');
@@ -70,7 +71,26 @@ function useTasksState() {
           const saved = JSON.parse(raw);
           if (
             !Array.isArray(saved.tasks) ||
+            !saved.tasks.every(
+              (task: Task) =>
+                task &&
+                typeof task.id === 'string' &&
+                typeof task.title === 'string' &&
+                typeof task.due === 'string' &&
+                typeof task.person === 'string' &&
+                /^#[a-fA-F0-9]{6}$/.test(task.color) &&
+                typeof task.completed === 'boolean' &&
+                typeof task.calendarId === 'string' &&
+                typeof task.synced === 'boolean',
+            ) ||
             !Array.isArray(saved.people) ||
+            !saved.people.every(
+              (person: Person) =>
+                person &&
+                typeof person.id === 'string' &&
+                typeof person.name === 'string' &&
+                personColors.includes(person.color),
+            ) ||
             typeof saved.calendarId !== 'string' ||
             !saved.owners ||
             typeof saved.owners !== 'object'
@@ -81,13 +101,12 @@ function useTasksState() {
             setData(saved);
           }
         }
+        if (active) setReady(true);
       } catch {
         if (active)
           setError(
             'Task storage could not be restored. Refresh before making changes.',
           );
-      } finally {
-        if (active) setReady(true);
       }
     })();
     return () => {
@@ -95,6 +114,7 @@ function useTasksState() {
     };
   }, []);
   const update = (fn: (value: Data) => Data) => {
+    if (!ready) return;
     const next = fn(current.current);
     current.current = next;
     setData(next);
@@ -124,6 +144,14 @@ function useTasksState() {
   };
   const save = async (task: Task) => {
     const next = {...task, synced: false};
+    if (!next.due && next.calendarId) {
+      await taskRequest('tasks', {
+        action: 'delete',
+        calendarId: next.calendarId,
+        task: next,
+      });
+      next.calendarId = '';
+    }
     update(value => ({
       ...value,
       tasks: [...value.tasks.filter(t => t.id !== next.id), next],
@@ -138,6 +166,7 @@ function useTasksState() {
         ...value,
         tasks: value.tasks.map(t => (t.id === next.id ? saved : t)),
       }));
+      setRevision(value => value + 1);
     }
   };
   const refresh = () =>
@@ -198,6 +227,7 @@ function useTasksState() {
   }, [ready, data.calendarId]);
   return {
     ...data,
+    revision,
     ready,
     busy,
     error,
@@ -232,6 +262,7 @@ function useTasksState() {
           ...value,
           tasks: value.tasks.filter(t => t.id !== task.id),
         }));
+        setRevision(value => value + 1);
       }),
   };
 }

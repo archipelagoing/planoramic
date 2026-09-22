@@ -31,6 +31,7 @@ import CalendarWidgets from '../components/CalendarWidgets';
 import {useWorkspace} from '../theme/WorkspaceProvider';
 import {Colors, focusStyle, glassStyle, useTheme} from '../theme/ThemeProvider';
 import {sampleEvents} from '../services/sampleEvents';
+import {useTasks} from '../theme/TasksProvider';
 import {clearDevice, loadDevice, saveDevice} from '../services/deviceStorage';
 
 function Action({
@@ -60,6 +61,8 @@ function Action({
   );
 }
 function EventRow({event}: {event: CalendarEvent}) {
+  const {personForCalendar} = useTasks();
+  const person = personForCalendar(event.calendarId);
   const {colors, dark, reduceMotion} = useTheme();
   const styles = makeStyles(colors, dark);
   const [focused, setFocused] = useState(false);
@@ -86,6 +89,7 @@ function EventRow({event}: {event: CalendarEvent}) {
         focusStyle(colors, dark, focused, reduceMotion, 1.015),
         dark && darkGlassCard,
         dark && focused && darkGlassFocus,
+        (person || event.personColor) && {borderLeftWidth: 4, borderLeftColor: person?.color || event.personColor},
       ]}>
       <FlameText neutral style={styles.time}>
         {time}
@@ -93,6 +97,7 @@ function EventRow({event}: {event: CalendarEvent}) {
       <View style={styles.eventBody}>
         <Text style={styles.eventTitle}>{event.title}</Text>
         <Text style={[styles.secondary, styles.context]}>
+          {(person?.name || event.person) ? `${person?.name || event.person} · ` : ''}
           {event.calendarName}
           {event.location ? ` · ${event.location}` : ''}
         </Text>
@@ -107,6 +112,7 @@ function EventRow({event}: {event: CalendarEvent}) {
 }
 
 export default function CalendarScreen() {
+  const {revision} = useTasks();
   const {hidden, setSnapshot} = useWorkspace();
   const [range, setRange] = useState<'agenda' | 'week'>('week');
   const {colors, storageError, dark} = useTheme();
@@ -312,7 +318,7 @@ export default function CalendarScreen() {
         }
       });
     return () => controller.abort();
-  }, [preview, device, refresh]);
+  }, [preview, device, refresh, revision]);
 
   if (restoring || restoreError) {
     return (

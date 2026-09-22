@@ -509,13 +509,13 @@ The Calendar screen initially displays sample events.
 3. Open the Planoramic connection page.
 4. Select **Connect Google Calendar**.
 5. Sign into Google.
-6. Grant read-only calendar access.
+6. Grant calendar access, including event writes for shared tasks.
 7. Enter the pairing code.
 8. Select **Pair display**.
 
 Upcoming events will appear on the display.
 
-Calendar access is currently **read-only**. Planoramic does not create, modify, or delete Google Calendar events.
+Calendar schedules remain read-only. In Settings, choose an editable shared calendar to sync dated tasks as all-day events. Task edits, completion, and deletion update those Planoramic-created events; unrelated Google events are not modified. Reconnect Google after upgrading from read-only access.
 
 ---
 
