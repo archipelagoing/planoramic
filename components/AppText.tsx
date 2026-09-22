@@ -1,5 +1,5 @@
 import React from 'react';
-import {Text, TextProps} from 'react-native';
+import {Text, TextProps, StyleSheet} from 'react-native';
 import {isLoaded} from 'expo-font';
 
 import {useFont} from '../theme/FontProvider';
@@ -9,6 +9,8 @@ export default React.forwardRef<Text, TextProps>(function AppText(
   ref,
 ) {
   const {family} = useFont();
+  const italic = StyleSheet.flatten(style)?.fontStyle === 'italic';
+  const face = italic ? `${family}_Italic` : family;
   return (
     <Text
       ref={ref}
@@ -16,7 +18,8 @@ export default React.forwardRef<Text, TextProps>(function AppText(
       style={[
         style,
         {
-          fontFamily: isLoaded(family) ? family : undefined,
+          fontFamily: isLoaded(face) ? face : undefined,
+          fontStyle: isLoaded(face) ? 'normal' : italic ? 'italic' : 'normal',
           fontWeight: 'normal',
         },
       ]}

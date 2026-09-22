@@ -7,13 +7,11 @@ function updateFlame() {
   flameCleanups = element('flame-toggle').checked
     ? [
         ...document.querySelectorAll(
-          dark
-            ? '.brand.flame-text, h1.flame-text, .appearance [aria-pressed="true"] .icon'
-            : '.flame-text, .icon',
+          '.brand.flame-text, h1.flame-text, .appearance [aria-pressed="true"] .icon',
         ),
       ].map(node =>
         attachFlameText(node, {
-          dark: document.documentElement.dataset.theme === 'dark',
+          dark,
         }),
       )
     : [];
@@ -26,12 +24,12 @@ const fontIds = [
   'instrument',
   'garamond',
   'infant',
-  'averia',
   'averia-light',
 ];
 try {
   const saved = localStorage.getItem(fontKey);
-  if (fontIds.includes(saved)) fontPicker.value = saved;
+  const restored = saved === 'averia' ? 'averia-light' : saved;
+  if (fontIds.includes(restored)) fontPicker.value = restored;
 } catch {}
 document.documentElement.dataset.font = fontPicker.value;
 updateFlame();

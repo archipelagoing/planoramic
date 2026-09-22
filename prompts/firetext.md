@@ -128,4 +128,45 @@ individually colored characters.
 
 -------------------
 
-v2. 
+v2. Refine the typography by introducing italics as a deliberate secondary
+typographic voice.
+
+Do NOT apply italics decoratively or randomly.
+
+Use the following semantic typography system:
+
+ROMAN / UPRIGHT:
+- Main page title
+- Date headings
+- Event times
+- Event titles
+- Primary UI/navigation labels
+
+ITALIC:
+- PLANORAMIC wordmark
+- Page subtitle ("Next seven days · 29 calendars")
+- Event metadata / calendar source / location
+  ("Fall 26 · Kidde 226", "AstroSeek", "Family")
+
+Keep "Updated 2:54 PM" upright but muted so it behaves like system/status
+information rather than editorial copy.
+
+The conceptual rule is:
+
+ROMAN = primary information / what / when
+ITALIC = identity / context / secondary description
+
+Do not italicize event times. They will receive the flame-text treatment and
+should remain structurally stable and highly scannable.
+
+Do not italicize date headings or event titles.
+
+Use the true italic face of the selected font whenever available rather than
+synthetically skewing the regular font.
+
+For italic secondary text, consider slightly lighter weight and subtly
+increased letter spacing if appropriate for the selected font.
+
+The result should have a restrained editorial quality, similar to sophisticated
+print typography translated into a glass interface, rather than looking
+ornamental or handwritten.

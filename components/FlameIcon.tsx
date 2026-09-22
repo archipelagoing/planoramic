@@ -9,10 +9,5 @@ export type FlameIconProps = {
 };
 export default function FlameIcon({active, ...props}: FlameIconProps) {
   const {dark, colors} = useTheme();
-  return (
-    <Icon
-      {...props}
-      color={active ? colors.accent : colors.muted}
-    />
-  );
+  return <Icon {...props} color={active ? colors.accent : colors.muted} />;
 }

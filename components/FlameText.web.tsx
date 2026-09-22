@@ -20,7 +20,8 @@ export default function FlameText({
   const {flameText, dark} = useTheme();
   const {family} = useFont();
   useEffect(() => {
-    if (!flameText || neutral || (dark && neutralInDark) || !ref.current) return;
+    if (!flameText || neutral || (dark && neutralInDark) || !ref.current)
+      return;
     return attachFlameText(ref.current as unknown as HTMLElement, {
       intensity,
       distortion,

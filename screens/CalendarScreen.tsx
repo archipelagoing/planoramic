@@ -87,7 +87,7 @@ function EventRow({event}: {event: CalendarEvent}) {
       </FlameText>
       <View style={styles.eventBody}>
         <Text style={styles.eventTitle}>{event.title}</Text>
-        <Text style={styles.secondary}>
+        <Text style={[styles.secondary, styles.context]}>
           {event.calendarName}
           {event.location ? ` · ${event.location}` : ''}
         </Text>
@@ -311,7 +311,7 @@ export default function CalendarScreen() {
           <FlameText accessibilityRole="header" style={styles.title}>
             Upcoming Events
           </FlameText>
-          <Text style={styles.secondary}>
+          <Text style={[styles.secondary, styles.context]}>
             {preview
               ? 'Sample events · Preview'
               : `Next seven days${response ? ` · ${response.calendarCount} calendars` : ''}`}
@@ -482,6 +482,7 @@ const makeStyles = (colors: Colors, dark: boolean) =>
     },
     heading: {flexShrink: 1},
     eyebrow: {
+      fontStyle: 'italic',
       color: colors.accent,
       fontSize: 16,
       letterSpacing: 0,
@@ -494,6 +495,7 @@ const makeStyles = (colors: Colors, dark: boolean) =>
       marginVertical: 8,
     },
     secondary: {color: colors.muted, fontSize: 20, lineHeight: 28},
+    context: {fontStyle: 'italic'},
     focused: {borderColor: colors.accent},
     event: {
       flexDirection: 'row',

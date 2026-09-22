@@ -8,7 +8,7 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
-import {useTheme} from '../theme/ThemeProvider';
+import {useTheme, pearlImageStyle} from '../theme/ThemeProvider';
 
 export default function CalendarCanvas({
   children,
@@ -25,7 +25,11 @@ export default function CalendarCanvas({
         source={require('../assets/images/frosted1.png')}
         resizeMode="cover"
         accessible={false}
-        style={[StyleSheet.absoluteFillObject, {width: '100%', height: '100%'}, !dark && Platform.OS === 'web' && {filter: 'saturate(50%) contrast(72%) brightness(110%)'}]}
+        style={[
+          StyleSheet.absoluteFillObject,
+          {width: '100%', height: '100%'},
+          !dark && Platform.OS === 'web' && pearlImageStyle,
+        ]}
       />
       <View
         pointerEvents="none"

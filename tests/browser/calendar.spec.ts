@@ -337,10 +337,10 @@ for (const width of [1440, 390]) {
         page
           .getByRole('heading', {name: /Wednesday, September/})
           .locator('canvas'),
-      ).toHaveCount(theme === 'Dark' ? 0 : 1);
+      ).toHaveCount(0);
       await expect(
         page.getByText('10:00 AM', {exact: true}).locator('canvas'),
-      ).toHaveCount(theme === 'Dark' ? 0 : 1);
+      ).toHaveCount(0);
       if (theme === 'Dark') {
         await expect(
           page.getByRole('radio', {name: 'Light theme'}).locator('canvas'),
@@ -355,7 +355,7 @@ for (const width of [1440, 390]) {
           'background-color',
           theme === 'Dark'
             ? 'rgba(24, 23, 22, 0.82)'
-            : 'rgba(246, 245, 245, 0.76)',
+            : 'rgba(248, 247, 245, 0.62)',
         );
       }
       await page.getByRole('radio', {name: `${theme} theme`}).blur();
@@ -398,7 +398,6 @@ for (const width of [1440, 390]) {
       ['instrument', 'InstrumentSerif_400Regular'],
       ['garamond', 'CormorantGaramond_500Medium'],
       ['infant', 'CormorantInfant_500Medium'],
-      ['averia', 'AveriaSerifLibre_300Light_Italic'],
       ['averia-light', 'AveriaSerifLibre_300Light'],
       ['montserrat', 'Montserrat_500Medium'],
     ]) {
@@ -411,6 +410,26 @@ for (const width of [1440, 390]) {
         family,
       );
       await expect(picker).toHaveCSS('font-family', family);
+      for (const text of [
+        'PLANORAMIC',
+        'Sample events · Preview',
+        'Work · Studio',
+      ]) {
+        await expect(page.getByText(text, {exact: true})).toHaveCSS(
+          'font-family',
+          `${family}_Italic`,
+        );
+      }
+      for (const text of ['10:00 AM', 'Weekly planning']) {
+        await expect(page.getByText(text, {exact: true})).toHaveCSS(
+          'font-family',
+          family,
+        );
+        await expect(page.getByText(text, {exact: true})).toHaveCSS(
+          'font-style',
+          'normal',
+        );
+      }
       await page.evaluate(() => document.fonts.ready);
       expect(
         await page.evaluate(
@@ -429,6 +448,12 @@ for (const width of [1440, 390]) {
       });
     }
     await picker.selectOption('averia-light');
+    await page.reload();
+    await expect(picker).toHaveValue('averia-light');
+    await expect(picker.locator('option')).toHaveCount(5);
+    await page.evaluate(() =>
+      localStorage.setItem('planoramic.font', 'averia'),
+    );
     await page.reload();
     await expect(picker).toHaveValue('averia-light');
     await expect(
@@ -488,7 +513,7 @@ for (const mode of ['light', 'dark']) {
       ).toBe(true);
       await expect(page.getByText('PLANORAMIC', {exact: true})).toHaveCSS(
         'color',
-        mode === 'dark' ? 'rgb(247, 154, 34)' : 'rgb(147, 79, 87)',
+        mode === 'dark' ? 'rgb(247, 154, 34)' : 'rgb(168, 35, 2)',
       );
       await expect(
         page.getByTestId('calendar-background').locator('img'),
@@ -501,7 +526,33 @@ for (const mode of ['light', 'dark']) {
       const bounds = await connect.boundingBox();
       expect(bounds).not.toBeNull();
       expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(width);
-      await expect(connect).toHaveCSS('backdrop-filter', 'blur(15px)');
+      await expect(connect).toHaveCSS(
+        'backdrop-filter',
+        mode === 'dark' ? 'blur(15px)' : 'blur(20px) saturate(1.2)',
+      );
+      if (mode === 'light') {
+        const card = page.getByRole('button', {name: /Weekly planning/});
+        await expect(card).toHaveCSS(
+          'background-color',
+          'rgba(255, 255, 255, 0.34)',
+        );
+        await expect(card).toHaveCSS('border-radius', '18px');
+        await expect(card).toHaveCSS(
+          'backdrop-filter',
+          'blur(20px) saturate(1.2)',
+        );
+        await expect(page.getByTestId('calendar-background')).toHaveCSS(
+          'filter',
+          'saturate(0.5) contrast(0.72) brightness(1.1)',
+        );
+        await expect(page.getByText('10:00 AM', {exact: true})).toHaveCSS(
+          'color',
+          'rgb(41, 37, 34)',
+        );
+        await expect(
+          page.getByRole('radio', {name: 'Dark theme'}).locator('canvas'),
+        ).toHaveCount(0);
+      }
       expect(
         await page.evaluate(
           () => document.documentElement.scrollWidth <= window.innerWidth,

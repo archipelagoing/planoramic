@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import {
   AccessibilityInfo,
+  ImageStyle,
   Platform,
   useColorScheme,
   ViewStyle,
@@ -146,6 +147,10 @@ export function ThemeProvider({children}: {children: React.ReactNode}) {
 
 export const useTheme = () => useContext(ThemeContext);
 
+export const pearlImageStyle: ImageStyle & {filter: string} = {
+  filter: 'saturate(50%) contrast(72%) brightness(110%)',
+};
+
 export function glassStyle(
   colors: Colors,
   dark: boolean,
@@ -155,7 +160,9 @@ export function glassStyle(
     Platform.OS === 'web'
       ? {
           backdropFilter: dark ? 'blur(15px)' : 'blur(20px) saturate(120%)',
-          WebkitBackdropFilter: dark ? 'blur(15px)' : 'blur(20px) saturate(120%)',
+          WebkitBackdropFilter: dark
+            ? 'blur(15px)'
+            : 'blur(20px) saturate(120%)',
           backgroundImage: 'none',
           boxShadow: dark
             ? '0 6px 18px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.08)'

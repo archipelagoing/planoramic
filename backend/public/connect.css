@@ -78,11 +78,6 @@
   --font-weight: 300;
   --font-style: normal;
 }
-:root[data-font='averia'] {
-  --font: 'Averia Serif Libre', serif;
-  --font-weight: 300;
-  --font-style: italic;
-}
 :root[data-font='instrument'] {
   --font: 'Instrument Serif', serif;
   --font-weight: 400;
@@ -98,16 +93,17 @@
   --font-weight: 500;
   --font-style: normal;
   color-scheme: light;
-  --text: #302829;
-  --page-background: #f6f5f5;
-  --muted: #6a5d60;
-  --accent: #934f57;
-  --overlay: rgba(246, 245, 245, 0.8);
-  --fill: rgba(255, 255, 255, 0.55);
-  --border: rgba(170, 115, 125, 0.35);
-  --selected: rgba(147, 79, 87, 0.14);
-  --shadow: 0 8px 20px rgba(80, 34, 42, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  --text: #292522;
+  --page-background: #f8f5f1;
+  --muted: #68615c;
+  --accent: #a82302;
+  --overlay: rgba(248, 245, 241, 0.68);
+  --image-filter: saturate(50%) contrast(72%) brightness(110%);
+  --fill: rgba(255, 255, 255, 0.34);
+  --border: rgba(255, 255, 255, 0.55);
+  --selected: rgba(255, 255, 255, 0.52);
+  --shadow: 0 10px 30px rgba(45, 35, 30, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
   font-family: var(--font);
   font-style: var(--font-style);
   font-weight: var(--font-weight);
@@ -116,6 +112,7 @@
 }
 :root[data-theme='dark'] {
   color-scheme: dark;
+  --image-filter: none;
   --text: #f1ece5;
   --page-background: #11100f;
   --muted: #aaa29a;
@@ -158,6 +155,7 @@
   letter-spacing: 0;
 }
 body {
+  isolation: isolate;
   margin: 0;
   padding: 24px 28px;
   min-height: 100vh;
@@ -167,9 +165,45 @@ body::before {
   position: fixed;
   inset: 0;
   z-index: -1;
-  background:
-    linear-gradient(var(--overlay), var(--overlay)),
-    url('/connect-assets/frosted1.png') center / cover no-repeat;
+  background: url('/connect-assets/frosted1.png') center / cover no-repeat;
+  filter: var(--image-filter);
+  pointer-events: none;
+}
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: var(--overlay);
+  pointer-events: none;
+}
+:root[data-theme='light'] li,
+:root[data-theme='light'] button,
+:root[data-theme='light'] #login,
+:root[data-theme='light'] #font-picker,
+:root[data-theme='light'] #pair-code {
+  backdrop-filter: blur(20px) saturate(120%);
+  -webkit-backdrop-filter: blur(20px) saturate(120%);
+  box-shadow: var(--shadow);
+}
+:root[data-theme='light'] li {
+  border-radius: 18px;
+}
+:root[data-theme='light'] li::before,
+:root[data-theme='light'] li::after {
+  display: none;
+}
+:root[data-theme='light'] .event-time {
+  color: var(--text);
+}
+:root[data-theme='light'] .icon {
+  color: var(--muted);
+}
+:root[data-theme='light'] [aria-pressed='true'] .icon {
+  color: var(--accent);
+}
+:root[data-theme='light'] :focus-visible {
+  outline-color: var(--text);
 }
 main {
   max-width: 1480px;
@@ -195,7 +229,9 @@ header {
 }
 .intro,
 #status,
-.note {
+.note,
+.brand,
+.event-meta {
   font-style: italic;
 }
 .intro {
@@ -314,6 +350,7 @@ button:disabled {
 }
 .event-date {
   display: inline-block;
+  font-style: normal;
 }
 [hidden] {
   display: none !important;

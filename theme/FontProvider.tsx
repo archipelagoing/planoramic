@@ -30,11 +30,6 @@ export const fontOptions = [
     label: 'Averia Light',
     family: 'AveriaSerifLibre_300Light',
   },
-  {
-    id: 'averia',
-    label: 'Averia Light Italic',
-    family: 'AveriaSerifLibre_300Light_Italic',
-  },
 ] as const;
 type FontId = (typeof fontOptions)[number]['id'];
 const key = 'planoramic.font';
@@ -60,7 +55,8 @@ export function FontProvider({children}: {children: React.ReactNode}) {
           Platform.OS === 'web'
             ? localStorage.getItem(key)
             : await SecureStore.getItemAsync(key);
-        if (active && !changed.current && valid(saved)) update(saved);
+        const restored = saved === 'averia' ? 'averia-light' : saved;
+        if (active && !changed.current && valid(restored)) update(restored);
       } catch {
         if (active) setError('Font will only be saved for this session.');
       }

@@ -344,3 +344,168 @@ The interface should feel quiet, expensive, contemporary, and architectural.
 On first glance it should look like premium home-display software.
 
 On second glance the user should notice the subtle fire-inspired identity.
+
+
+------------
+v2, 
+The current light-mode design is close. Do NOT redesign it.
+
+I want to make ONE targeted refinement:
+
+THE EVENT TILES DO NOT LOOK GLASSY ENOUGH.
+
+Keep unchanged:
+- layout
+- typography
+- colors
+- background image
+- background treatment
+- spacing
+- card dimensions
+- card radius
+- navigation
+- controls
+- flame text
+- content hierarchy
+
+Only refine the MATERIAL APPEARANCE of the event cards.
+
+
+GOAL
+
+The event cards should look like actual sheets of frosted architectural
+glass floating slightly in front of the ribbed background.
+
+Right now they read too much like translucent white rectangles.
+
+The underlying vertical/ribbed background must remain visibly perceptible
+through each card.
+
+The important optical relationship is:
+
+OUTSIDE CARD:
+background ribs are relatively sharp
+
+INSIDE CARD:
+the SAME background ribs remain visible, but become softened, diffused,
+slightly refracted, and subtly brighter
+
+That visual transition is what should communicate glass.
+
+
+TRANSPARENCY
+
+Reduce the opaque white component of the cards substantially.
+
+Do not achieve the effect by simply making the cards white.
+
+Start around:
+
+background:
+linear-gradient(
+    135deg,
+    rgba(255,255,255,0.24),
+    rgba(255,255,255,0.10)
+);
+
+Adjust as necessary based on the actual implementation.
+
+The background image should clearly contribute to the appearance of the
+card.
+
+
+BACKDROP FILTER
+
+Use moderate backdrop processing approximately around:
+
+backdrop-filter:
+    blur(14px–20px)
+    saturate(115–130%)
+    brightness(1.02–1.06);
+
+Do NOT use extreme blur.
+
+If the background structure disappears completely inside the card, there is
+too much blur.
+
+I should still recognize the vertical ribs through the glass.
+
+
+GLASS EDGE
+
+Make the edge behave like a thin physical sheet of glass.
+
+Use a subtle translucent white border approximately:
+
+1px solid rgba(255,255,255,0.40–0.55)
+
+Add a stronger but still subtle highlight along the upper edge.
+
+Optionally add an extremely subtle highlight along the left edge.
+
+Do not create a uniformly bright white outline around the entire card.
+
+
+SPECULAR LIGHT
+
+Add a very subtle internal directional highlight, preferably originating
+from the upper-left.
+
+For example, use a low-opacity pseudo-element with a broad diagonal
+transparent-to-white-to-transparent gradient.
+
+This should be barely noticeable.
+
+It should create the impression that the glass surface is catching ambient
+light.
+
+Do NOT create:
+- glossy plastic
+- obvious shine streaks
+- chrome
+- strong gradients
+- skeuomorphic reflections
+
+
+DEPTH
+
+Use a very soft shadow beneath the glass:
+
+approximately:
+0 10px 30px rgba(40,30,25,0.05–0.08)
+
+The shadow should create separation from the background without making the
+cards look like floating material-design panels.
+
+Also use a very subtle inset upper highlight.
+
+
+IMPORTANT
+
+Glass should come primarily from:
+
+1. transparency
+2. visible background distortion
+3. backdrop blur
+4. subtle edge reflection
+5. slight luminance change
+6. extremely restrained shadow
+
+NOT from making the card white.
+
+
+VISUAL TARGET
+
+The result should resemble:
+
+a thin piece of premium frosted architectural glass placed in front of
+ribbed glass.
+
+It should feel optical and physical rather than like a CSS rectangle with
+opacity.
+
+
+DO NOT CHANGE ANY OTHER PART OF THE DESIGN.
+
+After implementing it, tell me exactly which CSS properties controlling the
+glass material were changed so I can tune them individually later.

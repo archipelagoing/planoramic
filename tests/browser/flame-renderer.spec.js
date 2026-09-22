@@ -9,10 +9,13 @@ test('procedural flame parameters, masking, motion and cleanup', async ({
     const path = '/connect-assets/flame-text.js';
     const {attachFlameText, flameColor} = await import(path);
     let hot = 0;
+    let lightCream = 0;
     for (let y = 0; y < 100; y++)
       for (let x = 0; x < 1000; x++) {
         const c = flameColor(x / 100, y / 100, 0);
         if (c[0] > 250 && c[1] > 215 && c[2] > 125) hot++;
+        const light = flameColor(x / 100, y / 100, 0, {dark: false});
+        if (light[1] > 190 || light[2] > 70) lightCream++;
       }
     const target = document.createElement('h2');
     target.id = 'flame-specimen';
@@ -43,10 +46,11 @@ test('procedural flame parameters, masking, motion and cleanup', async ({
       target.style.webkitTextFillColor === '' &&
       !target.querySelector('canvas');
     window.stopFlame = attachFlameText(target, {animationSpeed: 1});
-    return {hot: hot / 100000, changed, restored};
+    return {hot: hot / 100000, lightCream, changed, restored};
   });
   expect(result.hot).toBeGreaterThan(0.05);
   expect(result.hot).toBeLessThan(0.1);
+  expect(result.lightCream).toBe(0);
   expect(result.changed).toEqual([true, true, true, true]);
   expect(result.restored).toBe(true);
   const canvas = page.locator('#flame-specimen canvas');

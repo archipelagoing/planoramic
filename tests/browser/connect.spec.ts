@@ -60,7 +60,7 @@ for (const width of [1440, 390]) {
     expect(background.source).toContain('/connect-assets/frosted1.png');
     expect(background.width).toBe(687);
     expect(background.height).toBe(1031);
-    await expect(page.locator('#font-picker option')).toHaveCount(6);
+    await expect(page.locator('#font-picker option')).toHaveCount(5);
     for (const selector of ['.intro', '#status', '.note']) {
       await expect(page.locator(selector)).toHaveCSS('font-style', 'italic');
     }
@@ -79,15 +79,24 @@ for (const width of [1440, 390]) {
         name.toLowerCase(),
       );
       await page.evaluate(() => document.fonts.ready);
-      await expect(page.locator('.icon canvas')).toHaveCount(
-        name === 'Dark' ? 1 : 3,
-      );
-      await expect(page.locator('.event-time canvas')).toHaveCount(
-        name === 'Dark' ? 0 : 1,
-      );
-      await expect(page.locator('.event-date canvas')).toHaveCount(
-        name === 'Dark' ? 0 : 1,
-      );
+      if (name === 'Light') {
+        await expect(page.locator('#events li')).toHaveCSS(
+          'background-color',
+          'rgba(255, 255, 255, 0.34)',
+        );
+        await expect(page.locator('#events li')).toHaveCSS(
+          'backdrop-filter',
+          'blur(20px) saturate(1.2)',
+        );
+        expect(
+          await page.evaluate(
+            () => getComputedStyle(document.body, '::before').filter,
+          ),
+        ).toBe('saturate(0.5) contrast(0.72) brightness(1.1)');
+      }
+      await expect(page.locator('.icon canvas')).toHaveCount(1);
+      await expect(page.locator('.event-time canvas')).toHaveCount(0);
+      await expect(page.locator('.event-date canvas')).toHaveCount(0);
       await expect(page.locator('h1 canvas')).toHaveCSS('filter', 'none');
       for (const selector of [
         'h1',
@@ -117,12 +126,13 @@ for (const width of [1440, 390]) {
     }
     await page.reload();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+    await page.getByRole('button', {name: 'Load upcoming events'}).click();
+    await expect(page.locator('.event-meta')).toBeVisible();
     const picker = page.getByRole('combobox', {name: 'Font', exact: true});
     for (const [id, family] of [
       ['instrument', 'Instrument Serif'],
       ['garamond', 'Cormorant Garamond'],
       ['infant', 'Cormorant Infant'],
-      ['averia', 'Averia Serif Libre'],
       ['averia-light', 'Averia Serif Libre'],
     ]) {
       await picker.selectOption(id);
@@ -143,10 +153,26 @@ for (const width of [1440, 390]) {
           );
         }),
       ).toBe(true);
-      await expect(page.locator('h1')).toHaveCSS(
-        'font-style',
-        id === 'averia' ? 'italic' : 'normal',
-      );
+      await expect(page.locator('h1')).toHaveCSS('font-style', 'normal');
+      for (const selector of ['.brand', '.event-meta']) {
+        await expect(page.locator(selector)).toHaveCSS('font-style', 'italic');
+        expect(
+          await page.locator(selector).evaluate(node => {
+            const style = getComputedStyle(node);
+            return document.fonts.check(
+              `italic ${style.fontWeight} 16px ${style.fontFamily}`,
+            );
+          }),
+        ).toBe(true);
+      }
+      for (const selector of [
+        '.event-time',
+        '.event-title',
+        '#refresh',
+        '#font-picker',
+      ]) {
+        await expect(page.locator(selector)).toHaveCSS('font-style', 'normal');
+      }
       expect(
         await page.evaluate(
           () => document.documentElement.scrollWidth <= innerWidth,
@@ -161,5 +187,10 @@ for (const width of [1440, 390]) {
     await expect(picker).toHaveValue('averia-light');
     await expect(page.locator('h1')).toHaveCSS('font-style', 'normal');
     await expect(page.locator('h1')).toHaveCSS('font-weight', '300');
+    await page.evaluate(() =>
+      localStorage.setItem('planoramic.font', 'averia'),
+    );
+    await page.reload();
+    await expect(picker).toHaveValue('averia-light');
   });
 }

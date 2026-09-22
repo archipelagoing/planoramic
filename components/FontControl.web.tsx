@@ -6,7 +6,7 @@ import Text from './AppText';
 
 export default function FontControl() {
   const {font, family, setFont, error} = useFont();
-  const {colors} = useTheme();
+  const {colors, dark} = useTheme();
   return (
     <View style={{maxWidth: '100%'}}>
       <select
@@ -17,7 +17,9 @@ export default function FontControl() {
           fontFamily: family,
           fontSize: 16,
           color: colors.text,
-          background: colors.surface,
+          background: dark ? colors.surface : colors.glass,
+          backdropFilter: dark ? undefined : 'blur(20px) saturate(120%)',
+          WebkitBackdropFilter: dark ? undefined : 'blur(20px) saturate(120%)',
           border: `1px solid ${colors.border}`,
           borderRadius: 8,
           width: 210,

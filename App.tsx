@@ -22,7 +22,7 @@ import {
   DefaultTheme,
   DarkTheme,
 } from '@react-navigation/native';
-import {ThemeProvider, useTheme} from './theme/ThemeProvider';
+import {ThemeProvider, useTheme, pearlImageStyle} from './theme/ThemeProvider';
 import LeftHandNav from './navigation/LeftHandNav';
 import {
   ActivityIndicator,
@@ -40,10 +40,18 @@ import {CormorantInfant_500Medium} from '@expo-google-fonts/cormorant-infant/500
 import {FontProvider} from './theme/FontProvider';
 import {AveriaSerifLibre_300Light_Italic} from '@expo-google-fonts/averia-serif-libre/300Light_Italic';
 import {AveriaSerifLibre_300Light} from '@expo-google-fonts/averia-serif-libre/300Light';
+import {Montserrat_500Medium_Italic} from '@expo-google-fonts/montserrat/500Medium_Italic';
+import {InstrumentSerif_400Regular_Italic} from '@expo-google-fonts/instrument-serif/400Regular_Italic';
+import {CormorantGaramond_500Medium_Italic} from '@expo-google-fonts/cormorant-garamond/500Medium_Italic';
+import {CormorantInfant_500Medium_Italic} from '@expo-google-fonts/cormorant-infant/500Medium_Italic';
 
 const App = () => {
   const [loaded, error] = useFonts({
     ...MaterialCommunityIcons.font,
+    Montserrat_500Medium_Italic,
+    InstrumentSerif_400Regular_Italic,
+    CormorantGaramond_500Medium_Italic,
+    CormorantInfant_500Medium_Italic,
     AveriaSerifLibre_300Light_Italic,
     AveriaSerifLibre_300Light,
     Montserrat_500Medium,
@@ -85,7 +93,7 @@ const ThemedApp = () => {
             style={[
               StyleSheet.absoluteFillObject,
               {width: '100%', height: '100%'},
-              !dark && {filter: 'saturate(50%) contrast(72%) brightness(110%)'},
+              !dark && pearlImageStyle,
             ]}
           />
           <View

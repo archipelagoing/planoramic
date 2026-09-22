@@ -25,8 +25,10 @@ renderer with the existing Material Community icon font.
 - `highlightAmount`: ribbon width, 0 to 0.2; 0 removes cream ribbons.
 - `textureScale`: fold size relative to font size, 0.25 to 4.
 - `neutralInDark`: keep secondary text neutral in dark mode (dates and times).
+- `neutral`: keep secondary text neutral in both themes (used for dates and times).
 
-Dark mode reserves the effect for branding, page headings, and active icons.
+Both themes reserve the effect for branding, page headings, and active icons.
+Light mode uses darker ember and vermilion with amber highlights, without cream.
 Pass `active` to `FlameIcon` for selected controls or navigation items.
 
 Highlight coverage varies with the text and chosen font; the parameter is not a
