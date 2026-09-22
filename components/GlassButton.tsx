@@ -13,6 +13,7 @@ export default function GlassButton({
   selected,
   radio = false,
   circular = false,
+  tooltipAlign = 'right',
 }: {
   label: string;
   icon?: string;
@@ -22,6 +23,7 @@ export default function GlassButton({
   selected?: boolean;
   radio?: boolean;
   circular?: boolean;
+  tooltipAlign?: 'left' | 'right';
 }) {
   const {colors, dark, reduceMotion} = useTheme();
   const [focused, setFocused] = useState(false);
@@ -94,7 +96,7 @@ export default function GlassButton({
           style={{
             position: 'absolute',
             top: 54,
-            right: 0,
+            [tooltipAlign]: 0,
             backgroundColor: colors.surface,
             padding: 8,
             borderRadius: 6,

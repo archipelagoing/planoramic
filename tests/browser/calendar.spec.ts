@@ -1,5 +1,13 @@
 import {test, expect, Page} from '@playwright/test';
 
+async function setTheme(page: Page, dark: boolean) {
+  const button = page.getByRole('button', {
+    name: dark ? 'Switch to dark mode' : 'Switch to light mode',
+    exact: true,
+  });
+  if (await button.count()) await button.click();
+}
+
 async function navigateTo(page: Page, name: string) {
   const menu = page.getByRole('button', {name: 'Open navigation'});
   const mobile = (page.viewportSize()?.width || 1440) < 700;
@@ -15,18 +23,11 @@ for (const width of [1440, 390]) {
   }, testInfo) => {
     await page.setViewportSize({width, height: 1000});
     await calendarApi(page);
-    const ranges: string[] = [];
-    page.on('request', req => {
-      if (req.url().includes('/api/display/events?')) ranges.push(req.url());
-    });
     await page.goto('/');
+    await page.getByRole('radio', {name: 'Agenda', exact: true}).click();
     const month = page.getByTestId('mini-month');
     await expect(month).toBeVisible();
-    await expect(
-      page.getByTestId('week-overview').locator(':scope > div'),
-    ).toHaveCount(7);
     await expect(month.getByLabel(/^Today,/)).toBeVisible();
-    expect(ranges).toHaveLength(0);
     const bounds = await page.getByTestId('calendar-widgets').boundingBox();
     expect(bounds!.width).toBeLessThan(300);
     expect(bounds!.height).toBeLessThan(175);
@@ -47,9 +48,7 @@ for (const width of [1440, 390]) {
       /\d{1,2}:\d{2}/,
     );
     for (const theme of ['Light', 'Dark']) {
-      await page
-        .getByRole('switch', {name: 'Dark mode', exact: true})
-        .setChecked(theme === 'Dark');
+      await setTheme(page, theme === 'Dark');
       await month.scrollIntoViewIfNeeded();
       await page.screenshot({
         path: testInfo.outputPath(`${theme}.png`),
@@ -69,8 +68,8 @@ for (const width of [1440, 390]) {
       page.getByRole('checkbox', {name: 'Flame text'}),
     ).toBeVisible();
     await expect(
-      page.getByRole('switch', {name: 'Dark mode', exact: true}),
-    ).toBeChecked();
+      page.getByRole('button', {name: 'Switch to light mode', exact: true}),
+    ).toBeVisible();
   });
 }
 
@@ -81,6 +80,7 @@ for (const width of [1440, 390]) {
     await page.setViewportSize({width, height: 1000});
     await calendarApi(page, false);
     await page.goto('/');
+    await page.getByRole('radio', {name: 'Agenda', exact: true}).click();
     await expect(
       page.getByText('Weekly planning', {exact: true}),
     ).toBeVisible();
@@ -93,11 +93,9 @@ for (const width of [1440, 390]) {
           page.getByRole('button', {name, exact: true}),
         ).not.toBeInViewport();
     };
-    await page.getByRole('radio', {name: 'Today', exact: true}).click();
-    await expect(
-      page.getByText('No events today.', {exact: true}),
-    ).toBeVisible();
     await page.getByRole('radio', {name: 'Week', exact: true}).click();
+    await expect(page.getByTestId('timed-week')).toBeVisible();
+    await page.getByRole('radio', {name: 'Agenda', exact: true}).click();
     await navigate('Household');
     await page.getByRole('switch', {name: 'Show Work', exact: true}).click();
     await navigate('Calendar');
@@ -118,6 +116,7 @@ for (const width of [1440, 390]) {
       fullPage: true,
     });
     await page.reload();
+    await page.getByRole('radio', {name: 'Agenda', exact: true}).click();
     await navigate('Household');
     await expect(
       page.getByRole('switch', {name: 'Show Work', exact: true}),
@@ -172,6 +171,7 @@ for (const width of [1440, 390]) {
     await page.setViewportSize({width, height: 900});
     await calendarApi(page, false);
     await page.goto('/');
+    await page.getByRole('radio', {name: 'Agenda', exact: true}).click();
     const navigate = async (name: string) => {
       if (width === 390)
         await page.getByRole('button', {name: 'Open navigation'}).click();
@@ -187,9 +187,7 @@ for (const width of [1440, 390]) {
     await expect(page.getByTestId('app-background')).toHaveCount(0);
     await navigate('Calendar');
     for (const theme of ['Light', 'Dark']) {
-      await page
-        .getByRole('switch', {name: 'Dark mode', exact: true})
-        .setChecked(theme === 'Dark');
+      await setTheme(page, theme === 'Dark');
       await expect(page.getByTestId('calendar-background')).toHaveCount(0);
       await expect(page.getByTestId('app-background')).toHaveCount(0);
       await expect(
@@ -201,6 +199,7 @@ for (const width of [1440, 390]) {
       });
     }
     await page.reload();
+    await page.getByRole('radio', {name: 'Agenda', exact: true}).click();
     await expect(
       page.getByRole('heading', {name: 'Upcoming Events'}),
     ).toBeVisible();
@@ -212,6 +211,7 @@ for (const width of [1440, 390]) {
     await navigate('Calendar');
     await expect(page.getByTestId('calendar-background')).toBeVisible();
     await page.reload();
+    await page.getByRole('radio', {name: 'Agenda', exact: true}).click();
     await expect(page.getByTestId('calendar-background')).toBeVisible();
   });
 }
@@ -230,6 +230,7 @@ test('real backend cookie restores a paired display in a new browser context', a
     });
   await proxy(page);
   await page.goto('/');
+  await page.getByRole('radio', {name: 'Agenda', exact: true}).click();
   await page
     .getByRole('button', {name: 'Connect calendar', exact: true})
     .click();
@@ -345,6 +346,7 @@ test('dark TV focus is visible, keeps layout stable, and respects reduced motion
   });
   await calendarApi(page);
   await page.goto('/');
+  await page.getByRole('radio', {name: 'Agenda', exact: true}).click();
   const event = page.getByRole('button', {name: /Planning session/});
   await expect(event).toBeVisible();
   const before = await event.boundingBox();
@@ -372,11 +374,13 @@ test('pairing restores after reload and event details expand', async ({
 }) => {
   await calendarApi(page, false);
   await page.goto('/');
+  await page.getByRole('radio', {name: 'Agenda', exact: true}).click();
   await page
     .getByRole('button', {name: 'Connect calendar', exact: true})
     .click();
   await expect(page.getByText('Planning session', {exact: true})).toBeVisible();
   await page.reload();
+  await page.getByRole('radio', {name: 'Agenda', exact: true}).click();
   await expect(page.getByText('Planning session', {exact: true})).toBeVisible();
   await page.getByRole('button', {name: /Planning session/}).click();
   await expect(page.getByText('Agenda details', {exact: true})).toBeVisible();
@@ -387,6 +391,7 @@ test('loading, refresh, empty, and stale-data recovery', async ({page}) => {
   const state = await calendarApi(page);
   state.delay = true;
   await page.goto('/');
+  await page.getByRole('radio', {name: 'Agenda', exact: true}).click();
   await expect(page.getByText('Loading your calendars')).toBeVisible();
   await expect(page.getByText('Planning session', {exact: true})).toBeVisible();
   state.offline = true;
@@ -413,6 +418,7 @@ test('Google expiry keeps pairing and provides reconnect; revocation pairs again
   state.status = 401;
   state.code = 'CALENDAR_REAUTH_REQUIRED';
   await page.goto('/');
+  await page.getByRole('radio', {name: 'Agenda', exact: true}).click();
   await expect(
     page.getByRole('button', {name: 'Reconnect Google'}),
   ).toBeVisible();
@@ -440,6 +446,7 @@ test('startup network failure can retry without losing pairing', async ({
   await expect(page.getByRole('alert')).toContainText('Could not restore');
   state.offline = false;
   await page.getByRole('button', {name: 'Retry', exact: true}).click();
+  await page.getByRole('radio', {name: 'Agenda', exact: true}).click();
   await expect(page.getByText('Planning session', {exact: true})).toBeVisible();
 });
 
@@ -451,6 +458,7 @@ for (const viewport of [
     await page.setViewportSize(viewport);
     await calendarApi(page);
     await page.goto('/');
+    await page.getByRole('radio', {name: 'Agenda', exact: true}).click();
     await expect(
       page.getByText('Planning session', {exact: true}),
     ).toBeVisible();
@@ -472,28 +480,30 @@ test('appearance follows system, persists overrides, and updates navigation', as
   await page.emulateMedia({colorScheme: 'light'});
   await calendarApi(page);
   await page.goto('/');
+  await page.getByRole('radio', {name: 'Agenda', exact: true}).click();
   await expect(
-    page.getByRole('switch', {name: 'Dark mode', exact: true}),
-  ).not.toBeChecked();
+    page.getByRole('button', {name: 'Switch to dark mode', exact: true}),
+  ).toBeVisible();
   const lightBackground = await page
     .getByRole('heading', {name: 'Upcoming Events'})
     .evaluate(element => getComputedStyle(element).color);
-  await page.getByRole('switch', {name: 'Dark mode', exact: true}).check();
+  await setTheme(page, true);
   await expect(
-    page.getByRole('switch', {name: 'Dark mode', exact: true}),
-  ).toBeChecked();
+    page.getByRole('button', {name: 'Switch to light mode', exact: true}),
+  ).toBeVisible();
   const darkBackground = await page
     .getByRole('heading', {name: 'Upcoming Events'})
     .evaluate(element => getComputedStyle(element).color);
   expect(darkBackground).not.toBe(lightBackground);
   await page.reload();
+  await page.getByRole('radio', {name: 'Agenda', exact: true}).click();
   await expect(
-    page.getByRole('switch', {name: 'Dark mode', exact: true}),
-  ).toBeChecked();
+    page.getByRole('button', {name: 'Switch to light mode', exact: true}),
+  ).toBeVisible();
   await page.getByText('Settings', {exact: true}).click();
   await expect(
-    page.getByRole('switch', {name: 'Dark mode', exact: true}),
-  ).toBeChecked();
+    page.getByRole('button', {name: 'Switch to light mode', exact: true}),
+  ).toBeVisible();
   await page.emulateMedia({colorScheme: 'dark'});
   await page.getByText('Calendar', {exact: true}).click();
   await expect(page.getByRole('heading', {name: 'Upcoming Events'})).toHaveCSS(
@@ -501,7 +511,7 @@ test('appearance follows system, persists overrides, and updates navigation', as
     darkBackground,
   );
   await page.emulateMedia({colorScheme: 'light'});
-  await page.getByRole('switch', {name: 'Dark mode', exact: true}).uncheck();
+  await setTheme(page, false);
   await expect(page.getByRole('heading', {name: 'Upcoming Events'})).toHaveCSS(
     'color',
     lightBackground,
@@ -513,6 +523,7 @@ for (const width of [1440, 390]) {
     await page.setViewportSize({width, height: 900});
     await calendarApi(page, false);
     await page.goto('/');
+    await page.getByRole('radio', {name: 'Agenda', exact: true}).click();
     const heading = page.getByRole('heading', {name: 'Upcoming Events'});
     const toggle = page.getByRole('checkbox', {name: 'Flame text'});
     await expect(heading).toHaveCSS(
@@ -545,9 +556,7 @@ for (const width of [1440, 390]) {
       page.getByText('Weekly planning', {exact: true}),
     ).not.toHaveCSS('-webkit-text-fill-color', 'rgba(0, 0, 0, 0)');
     for (const theme of ['Dark', 'Light']) {
-      await page
-        .getByRole('switch', {name: 'Dark mode', exact: true})
-        .setChecked(theme === 'Dark');
+      await setTheme(page, theme === 'Dark');
       await expect(heading.locator('canvas')).toHaveCSS('filter', 'none');
       await expect(
         page
@@ -569,7 +578,7 @@ for (const width of [1440, 390]) {
             : 'rgba(248, 247, 245, 0.62)',
         );
       }
-      await page.getByRole('switch', {name: 'Dark mode', exact: true}).blur();
+      await page.getByRole('button', {name: /Switch to .* mode/}).blur();
       await page.mouse.move(0, 0);
       await page.screenshot({
         path: testInfo.outputPath(`${theme}.png`),
@@ -608,6 +617,7 @@ for (const width of [1440, 390]) {
     await page.setViewportSize({width, height: 900});
     await calendarApi(page, false);
     await page.goto('/');
+    await page.getByRole('radio', {name: 'Agenda', exact: true}).click();
     const picker = page.getByRole('combobox', {name: 'Font', exact: true});
     for (const [id, family] of [
       ['instrument', 'InstrumentSerif_400Regular'],
@@ -667,6 +677,7 @@ for (const width of [1440, 390]) {
     await navigateTo(page, 'Settings');
     await picker.selectOption('averia-light');
     await page.reload();
+    await page.getByRole('radio', {name: 'Agenda', exact: true}).click();
     await navigateTo(page, 'Settings');
     await expect(picker).toHaveValue('averia-light');
     await expect(picker.locator('option')).toHaveCount(5);
@@ -674,6 +685,7 @@ for (const width of [1440, 390]) {
       localStorage.setItem('planoramic.font', 'averia'),
     );
     await page.reload();
+    await page.getByRole('radio', {name: 'Agenda', exact: true}).click();
     await navigateTo(page, 'Settings');
     await expect(picker).toHaveValue('averia-light');
     await navigateTo(page, 'Calendar');
@@ -689,11 +701,9 @@ for (const mode of ['light', 'dark']) {
       await page.setViewportSize({width, height: 900});
       await calendarApi(page, false);
       await page.goto('/');
-      const control = page.getByRole('switch', {
-        name: 'Dark mode',
-        exact: true,
-      });
-      await control.setChecked(mode === 'dark');
+      await page.getByRole('radio', {name: 'Agenda', exact: true}).click();
+      await setTheme(page, mode === 'dark');
+      const control = page.getByRole('button', {name: /Switch to .* mode/});
       await control.blur();
       await page.mouse.move(0, 0);
       const connect = page.getByRole('button', {
@@ -722,8 +732,8 @@ for (const mode of ['light', 'dark']) {
           'rgba(0, 0, 0, 0.2) 0px 8px 24px 0px, rgba(255, 255, 255, 0.08) 0px 1px 0px 0px inset',
         );
       }
-      await expect(control).toBeChecked({checked: mode === 'dark'});
-      await expect(control).toHaveCSS('width', '40px');
+      await expect(control).toHaveCSS('width', '48px');
+      await expect(control).toHaveCSS('border-radius', '24px');
       await expect(
         page.getByRole('heading', {name: 'Upcoming Events'}),
       ).toHaveCSS('font-family', /Montserrat_500Medium/);

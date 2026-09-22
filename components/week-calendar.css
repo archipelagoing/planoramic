@@ -1,0 +1,315 @@
+.week-calendar {
+  --fc-border-color: var(--line);
+  --fc-page-bg-color: transparent;
+  --fc-neutral-bg-color: transparent;
+  --fc-today-bg-color: transparent;
+  --fc-now-indicator-color: var(--accent);
+  color: var(--ink);
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  letter-spacing: 0;
+}
+.week-calendar.dark {
+  --sheet: rgba(24, 22, 21, 0.5);
+  --event: rgba(72, 86, 77, 0.86);
+  --fc-border-color: rgba(255, 255, 255, 0.12);
+}
+.week-calendar.light {
+  --sheet: rgba(255, 255, 255, 0.26);
+  --event: rgba(220, 234, 223, 0.9);
+  --fc-border-color: rgba(65, 61, 56, 0.16);
+}
+.week-calendar button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.week-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-bottom: 16px;
+}
+.week-toolbar h2 {
+  font-size: 24px;
+  font-weight: 500;
+  margin: 0 8px;
+}
+.week-range {
+  color: var(--muted);
+  font-size: 14px;
+}
+.week-layout {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  gap: 20px;
+}
+.week-sidebar {
+  width: 210px;
+  flex-shrink: 0;
+  overflow-y: auto;
+}
+.mini-calendar,
+.side-clock {
+  background: var(--sheet);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+}
+.side-clock {
+  margin-top: 12px;
+  padding: 16px;
+}
+.week-main {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--sheet);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+.week-horizontal-scroll {
+  overflow-x: auto;
+  flex: 1;
+  min-height: 0;
+}
+.week-grid {
+  min-width: 770px;
+  height: 100%;
+}
+.week-calendar .fc {
+  font-family: inherit;
+  font-size: 13px;
+}
+.week-calendar .fc a {
+  color: inherit;
+  text-decoration: none;
+}
+.week-calendar .fc-timegrid-slot {
+  height: 28px;
+}
+.week-calendar .fc-timegrid-slot-label {
+  color: var(--muted);
+  font-size: 12px;
+}
+.week-calendar .fc-scrollgrid {
+  border: 0;
+}
+.week-calendar .fc-col-header-cell {
+  font-weight: 400;
+}
+.week-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 0;
+}
+.week-day > span {
+  text-transform: uppercase;
+  font-size: 12px;
+  color: var(--muted);
+}
+.week-calendar .date-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid transparent;
+  font-size: 23px;
+  padding: 0;
+}
+.week-calendar .date-circle.small {
+  width: 25px;
+  height: 25px;
+  font-size: 12px;
+}
+.week-calendar .date-circle.today {
+  background: var(--accent);
+  color: #fff;
+}
+.week-calendar .date-circle.selected {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+.week-calendar button:focus-visible,
+.week-calendar .fc-event:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.mini-calendar .fc td,
+.mini-calendar .fc th {
+  border: 0;
+}
+.mini-calendar .fc-daygrid-day-top {
+  justify-content: center;
+}
+.mini-calendar .fc-daygrid-day-events {
+  display: none;
+}
+.mini-calendar .fc-daygrid-day-number {
+  padding: 3px 0;
+}
+.mini-calendar .fc .fc-toolbar-title {
+  font-size: 14px;
+}
+.mini-calendar .fc .fc-toolbar {
+  gap: 3px;
+  margin-bottom: 10px;
+}
+.mini-calendar .fc .fc-button {
+  padding: 3px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink);
+  box-shadow: none;
+}
+.mini-calendar .fc .fc-button:hover {
+  background: var(--sheet);
+}
+.mini-calendar .fc .fc-button .fc-icon {
+  font-size: 16px;
+}
+.week-calendar .fc-event {
+  background: var(--event);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+}
+.week-calendar .fc-event-main {
+  color: inherit;
+}
+.week-event-content {
+  height: 100%;
+  box-sizing: border-box;
+  min-height: 0;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  overflow: hidden;
+  font-size: 12px;
+  line-height: 1.3;
+}
+.week-event-content strong {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex-shrink: 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.week-event-content em {
+  font-family: var(--italic);
+  font-style: normal;
+  opacity: 0.85;
+}
+.week-calendar .fc-timegrid-event-short .week-event-content {
+  flex-direction: row;
+  white-space: nowrap;
+}
+.week-calendar .fc-timegrid-event-short .week-event-content em {
+  display: none;
+}
+.week-status {
+  padding: 10px;
+  font-size: 14px;
+}
+.week-status button,
+.event-dialog button {
+  border: 1px solid var(--line);
+  background: var(--sheet);
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+.event-dialog {
+  background: var(--sheet);
+  backdrop-filter: blur(24px);
+  color: var(--ink);
+  font: inherit;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  max-width: 480px;
+  width: calc(100% - 64px);
+  padding: 24px;
+}
+.event-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.65);
+}
+.event-dialog h2 {
+  font-size: 24px;
+  overflow-wrap: anywhere;
+}
+.event-description {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 1100px) {
+  .week-layout {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .week-sidebar {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+  .mini-calendar {
+    width: 210px;
+    box-sizing: border-box;
+  }
+  .side-clock {
+    margin: 0;
+  }
+}
+@media (max-width: 600px) {
+  .week-calendar {
+    overflow-y: auto;
+  }
+  .week-toolbar h2 {
+    font-size: 20px;
+  }
+  .week-layout {
+    flex: none;
+  }
+  .week-main {
+    height: 560px;
+    flex: none;
+  }
+  .week-sidebar {
+    align-items: stretch;
+    gap: 8px;
+  }
+  .mini-calendar {
+    width: 200px;
+    flex-shrink: 0;
+    padding: 6px;
+  }
+  .side-clock {
+    padding: 6px;
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}

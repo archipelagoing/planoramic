@@ -5,9 +5,11 @@ calendar events working end to end in the browser display. Earlier verification
 confirmed upcoming events across 29 calendars in the connection preview.
 
 ## Next implementation steps
-- [x] Add a seven-day overview and compact glass month widget in the header highlighting today's date
+- [x] Add a browser timed Week view with hourly rows, circular date selection, side month navigation, and range-based event loading
+- [x] Keep the seven-day Agenda list as an alternate view
 - [x] Add compact live analog and digital clocks using device-local time
-- [x] Simplify appearance controls to a light/dark toggle; move font and flame-text options into Settings
+- [x] Simplify appearance controls to one circular light/dark button; keep font and flame-text options in Settings
+- [ ] Bring the timed week grid to native Fire TV and verify remote navigation
 - [x] Replace starter sidebar sections with Brief, Household, and Pomo
 - [x] Add Today/Week calendar views and persistent calendar-source visibility filters
 - [x] Add a deterministic Brief with today's events and next upcoming timed event

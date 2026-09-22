@@ -26,7 +26,7 @@ import ThemeControl from '../components/ThemeControl';
 import CalendarCanvas from '../components/CalendarCanvas';
 import {darkGlassCard, darkGlassFocus} from '../components/DarkGlassEdges';
 import {lightGlassCard} from '../components/lightGlassCard';
-import CalendarOverview from '../components/CalendarOverview';
+import WeekCalendar from '../components/WeekCalendar';
 import CalendarWidgets from '../components/CalendarWidgets';
 import {useWorkspace} from '../theme/WorkspaceProvider';
 import {Colors, focusStyle, glassStyle, useTheme} from '../theme/ThemeProvider';
@@ -108,7 +108,7 @@ function EventRow({event}: {event: CalendarEvent}) {
 
 export default function CalendarScreen() {
   const {hidden, setSnapshot} = useWorkspace();
-  const [range, setRange] = useState<'today' | 'week'>('week');
+  const [range, setRange] = useState<'agenda' | 'week'>('week');
   const {colors, storageError, dark} = useTheme();
   const styles = useMemo(() => makeStyles(colors, dark), [colors, dark]);
   const [preview, setPreview] = useState(true);
@@ -129,10 +129,7 @@ export default function CalendarScreen() {
     () =>
       eventSections(
         (preview ? examples : response?.events || []).filter(
-          event =>
-            !hidden.includes(event.calendarId) &&
-            (range === 'week' ||
-              eventDate(event).toDateString() === new Date().toDateString()),
+          event => !hidden.includes(event.calendarId),
         ),
       ),
     [preview, examples, response, hidden, range],
@@ -353,11 +350,11 @@ export default function CalendarScreen() {
           <Text style={[styles.secondary, styles.context]}>
             {preview
               ? 'Sample events · Preview'
-              : `Next seven days${response ? ` · ${response.calendarCount} calendars` : ''}`}
+              : `Your calendar${response ? ` · ${response.calendarCount} calendars` : ''}`}
           </Text>
         </View>
         <View style={styles.tools}>
-          <CalendarWidgets />
+          {range === 'agenda' && <CalendarWidgets />}
           <ThemeControl />
           {preview ? (
             <Action
@@ -383,10 +380,10 @@ export default function CalendarScreen() {
         accessibilityLabel="Calendar range"
         style={{flexDirection: 'row', gap: 10, marginBottom: 16}}>
         <GlassButton
-          label="Today"
+          label="Agenda"
           radio
-          selected={range === 'today'}
-          onPress={() => setRange('today')}
+          selected={range === 'agenda'}
+          onPress={() => setRange('agenda')}
         />
         <GlassButton
           label="Week"
@@ -477,7 +474,15 @@ export default function CalendarScreen() {
               })}
             </FlameText>
           )}
-          {!preview && loading && !response ? (
+          {range === 'week' ? (
+            <WeekCalendar
+              events={preview ? examples : response?.events || []}
+              device={device}
+              preview={preview}
+              hidden={hidden}
+              refreshToken={refresh}
+            />
+          ) : !preview && loading && !response ? (
             <View style={styles.center}>
               <ActivityIndicator size="large" color={colors.accent} />
               <Text style={styles.secondary}>Loading your calendars…</Text>
@@ -487,18 +492,6 @@ export default function CalendarScreen() {
               style={{flex: 1, flexDirection: 'row', gap: 20, minHeight: 0}}>
               <SectionList
                 style={{flex: 1, minWidth: 0}}
-                ListHeaderComponent={
-                  range === 'week' ? (
-                    <CalendarOverview
-                      variant="week"
-                      events={preview ? examples : response?.events || []}
-                      device={device}
-                      preview={preview}
-                      hidden={hidden}
-                      refreshToken={refresh}
-                    />
-                  ) : null
-                }
                 sections={sections}
                 keyExtractor={item => `${item.calendarId}:${item.id}`}
                 contentContainerStyle={styles.list}
@@ -518,9 +511,7 @@ export default function CalendarScreen() {
                       ? 'Use Refresh to try again.'
                       : hidden.length
                         ? 'No events in your visible calendars for this view.'
-                        : range === 'today'
-                          ? 'No events today.'
-                          : 'No upcoming events in the next seven days.'}
+                        : 'No upcoming events in the next seven days.'}
                   </Text>
                 }
               />
