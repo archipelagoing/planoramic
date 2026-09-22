@@ -82,11 +82,11 @@ for (const width of [1440, 390]) {
       if (name === 'Light') {
         await expect(page.locator('#events li')).toHaveCSS(
           'background-color',
-          'rgba(255, 255, 255, 0.34)',
+          'rgba(0, 0, 0, 0)',
         );
         await expect(page.locator('#events li')).toHaveCSS(
           'backdrop-filter',
-          'blur(20px) saturate(1.2)',
+          'blur(8px) saturate(1.2) brightness(1.04)',
         );
         expect(
           await page.evaluate(

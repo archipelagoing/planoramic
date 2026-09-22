@@ -582,13 +582,18 @@ for (const mode of ['light', 'dark']) {
       if (mode === 'light') {
         const card = page.getByRole('button', {name: /Weekly planning/});
         await expect(card).toHaveCSS(
-          'background-color',
-          'rgba(255, 255, 255, 0.34)',
+          'border-color',
+          'rgba(255, 255, 255, 0.45)',
         );
+        await expect(card).toHaveCSS(
+          'background-image',
+          /linear-gradient\(135deg/,
+        );
+        await expect(card).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
         await expect(card).toHaveCSS('border-radius', '18px');
         await expect(card).toHaveCSS(
           'backdrop-filter',
-          'blur(20px) saturate(1.2)',
+          'blur(8px) saturate(1.2) brightness(1.04)',
         );
         await expect(page.getByTestId('calendar-background')).toHaveCSS(
           'filter',

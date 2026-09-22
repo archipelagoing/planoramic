@@ -25,6 +25,7 @@ import GlassButton from '../components/GlassButton';
 import ThemeControl from '../components/ThemeControl';
 import CalendarCanvas from '../components/CalendarCanvas';
 import {darkGlassCard, darkGlassFocus} from '../components/DarkGlassEdges';
+import {lightGlassCard} from '../components/lightGlassCard';
 import {Colors, focusStyle, glassStyle, useTheme} from '../theme/ThemeProvider';
 import {sampleEvents} from '../services/sampleEvents';
 import {clearDevice, loadDevice, saveDevice} from '../services/deviceStorage';
@@ -77,6 +78,7 @@ function EventRow({event}: {event: CalendarEvent}) {
       style={({pressed}) => [
         styles.event,
         glassStyle(colors, dark, focused || pressed),
+        !dark && lightGlassCard,
         (focused || pressed) && styles.focused,
         focusStyle(colors, dark, focused, reduceMotion, 1.015),
         dark && darkGlassCard,
