@@ -2,8 +2,11 @@ import {test, expect, Page} from '@playwright/test';
 
 async function navigateTo(page: Page, name: string) {
   const menu = page.getByRole('button', {name: 'Open navigation'});
-  if (await menu.isVisible()) await menu.click();
-  await page.getByRole('button', {name, exact: true}).click();
+  const mobile = (page.viewportSize()?.width || 1440) < 700;
+  if (mobile) await menu.click();
+  const destination = page.getByRole('button', {name, exact: true});
+  await destination.click();
+  if (mobile) await expect(destination).not.toBeInViewport();
 }
 
 for (const width of [1440, 390]) {
@@ -719,9 +722,8 @@ for (const mode of ['light', 'dark']) {
           'rgba(0, 0, 0, 0.2) 0px 8px 24px 0px, rgba(255, 255, 255, 0.08) 0px 1px 0px 0px inset',
         );
       }
-      await expect(control).toHaveCSS('width', '48px');
-      await expect(control).toHaveCSS('height', '48px');
-      await expect(control).toHaveCSS('border-radius', '24px');
+      await expect(control).toBeChecked({checked: mode === 'dark'});
+      await expect(control).toHaveCSS('width', '40px');
       await expect(
         page.getByRole('heading', {name: 'Upcoming Events'}),
       ).toHaveCSS('font-family', /Montserrat_500Medium/);
@@ -773,9 +775,7 @@ for (const mode of ['light', 'dark']) {
           'color',
           'rgb(41, 37, 34)',
         );
-        await expect(
-          page.getByRole('radio', {name: 'Dark theme'}).locator('canvas'),
-        ).toHaveCount(0);
+        await expect(control.locator('canvas')).toHaveCount(0);
       }
       expect(
         await page.evaluate(

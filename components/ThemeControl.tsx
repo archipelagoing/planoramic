@@ -1,5 +1,5 @@
 import React from 'react';
-import {Switch, View} from 'react-native';
+import {Platform, Switch, View} from 'react-native';
 import Text from './AppText';
 import {useTheme} from '../theme/ThemeProvider';
 
@@ -9,6 +9,7 @@ export default function ThemeControl() {
     <View
       style={{
         flexDirection: 'row',
+        alignItems: 'center',
         flexWrap: 'wrap',
         gap: 10,
         maxWidth: '100%',
@@ -20,6 +21,7 @@ export default function ThemeControl() {
         onValueChange={value => setMode(value ? 'dark' : 'light')}
         trackColor={{false: colors.muted, true: colors.accent}}
         thumbColor={colors.surface}
+        {...(Platform.OS === 'web' ? {activeThumbColor: colors.text} : {})}
       />
     </View>
   );
