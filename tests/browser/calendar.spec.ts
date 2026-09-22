@@ -278,6 +278,157 @@ test('appearance follows system, persists overrides, and updates navigation', as
   );
 });
 
+for (const width of [1440, 390]) {
+  test(`flame text preview ${width}`, async ({page}, testInfo) => {
+    await page.setViewportSize({width, height: 900});
+    await calendarApi(page, false);
+    await page.goto('/');
+    const heading = page.getByRole('heading', {name: 'Upcoming Events'});
+    const toggle = page.getByRole('checkbox', {name: 'Flame text'});
+    await expect(heading).toHaveCSS(
+      '-webkit-text-fill-color',
+      'rgba(0, 0, 0, 0)',
+    );
+    await expect(heading).toHaveCSS('background-image', 'none');
+    const pixels = await heading
+      .locator('canvas')
+      .evaluate((canvas: HTMLCanvasElement) => {
+        const data = canvas
+          .getContext('2d')!
+          .getImageData(0, 0, canvas.width, canvas.height).data;
+        let visible = 0;
+        let clear = 0;
+        const colors = new Set();
+        for (let i = 0; i < data.length; i += 4) {
+          if (data[i + 3] > 200) {
+            visible++;
+            colors.add(`${data[i]},${data[i + 1]},${data[i + 2]}`);
+          }
+          if (data[i + 3] === 0) clear++;
+        }
+        return {visible, clear, colors: colors.size};
+      });
+    expect(pixels.visible).toBeGreaterThan(100);
+    expect(pixels.clear).toBeGreaterThan(pixels.visible);
+    expect(pixels.colors).toBeGreaterThan(30);
+    await expect(
+      page.getByText('Weekly planning', {exact: true}),
+    ).not.toHaveCSS('-webkit-text-fill-color', 'rgba(0, 0, 0, 0)');
+    for (const theme of ['Dark', 'Light']) {
+      await page.getByRole('radio', {name: `${theme} theme`}).click();
+      await expect(heading.locator('canvas')).toHaveCSS(
+        'filter',
+        theme === 'Dark' ? /drop-shadow/ : 'none',
+      );
+      const icon = page.locator('[data-testid="flame-icon"]:visible').first();
+      await expect(icon.locator('canvas')).toBeVisible();
+      expect(
+        await icon.locator('canvas').evaluate((canvas: HTMLCanvasElement) => {
+          const data = canvas
+            .getContext('2d')!
+            .getImageData(0, 0, canvas.width, canvas.height).data;
+          return data.some((value, index) => index % 4 === 3 && value > 0);
+        }),
+      ).toBe(true);
+      await expect(
+        page
+          .getByRole('heading', {name: /Wednesday, September/})
+          .locator('canvas'),
+      ).toBeVisible();
+      await expect(
+        page.getByText('10:00 AM', {exact: true}).locator('canvas'),
+      ).toBeVisible();
+      if (width === 1440) {
+        await expect(page.getByTestId('glass-sidebar')).toHaveCSS(
+          'backdrop-filter',
+          'blur(18px)',
+        );
+        await expect(page.getByTestId('glass-sidebar')).toHaveCSS(
+          'background-color',
+          theme === 'Dark'
+            ? 'rgba(33, 30, 32, 0.82)'
+            : 'rgba(246, 245, 245, 0.76)',
+        );
+      }
+      await page.getByRole('radio', {name: `${theme} theme`}).blur();
+      await page.mouse.move(0, 0);
+      await page.screenshot({
+        path: testInfo.outputPath(`${theme}.png`),
+        fullPage: true,
+      });
+    }
+    const bounds = await heading.boundingBox();
+    await toggle.uncheck();
+    await expect(page.locator('[data-testid="flame-icon"] canvas')).toHaveCount(
+      0,
+    );
+    await expect(
+      page.getByText('10:00 AM', {exact: true}).locator('canvas'),
+    ).toHaveCount(0);
+    await expect(heading).not.toHaveCSS(
+      '-webkit-text-fill-color',
+      'rgba(0, 0, 0, 0)',
+    );
+    expect(await heading.boundingBox()).toEqual(bounds);
+    await toggle.check();
+    await expect(heading).toHaveCSS(
+      '-webkit-text-fill-color',
+      'rgba(0, 0, 0, 0)',
+    );
+  });
+}
+
+for (const width of [1440, 390]) {
+  test(`font picker updates app and persists ${width}`, async ({
+    page,
+  }, testInfo) => {
+    await page.setViewportSize({width, height: 900});
+    await calendarApi(page, false);
+    await page.goto('/');
+    const picker = page.getByRole('combobox', {name: 'Font', exact: true});
+    for (const [id, family] of [
+      ['instrument', 'InstrumentSerif_400Regular'],
+      ['garamond', 'CormorantGaramond_500Medium'],
+      ['infant', 'CormorantInfant_500Medium'],
+      ['averia', 'AveriaSerifLibre_300Light_Italic'],
+      ['averia-light', 'AveriaSerifLibre_300Light'],
+      ['montserrat', 'Montserrat_500Medium'],
+    ]) {
+      await picker.selectOption(id);
+      await expect(
+        page.getByRole('heading', {name: 'Upcoming Events'}),
+      ).toHaveCSS('font-family', family);
+      await expect(page.getByText('Weekly planning', {exact: true})).toHaveCSS(
+        'font-family',
+        family,
+      );
+      await expect(picker).toHaveCSS('font-family', family);
+      await page.evaluate(() => document.fonts.ready);
+      expect(
+        await page.evaluate(
+          font => document.fonts.check(`18px ${font}`),
+          family,
+        ),
+      ).toBe(true);
+      expect(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= innerWidth,
+        ),
+      ).toBe(true);
+      await page.screenshot({
+        path: testInfo.outputPath(`${id}.png`),
+        fullPage: true,
+      });
+    }
+    await picker.selectOption('averia-light');
+    await page.reload();
+    await expect(picker).toHaveValue('averia-light');
+    await expect(
+      page.getByRole('heading', {name: 'Upcoming Events'}),
+    ).toHaveCSS('font-family', 'AveriaSerifLibre_300Light');
+  });
+}
+
 for (const mode of ['light', 'dark']) {
   for (const width of [1440, 390]) {
     test(`glass appearance ${mode} ${width}`, async ({page}, testInfo) => {
@@ -304,12 +455,12 @@ for (const mode of ['light', 'dark']) {
         await expect(card).toHaveCSS('border-radius', '20px');
         await expect(card).toHaveCSS(
           'border-color',
-          'rgba(255, 255, 255, 0.3)',
+          'rgba(255, 255, 255, 0.18)',
         );
         await expect(card).toHaveCSS('background-image', 'none');
         await expect(card).toHaveCSS(
           'box-shadow',
-          'rgba(0, 0, 0, 0.1) 0px 8px 32px 0px, rgba(255, 255, 255, 0.5) 0px 1px 0px 0px inset, rgba(255, 255, 255, 0.1) 0px -1px 0px 0px inset, rgba(255, 255, 255, 0.7) 0px 0px 14px 7px inset',
+          'rgba(0, 0, 0, 0.18) 0px 8px 24px 0px, rgba(255, 255, 255, 0.2) 0px 1px 0px 0px inset, rgba(255, 255, 255, 0.04) 0px -1px 0px 0px inset',
         );
       }
       await expect(control).toHaveCSS('width', '48px');
@@ -325,13 +476,13 @@ for (const mode of ['light', 'dark']) {
       ).toBe(true);
       await expect(page.getByText('PLANORAMIC', {exact: true})).toHaveCSS(
         'color',
-        mode === 'dark' ? 'rgb(255, 146, 153)' : 'rgb(180, 35, 50)',
+        mode === 'dark' ? 'rgb(212, 160, 164)' : 'rgb(147, 79, 87)',
       );
       await expect(
-        page.getByTestId('fireplace-background').locator('img'),
-      ).toHaveJSProperty('naturalWidth', 1920);
+        page.getByTestId('calendar-background').locator('img'),
+      ).toHaveJSProperty('naturalWidth', 687);
       const backdrop = await page
-        .getByTestId('fireplace-background')
+        .getByTestId('calendar-background')
         .boundingBox();
       expect(backdrop!.width).toBeLessThanOrEqual(width);
       expect(backdrop!.height).toBeLessThanOrEqual(900);

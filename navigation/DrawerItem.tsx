@@ -18,11 +18,11 @@
 
 import React, {useState} from 'react';
 import {View, StyleSheet, TouchableOpacity, Animated} from 'react-native';
-import {Icon} from 'react-native-paper';
+import Icon from '../components/FlameIcon';
 import {useNavigation, ParamListBase} from '@react-navigation/native';
 import {DrawerNavigationProp} from '@react-navigation/drawer';
 import {useTheme} from '../theme/ThemeProvider';
-import {fonts} from '../components/AppText';
+import {useFont} from '../theme/FontProvider';
 
 interface MenuItem {
   name: string;
@@ -48,6 +48,7 @@ const DrawerItem = ({
   hasTVPreferredFocus,
 }: DrawerItemProps) => {
   const {colors} = useTheme();
+  const {family} = useFont();
   const navigation = useNavigation<DrawerNavigationProp<ParamListBase>>();
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const isActive = item.screen === route;
@@ -81,7 +82,7 @@ const DrawerItem = ({
         <Animated.Text
           style={[
             styles.menuItemText,
-            {opacity: textOpacityAnim, color: colors.text},
+            {opacity: textOpacityAnim, color: colors.text, fontFamily: family},
             isFocused && [
               styles.focusedMenuItem,
               {borderBottomColor: colors.accent},
@@ -104,7 +105,6 @@ const styles = StyleSheet.create({
     height: 54,
   },
   menuItemText: {
-    fontFamily: fonts.medium,
     marginLeft: 10,
     paddingBottom: 4,
   },

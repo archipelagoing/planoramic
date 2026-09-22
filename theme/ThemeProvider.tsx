@@ -21,13 +21,13 @@ const palettes = {
     sidebar: '#EEEAEA',
     text: '#302829',
     muted: '#6A5D60',
-    accent: '#B42332',
-    accentSoft: '#F5DCDD',
-    rose: '#A64550',
+    accent: '#934F57',
+    accentSoft: '#EEDFE0',
+    rose: '#934F57',
     border: '#E2DADB',
     error: '#AD3549',
     glass: 'rgba(255,255,255,0.58)',
-    glassBorder: 'rgba(255,255,255,0.95)',
+    glassBorder: 'rgba(255,255,255,0.55)',
   },
   dark: {
     background: '#141315',
@@ -35,9 +35,9 @@ const palettes = {
     sidebar: '#211E20',
     text: '#F7F1F2',
     muted: '#D0C4C7',
-    accent: '#FF9299',
-    accentSoft: '#532D33',
-    rose: '#F6A6AD',
+    accent: '#D4A0A4',
+    accentSoft: '#493438',
+    rose: '#D4A0A4',
     border: '#4B3D41',
     error: '#FFA7B6',
     glass: 'rgba(36,29,32,0.72)',
@@ -53,6 +53,8 @@ const ThemeContext = createContext<{
   setMode: (mode: ThemeMode) => void;
   storageError: string;
   reduceMotion: boolean;
+  flameText: boolean;
+  setFlameText: (enabled: boolean) => void;
 }>({
   mode: 'system',
   dark: false,
@@ -60,9 +62,12 @@ const ThemeContext = createContext<{
   setMode: () => {},
   storageError: '',
   reduceMotion: true,
+  flameText: true,
+  setFlameText: () => {},
 });
 
 export function ThemeProvider({children}: {children: React.ReactNode}) {
+  const [flameText, setFlameText] = useState(true);
   const system = useColorScheme();
   const [mode, updateMode] = useState<ThemeMode>('system');
   const [storageError, setStorageError] = useState('');
@@ -131,6 +136,8 @@ export function ThemeProvider({children}: {children: React.ReactNode}) {
         setMode,
         storageError,
         reduceMotion,
+        flameText,
+        setFlameText,
       }}>
       {children}
     </ThemeContext.Provider>
@@ -150,18 +157,18 @@ export function glassStyle(
           backdropFilter: 'blur(15px)',
           WebkitBackdropFilter: 'blur(15px)',
           backgroundImage: dark
-            ? 'linear-gradient(135deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.01) 42%, rgba(255,146,153,0.05) 100%)'
-            : 'linear-gradient(135deg, rgba(255,255,255,0.90) 0%, rgba(255,255,255,0.18) 42%, rgba(190,62,75,0.16) 100%)',
+            ? 'linear-gradient(135deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.01) 42%, rgba(212,160,164,0.05) 100%)'
+            : 'linear-gradient(135deg, rgba(255,255,255,0.65) 0%, rgba(255,255,255,0.18) 42%, rgba(147,79,87,0.08) 100%)',
           boxShadow: dark
-            ? '0 8px 24px rgba(0,0,0,0.40), inset 0 1px 0 rgba(255,255,255,0.35), inset 1px 0 0 rgba(255,255,255,0.12)'
-            : '0 8px 20px rgba(80,34,42,0.16), 0 2px 4px rgba(80,34,42,0.08), inset 0 1px 0 rgba(255,255,255,1), inset 1px 0 0 rgba(255,255,255,0.9), inset 0 -1px 0 rgba(255,255,255,0.55), inset 0 0 8px 3px rgba(255,255,255,0.45)',
+            ? '0 8px 24px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.20), inset 1px 0 0 rgba(255,255,255,0.08)'
+            : '0 8px 20px rgba(80,34,42,0.10), inset 0 1px 0 rgba(255,255,255,0.6), inset 1px 0 0 rgba(255,255,255,0.25)',
         }
       : {};
   return {
     backgroundColor: active
       ? dark
-        ? 'rgba(226,91,105,0.22)'
-        : 'rgba(209,67,83,0.22)'
+        ? 'rgba(212,160,164,0.18)'
+        : 'rgba(147,79,87,0.14)'
       : dark
         ? colors.glass
         : 'rgba(255,255,255,0.22)',
@@ -187,8 +194,8 @@ export function focusStyle(
           ...(focused
             ? {
                 boxShadow: dark
-                  ? '0 0 22px rgba(255,146,153,0.35), 0 8px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.7)'
-                  : '0 0 18px rgba(180,35,50,0.25), 0 6px 18px rgba(80,34,42,0.16), inset 0 1px 0 white',
+                  ? '0 0 12px rgba(212,160,164,0.20), 0 8px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.35)'
+                  : '0 0 10px rgba(147,79,87,0.18), 0 6px 18px rgba(80,34,42,0.12), inset 0 1px 0 white',
               }
             : {}),
         }

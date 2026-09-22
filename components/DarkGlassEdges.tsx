@@ -12,7 +12,7 @@ export const darkGlassCard: ViewStyle = {
   backgroundColor: 'rgba(255,255,255,0.08)',
   borderRadius: 20,
   borderWidth: 1,
-  borderColor: 'rgba(255,255,255,0.3)',
+  borderColor: 'rgba(255,255,255,0.18)',
   position: 'relative',
   overflow: 'hidden',
   ...(Platform.OS === 'web'
@@ -21,7 +21,7 @@ export const darkGlassCard: ViewStyle = {
         backdropFilter: 'blur(15px)',
         WebkitBackdropFilter: 'blur(15px)',
         boxShadow:
-          '0 8px 32px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -1px 0 rgba(255,255,255,0.1), inset 0 0 14px 7px rgba(255,255,255,0.7)',
+          '0 8px 24px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.20), inset 0 -1px 0 rgba(255,255,255,0.04)',
       }
     : {}),
 };
@@ -36,9 +36,9 @@ export default function DarkGlassEdges() {
     ...(Platform.OS === 'web'
       ? {
           backgroundImage:
-            'linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent)',
+            'linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent)',
         }
-      : {backgroundColor: 'rgba(255,255,255,0.8)'}),
+      : {backgroundColor: 'rgba(255,255,255,0.28)'}),
   };
   const left: ViewStyle = {
     position: 'absolute',
@@ -49,9 +49,9 @@ export default function DarkGlassEdges() {
     ...(Platform.OS === 'web'
       ? {
           backgroundImage:
-            'linear-gradient(180deg, rgba(255,255,255,0.8), transparent, rgba(255,255,255,0.3))',
+            'linear-gradient(180deg, rgba(255,255,255,0.22), transparent, rgba(255,255,255,0.08))',
         }
-      : {backgroundColor: 'rgba(255,255,255,0.3)'}),
+      : {backgroundColor: 'rgba(255,255,255,0.08)'}),
   };
   return (
     <>

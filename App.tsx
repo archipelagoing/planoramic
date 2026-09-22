@@ -24,13 +24,32 @@ import {
 } from '@react-navigation/native';
 import {ThemeProvider, useTheme} from './theme/ThemeProvider';
 import LeftHandNav from './navigation/LeftHandNav';
-import {ActivityIndicator, View} from 'react-native';
+import {
+  ActivityIndicator,
+  View,
+  Image,
+  StyleSheet,
+  Platform,
+} from 'react-native';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import {useFonts} from 'expo-font';
 import {Montserrat_500Medium} from '@expo-google-fonts/montserrat/500Medium';
+import {InstrumentSerif_400Regular} from '@expo-google-fonts/instrument-serif/400Regular';
+import {CormorantGaramond_500Medium} from '@expo-google-fonts/cormorant-garamond/500Medium';
+import {CormorantInfant_500Medium} from '@expo-google-fonts/cormorant-infant/500Medium';
+import {FontProvider} from './theme/FontProvider';
+import {AveriaSerifLibre_300Light_Italic} from '@expo-google-fonts/averia-serif-libre/300Light_Italic';
+import {AveriaSerifLibre_300Light} from '@expo-google-fonts/averia-serif-libre/300Light';
 
 const App = () => {
   const [loaded, error] = useFonts({
+    ...MaterialCommunityIcons.font,
+    AveriaSerifLibre_300Light_Italic,
+    AveriaSerifLibre_300Light,
     Montserrat_500Medium,
+    InstrumentSerif_400Regular,
+    CormorantGaramond_500Medium,
+    CormorantInfant_500Medium,
   });
   if (!loaded && !error)
     return (
@@ -46,7 +65,9 @@ const App = () => {
     );
   return (
     <ThemeProvider>
-      <ThemedApp />
+      <FontProvider>
+        <ThemedApp />
+      </FontProvider>
     </ThemeProvider>
   );
 };
@@ -54,20 +75,47 @@ const App = () => {
 const ThemedApp = () => {
   const {colors, dark} = useTheme();
   return (
-    <NavigationContainer
-      theme={{
-        ...(dark ? DarkTheme : DefaultTheme),
-        colors: {
-          ...DefaultTheme.colors,
-          primary: colors.accent,
-          background: colors.background,
-          card: colors.sidebar,
-          text: colors.text,
-          border: colors.border,
-        },
-      }}>
-      <LeftHandNav />
-    </NavigationContainer>
+    <View style={{flex: 1, backgroundColor: colors.background}}>
+      {Platform.OS === 'web' && (
+        <>
+          <Image
+            source={require('./assets/images/frosted1.png')}
+            accessible={false}
+            resizeMode="cover"
+            style={[
+              StyleSheet.absoluteFillObject,
+              {width: '100%', height: '100%'},
+            ]}
+          />
+          <View
+            pointerEvents="none"
+            style={[
+              StyleSheet.absoluteFillObject,
+              {
+                backgroundColor: dark
+                  ? 'rgba(14,10,12,0.48)'
+                  : 'rgba(246,245,245,0.8)',
+              },
+            ]}
+          />
+        </>
+      )}
+      <NavigationContainer
+        theme={{
+          ...(dark ? DarkTheme : DefaultTheme),
+          colors: {
+            ...DefaultTheme.colors,
+            primary: colors.accent,
+            background:
+              Platform.OS === 'web' ? 'transparent' : colors.background,
+            card: colors.sidebar,
+            text: colors.text,
+            border: colors.border,
+          },
+        }}>
+        <LeftHandNav />
+      </NavigationContainer>
+    </View>
   );
 };
 

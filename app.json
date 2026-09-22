@@ -12,6 +12,9 @@
       "expo-font"
     ],
     "name": "ExpoTVDemo",
+    "web": {
+      "favicon": "./assets/images/hourglass.png"
+    },
     "slug": "ExpoTVDemo"
   }
 }

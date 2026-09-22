@@ -1,4 +1,5 @@
 import Text from '../components/AppText';
+import FlameText from '../components/FlameText';
 import React, {useEffect, useMemo, useState} from 'react';
 import {
   ActivityIndicator,
@@ -85,7 +86,7 @@ function EventRow({event}: {event: CalendarEvent}) {
         dark && focused && darkGlassFocus,
       ]}>
       {dark && <DarkGlassEdges />}
-      <Text style={styles.time}>{time}</Text>
+      <FlameText style={styles.time}>{time}</FlameText>
       <View style={styles.eventBody}>
         <Text style={styles.eventTitle}>{event.title}</Text>
         <Text style={styles.secondary}>
@@ -308,10 +309,10 @@ export default function CalendarScreen() {
     <CalendarCanvas style={styles.page}>
       <View style={styles.header}>
         <View style={styles.heading}>
-          <Text style={styles.eyebrow}>PLANORAMIC</Text>
-          <Text accessibilityRole="header" style={styles.title}>
+          <FlameText style={styles.eyebrow}>PLANORAMIC</FlameText>
+          <FlameText accessibilityRole="header" style={styles.title}>
             Upcoming Events
-          </Text>
+          </FlameText>
           <Text style={styles.secondary}>
             {preview
               ? 'Sample events · Preview'
@@ -413,13 +414,13 @@ export default function CalendarScreen() {
             </View>
           )}
           {!preview && updatedAt && (
-            <Text style={styles.updated}>
+            <FlameText style={styles.updated}>
               Updated{' '}
               {updatedAt.toLocaleTimeString(undefined, {
                 hour: 'numeric',
                 minute: '2-digit',
               })}
-            </Text>
+            </FlameText>
           )}
           {!preview && loading && !response ? (
             <View style={styles.center}>
@@ -433,9 +434,9 @@ export default function CalendarScreen() {
               contentContainerStyle={styles.list}
               stickySectionHeadersEnabled={false}
               renderSectionHeader={({section}) => (
-                <Text accessibilityRole="header" style={styles.day}>
+                <FlameText accessibilityRole="header" style={styles.day}>
                   {section.title}
-                </Text>
+                </FlameText>
               )}
               renderItem={({item}) => <EventRow event={item} />}
               ListEmptyComponent={

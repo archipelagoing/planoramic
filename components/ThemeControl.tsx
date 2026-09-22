@@ -1,6 +1,8 @@
 import React from 'react';
 import {View} from 'react-native';
 import GlassButton from './GlassButton';
+import FontControl from './FontControl';
+import FlameControl from './FlameControl';
 import {ThemeMode, useTheme} from '../theme/ThemeProvider';
 
 const modes: {value: ThemeMode; label: string; icon: string}[] = [
@@ -12,21 +14,31 @@ export default function ThemeControl() {
   const {mode, setMode} = useTheme();
   return (
     <View
-      accessibilityRole="radiogroup"
-      accessibilityLabel="Appearance"
-      style={{flexDirection: 'row', gap: 6, zIndex: 10}}>
-      {modes.map(item => (
-        <GlassButton
-          key={item.value}
-          label={item.label}
-          icon={item.icon}
-          iconOnly
-          circular
-          radio
-          selected={mode === item.value}
-          onPress={() => setMode(item.value)}
-        />
-      ))}
+      style={{
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 10,
+        maxWidth: '100%',
+      }}>
+      <View
+        accessibilityRole="radiogroup"
+        accessibilityLabel="Appearance"
+        style={{flexDirection: 'row', gap: 6, zIndex: 10}}>
+        {modes.map(item => (
+          <GlassButton
+            key={item.value}
+            label={item.label}
+            icon={item.icon}
+            iconOnly
+            circular
+            radio
+            selected={mode === item.value}
+            onPress={() => setMode(item.value)}
+          />
+        ))}
+      </View>
+      <FontControl />
+      <FlameControl />
     </View>
   );
 }

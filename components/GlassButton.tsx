@@ -1,7 +1,7 @@
 import Text from './AppText';
 import React, {useState} from 'react';
 import {Platform, Pressable, View} from 'react-native';
-import {Icon} from 'react-native-paper';
+import Icon from './FlameIcon';
 import {focusStyle, glassStyle, useTheme} from '../theme/ThemeProvider';
 
 export default function GlassButton({

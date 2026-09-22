@@ -2,6 +2,10 @@
   "name": "expotvdemo",
   "version": "1.0.0",
   "dependencies": {
+    "@expo-google-fonts/averia-serif-libre": "^0.4.1",
+    "@expo-google-fonts/cormorant-garamond": "^0.4.1",
+    "@expo-google-fonts/cormorant-infant": "^0.4.1",
+    "@expo-google-fonts/instrument-serif": "^0.4.1",
     "@expo-google-fonts/montserrat": "^0.4.2",
     "@expo/metro-runtime": "~3.2.3",
     "@react-navigation/drawer": "^6.6.15",

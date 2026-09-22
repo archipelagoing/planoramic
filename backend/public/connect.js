@@ -1,4 +1,45 @@
+import {attachFlameText} from './flame-text.js';
 const element = id => document.getElementById(id);
+let flameCleanups = [];
+function updateFlame() {
+  flameCleanups.forEach(cleanup => cleanup());
+  flameCleanups = element('flame-toggle').checked
+    ? [...document.querySelectorAll('.flame-text, .icon')].map(node =>
+        attachFlameText(node, {
+          dark: document.documentElement.dataset.theme === 'dark',
+        }),
+      )
+    : [];
+}
+element('flame-toggle').addEventListener('change', updateFlame);
+const fontKey = 'planoramic.font';
+const fontPicker = element('font-picker');
+const fontIds = [
+  'montserrat',
+  'instrument',
+  'garamond',
+  'infant',
+  'averia',
+  'averia-light',
+];
+try {
+  const saved = localStorage.getItem(fontKey);
+  if (fontIds.includes(saved)) fontPicker.value = saved;
+} catch {}
+document.documentElement.dataset.font = fontPicker.value;
+updateFlame();
+fontPicker.addEventListener('change', () => {
+  document.documentElement.dataset.font = fontPicker.value;
+  updateFlame();
+  try {
+    localStorage.setItem(fontKey, fontPicker.value);
+    element('font-feedback').hidden = true;
+  } catch {
+    element('font-feedback').hidden = false;
+    element('font-feedback').textContent =
+      'Font will only be saved for this session.';
+  }
+});
 const appearanceKey = 'planoramic.appearance';
 const systemAppearance = window.matchMedia('(prefers-color-scheme: dark)');
 let appearance = 'system';
@@ -19,6 +60,7 @@ function applyAppearance() {
       String(button.dataset.theme === appearance),
     );
   });
+  updateFlame();
 }
 document.querySelectorAll('button[data-theme]').forEach(button => {
   button.addEventListener('click', () => {
@@ -56,6 +98,7 @@ async function status() {
 element('refresh').addEventListener('click', async () => {
   element('refresh').disabled = true;
   element('events').replaceChildren();
+  updateFlame();
   element('feedback').textContent = 'Loading events…';
   try {
     const {events, calendarCount} = await api('/api/calendar/events');
@@ -64,10 +107,35 @@ element('refresh').addEventListener('click', async () => {
       : `No upcoming events in the next seven days across ${calendarCount} calendars.`;
     for (const event of events) {
       const row = document.createElement('li');
-      const start = event.allDay
-        ? `${event.start.date} (all day)`
-        : new Date(event.start.dateTime).toLocaleString();
-      row.textContent = `${event.title}\n${start}\n${event.calendarName}${event.location ? `\n${event.location}` : ''}`;
+      const date = new Date(
+        event.allDay ? `${event.start.date}T12:00:00` : event.start.dateTime,
+      );
+      const time = document.createElement('span');
+      time.className = 'event-time flame-text';
+      time.textContent = event.allDay
+        ? 'All day'
+        : date.toLocaleTimeString([], {hour: 'numeric', minute: '2-digit'});
+      const details = document.createElement('div');
+      const title = document.createElement('h2');
+      title.className = 'event-title';
+      title.textContent = event.title;
+      const meta = document.createElement('p');
+      meta.className = 'event-meta';
+      const dateLabel = document.createElement('span');
+      dateLabel.className = 'event-date flame-text';
+      dateLabel.textContent = date.toLocaleDateString([], {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+      });
+      meta.append(
+        dateLabel,
+        document.createTextNode(
+          ` · ${[event.calendarName, event.location].filter(Boolean).join(' · ')}`,
+        ),
+      );
+      details.append(title, meta);
+      row.append(time, details);
       element('events').append(row);
     }
   } catch (error) {
@@ -75,6 +143,7 @@ element('refresh').addEventListener('click', async () => {
     element('login').hidden = false;
   } finally {
     element('refresh').disabled = false;
+    updateFlame();
   }
 });
 element('pair-form').addEventListener('submit', async event => {
@@ -103,6 +172,7 @@ for (const action of ['logout', 'disconnect']) {
     try {
       await api(`/auth/${action}`, {method: 'POST'});
       element('events').replaceChildren();
+      updateFlame();
       element('feedback').textContent =
         action === 'logout'
           ? 'Signed out. Paired TVs can still access your calendar.'

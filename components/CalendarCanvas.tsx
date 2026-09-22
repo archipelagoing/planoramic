@@ -20,8 +20,8 @@ export default function CalendarCanvas({
   return (
     <View style={{flex: 1, backgroundColor: colors.background}}>
       <Image
-        testID="fireplace-background"
-        source={require('../assets/images/fireplace1.png')}
+        testID="calendar-background"
+        source={require('../assets/images/frosted1.png')}
         resizeMode="cover"
         accessible={false}
         style={[StyleSheet.absoluteFillObject, {width: '100%', height: '100%'}]}

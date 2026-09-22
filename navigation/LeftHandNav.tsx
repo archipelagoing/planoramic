@@ -31,12 +31,14 @@ import {
 } from '../screens';
 import DrawerContent from './DrawerContent';
 import {useTheme} from '../theme/ThemeProvider';
-import {fonts} from '../components/AppText';
+import {useFont} from '../theme/FontProvider';
+import GlassButton from '../components/GlassButton';
 
 const Drawer = createDrawerNavigator();
 
 const LeftHandNav = () => {
   const {colors} = useTheme();
+  const {family} = useFont();
   const {width} = useWindowDimensions();
   const compact = Platform.OS === 'web' && width < 700;
   return (
@@ -46,16 +48,28 @@ const LeftHandNav = () => {
         const currentRoute = props.state.routeNames[state.index];
         return <DrawerContent route={currentRoute} />;
       }}
-      screenOptions={{
+      screenOptions={({navigation}) => ({
         drawerType: compact ? 'front' : 'permanent',
         drawerStyle: {
           width: Platform.OS === 'web' ? 200 : 'auto',
+          backgroundColor:
+            Platform.OS === 'web' ? 'transparent' : colors.sidebar,
         },
         headerShown: compact,
         headerStyle: {backgroundColor: colors.sidebar},
         headerTintColor: colors.text,
-        headerTitleStyle: {fontFamily: fonts.medium, fontWeight: 'normal'},
-      }}>
+        headerTitleStyle: {fontFamily: family, fontWeight: 'normal'},
+        headerLeft: compact
+          ? () => (
+              <GlassButton
+                label="Open navigation"
+                icon="menu"
+                iconOnly
+                onPress={() => navigation.toggleDrawer()}
+              />
+            )
+          : undefined,
+      })}>
       <Drawer.Screen name="Calendar" component={CalendarScreen} />
       <Drawer.Screen name="Home" component={HomeScreen} />
       <Drawer.Screen name="Movies" component={MoviesScreen} />

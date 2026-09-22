@@ -3,9 +3,9 @@ import {ScrollView, StyleSheet} from 'react-native';
 import {useTheme} from '../theme/ThemeProvider';
 import {ParamListBase, useNavigation} from '@react-navigation/native';
 import {DrawerItem, DrawerNavigationProp} from '@react-navigation/drawer';
-import {Icon} from 'react-native-paper';
+import Icon from '../components/FlameIcon';
 import {menuItems} from './menuItems';
-import {fonts} from '../components/AppText';
+import {useFont} from '../theme/FontProvider';
 
 interface DrawerContentProps {
   route: string;
@@ -19,23 +19,37 @@ const browserMenuItems = menuItems.map(item => ({
 }));
 
 const DrawerContent = ({route}: DrawerContentProps) => {
-  const {colors} = useTheme();
+  const {colors, dark} = useTheme();
+  const {family} = useFont();
   const navigation = useNavigation<DrawerNavigationProp<ParamListBase>>();
 
   return (
     <ScrollView
-      style={[styles.drawer, {backgroundColor: colors.sidebar}]}
+      testID="glass-sidebar"
+      style={[
+        styles.drawer,
+        {
+          backgroundColor: dark
+            ? 'rgba(33,30,32,0.82)'
+            : 'rgba(246,245,245,0.76)',
+          ...{backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)'},
+          borderRightWidth: 1,
+          borderRightColor: colors.glassBorder,
+        },
+      ]}
       contentContainerStyle={styles.content}>
       {browserMenuItems.map(item => (
         <DrawerItem
           key={item.screen}
           label={item.name}
-          labelStyle={{fontFamily: fonts.medium, fontWeight: 'normal'}}
+          labelStyle={{fontFamily: family, fontWeight: 'normal'}}
           icon={item.renderIcon}
           focused={route === item.screen}
           activeTintColor={colors.accent}
           inactiveTintColor={colors.muted}
-          activeBackgroundColor={colors.surface}
+          activeBackgroundColor={
+            dark ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.5)'
+          }
           onPress={() => navigation.navigate(item.screen)}
         />
       ))}

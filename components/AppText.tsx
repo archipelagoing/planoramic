@@ -2,14 +2,16 @@ import React from 'react';
 import {Text, TextProps} from 'react-native';
 import {isLoaded} from 'expo-font';
 
-export const fonts = {
-  medium: 'Montserrat_500Medium',
-};
+import {useFont} from '../theme/FontProvider';
 
-export default function AppText({style, ...props}: TextProps) {
-  const family = fonts.medium;
+export default React.forwardRef<Text, TextProps>(function AppText(
+  {style, ...props},
+  ref,
+) {
+  const {family} = useFont();
   return (
     <Text
+      ref={ref}
       {...props}
       style={[
         style,
@@ -20,4 +22,4 @@ export default function AppText({style, ...props}: TextProps) {
       ]}
     />
   );
-}
+});

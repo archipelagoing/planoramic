@@ -5,46 +5,63 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Connect Google Calendar · Planoramic</title>
     <link rel="stylesheet" href="/connect-assets/connect.css" />
-    <script src="/connect-assets/connect.js" defer></script>
+    <script src="/connect-assets/connect.js" type="module"></script>
   </head>
   <body>
     <main>
       <header>
-        <p class="brand">PLANORAMIC</p>
-        <div class="appearance" role="group" aria-label="Appearance">
-          <button
-            type="button"
-            data-theme="light"
-            aria-label="Light theme"
-            title="Light theme"
-            aria-pressed="false">
-            <span class="icon" aria-hidden="true">&#xf05a8;</span>
-          </button>
-          <button
-            type="button"
-            data-theme="dark"
-            aria-label="Dark theme"
-            title="Dark theme"
-            aria-pressed="false">
-            <span class="icon" aria-hidden="true">&#xf0594;</span>
-          </button>
-          <button
-            type="button"
-            data-theme="system"
-            aria-label="System theme"
-            title="System theme"
-            aria-pressed="true">
-            <span class="icon" aria-hidden="true">&#xf050e;</span>
-          </button>
+        <div class="heading">
+          <p class="brand flame-text">PLANORAMIC</p>
+          <h1 class="flame-text">Connect your calendar</h1>
+        </div>
+        <div class="toolbar">
+          <div class="appearance" role="group" aria-label="Appearance">
+            <button
+              type="button"
+              data-theme="light"
+              aria-label="Light theme"
+              title="Light theme"
+              aria-pressed="false">
+              <span class="icon" aria-hidden="true">&#xf05a8;</span>
+            </button>
+            <button
+              type="button"
+              data-theme="dark"
+              aria-label="Dark theme"
+              title="Dark theme"
+              aria-pressed="false">
+              <span class="icon" aria-hidden="true">&#xf0594;</span>
+            </button>
+            <button
+              type="button"
+              data-theme="system"
+              aria-label="System theme"
+              title="System theme"
+              aria-pressed="true">
+              <span class="icon" aria-hidden="true">&#xf050e;</span>
+            </button>
+          </div>
+          <select id="font-picker" aria-label="Font">
+            <option value="montserrat">Montserrat</option>
+            <option value="instrument">Instrument Serif</option>
+            <option value="garamond">Cormorant Garamond</option>
+            <option value="infant">Cormorant Infant</option>
+            <option value="averia-light">Averia Light</option>
+            <option value="averia">Averia Light Italic</option>
+          </select>
+          <label class="flame-control"
+            ><input id="flame-toggle" type="checkbox" checked /> Flame
+            text</label
+          >
         </div>
       </header>
-      <h1>Connect your calendar</h1>
-      <p>
+      <p class="intro">
         Sign in with Google to display your upcoming events. Planoramic requests
         read-only access to your calendar events and calendar list.
       </p>
       <p id="status" role="status">Checking connection…</p>
       <p id="appearance-feedback" role="status" hidden></p>
+      <p id="font-feedback" role="status" hidden></p>
       <a id="login" href="/auth/google" hidden>Connect Google Calendar</a>
       <div id="controls" hidden>
         <form id="pair-form">
