@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"name": "planoramic",
+			"path": "."
+		},
+		{
+			"name": "hello-world-fire-tv-react-native-main",
+			"path": "../Downloads/hello-world-fire-tv-react-native-main"
+		},
+		{
+			"name": "vega-project",
+			"path": "../vega-project"
+		}
+	],
+	"settings": {}
+}

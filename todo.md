@@ -1,43 +1,80 @@
 # Fire TV + Google Calendar + Phone Web Control Project TODO
 
+Last updated: 2026-09-17. Live Google sign-in and upcoming events across 29
+calendars confirmed in the connection preview.
+
+## Next implementation steps
+- [ ] Add a pairing-code entry form to the signed-in connection page
+- [ ] Register the TV/browser display with the backend, show its pairing code, and securely retain its device credential
+- [x] Add `CalendarScreen` and a Calendar navigation item to the shared TV/browser app
+- [ ] Fetch events using the paired device credential and group them by local date, with calendar names
+- [ ] Add loading, empty, error, and refresh states; verify in the browser, then on Fire TV
+
+These steps connect the existing backend to the display. The full phone control UI
+follows afterward. Keep Google tokens on the backend and the development API key
+out of the display app.
+
 ## 1. Set up the project structure
-- [ ] Create a backend folder for API and Google Calendar integration
-- [ ] Create a web app folder for the phone-friendly control UI
-- [ ] Keep the Fire TV React Native app as the TV display app
-- [ ] Decide on the shared device registration flow
+- [x] Create a backend folder for API and Google Calendar integration
+- [x] Create a web app folder for the phone-friendly control UI
+- [x] Keep the Fire TV React Native app as the TV display app
+- [x] Decide on the shared device registration flow
+
+Structure and pairing design are documented in [docs/device-pairing.md](docs/device-pairing.md).
+The backend now contains a local development API; the phone app still contains a
+planning README. Implementation continues below.
 
 ## 2. Set up the backend
-- [ ] Create Node.js Express server
-- [ ] Add health endpoint
-- [ ] Add device registration endpoint
-- [ ] Add device control endpoint
-- [ ] Add calendar event fetch endpoint
-- [ ] Add error handling and logging
-- [ ] Add environment variables for Google OAuth and API keys
+- [x] Create Node.js Express server
+- [x] Add health endpoint
+- [x] Add device registration endpoint
+- [x] Add device control endpoint
+- [x] Add calendar event fetch endpoint
+- [x] Add error handling and logging
+- [x] Add environment variables for Google OAuth and API keys
+
+Local development API implemented; see [backend/README.md](backend/README.md).
+Devices, Google tokens, and browser sessions are stored in memory. Pairing/control
+support Google user sessions and a separate development-key account. Live Google
+access is verified; restarting the backend still clears accounts, tokens, and devices.
 
 ## 3. Set up Google Calendar integration
-- [ ] Create a Google Cloud project
-- [ ] Enable Google Calendar API
-- [ ] Create OAuth client credentials
-- [ ] Configure redirect URIs
-- [ ] Set up Google login flow
-- [ ] Request calendar access scopes
-- [ ] Fetch upcoming events from `calendars/primary/events`
-- [ ] Parse event fields: title, start, end, location, description
-- [ ] Filter upcoming events
-- [ ] Add refresh logic
-- [ ] Handle expired tokens
+- [x] Create a Google Cloud project
+- [x] Enable Google Calendar API
+- [x] Create OAuth client credentials
+- [x] Configure redirect URIs
+- [x] Set up Google login flow
+- [x] Request calendar access scopes
+- [x] Fetch upcoming events from `calendars/primary/events`
+- [x] Include readable subsidiary/shared calendars and label events with their source calendar
+- [x] Parse event fields: title, start, end, location, description
+- [x] Filter upcoming events
+- [x] Add refresh logic
+- [x] Handle expired tokens
+- [x] Verify live Google sign-in and event fetching after Cloud configuration
+
+Live sign-in and a seven-day event fetch across 29 calendars are confirmed through
+`http://localhost:3001/connect`. Backend tests cover multi-calendar fetching,
+authentication, ownership, and token-refresh failures (24 tests passed on rerun).
+The connection preview reloads events manually; automatic token refresh is tested
+with simulated Google responses. TV polling and event caching remain in later
+sections. Setup reference: [docs/google-calendar-setup.md](docs/google-calendar-setup.md).
 
 ## 4. Set up Fire TV app
-- [ ] Open the Fire TV React Native project
-- [ ] Install dependencies
-- [ ] Add a `CalendarScreen`
+- [x] Open the Fire TV React Native project
+- [x] Install dependencies
+- [x] Add a `CalendarScreen`
 - [ ] Fetch event data from backend
-- [ ] Display upcoming events in a TV-friendly list
-- [ ] Add large text and clear focus states
+- [x] Display upcoming events in a TV-friendly list
+- [x] Add large text and clear focus states
 - [ ] Add refresh button
 - [ ] Add loading and empty states
 - [ ] Add error handling for API failures
+
+The Calendar screen opens with labeled sample events grouped by local date,
+including all-day events and selectable details. List and focus styling are
+implemented; Fire TV rendering and remote navigation still need device testing.
+Existing pairing, fetch, and status handling await end-to-end verification.
 
 ## 5. Set up the phone web app
 - [ ] Create a mobile-friendly web app
@@ -51,9 +88,9 @@
 
 ## 6. Set up device control flow
 - [ ] Add device registration from Fire TV app
-- [ ] Generate a device ID or pairing code
+- [x] Generate a device ID or pairing code (backend endpoint; TV integration pending)
 - [ ] Let the phone register a Fire TV device
-- [ ] Add API endpoints to update device state
+- [x] Add API endpoints to update device state
 - [ ] Add phone-side controls for:
   - [ ] set date range
   - [ ] set “today” or “week” view
@@ -70,16 +107,18 @@
 - [ ] Make navigation remote-friendly
 
 ## 8. Testing
-- [ ] Test Google auth flow
-- [ ] Test event fetch from Google Calendar
-- [ ] Test backend API
+- [x] Test Google auth flow (live sign-in and automated failure cases)
+- [x] Test event fetch from Google Calendar (live multi-calendar preview)
+- [x] Test backend API (automated integration tests)
 - [ ] Test Fire TV app rendering
 - [ ] Test web app responsiveness on phone
 - [ ] Test phone-to-TV control flow
 - [ ] Test no-network / expired-token cases
-- [ ] Test refresh behavior
+- [x] Test manual event loading in the connection preview
+- [ ] Test refresh behavior end to end from phone to TV
 
 ## 9. Deployment
+- [ ] Add durable storage for users, Google tokens, devices, and display settings before deployment
 - [ ] Deploy backend to a host
 - [ ] Deploy web app
 - [ ] Configure CORS

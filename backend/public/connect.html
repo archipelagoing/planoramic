@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Connect Google Calendar · Planoramic</title>
+    <link rel="stylesheet" href="/connect-assets/connect.css" />
+    <script src="/connect-assets/connect.js" defer></script>
+  </head>
+  <body>
+    <main>
+      <p class="brand">PLANORAMIC</p>
+      <h1>Connect your calendar</h1>
+      <p>
+        Sign in with Google to display your upcoming events. Planoramic requests
+        read-only access to your calendar events and calendar list.
+      </p>
+      <p id="status" role="status">Checking connection…</p>
+      <a id="login" href="/auth/google" hidden>Connect Google Calendar</a>
+      <div id="controls" hidden>
+        <form id="pair-form">
+          <label for="pair-code">Pair your TV or browser display</label>
+          <input
+            id="pair-code"
+            name="code"
+            placeholder="8-character code"
+            maxlength="8"
+            minlength="8"
+            pattern="[A-Fa-f0-9]{8}"
+            autocomplete="off"
+            required />
+          <button id="pair-submit" type="submit">Pair display</button>
+          <p id="pair-feedback" role="status"></p>
+        </form>
+        <button id="refresh" type="button">Load upcoming events</button>
+        <button id="logout" type="button">Sign out</button>
+        <button id="disconnect" type="button">Disconnect calendar</button>
+      </div>
+      <p id="feedback" role="status"></p>
+      <ul id="events"></ul>
+      <p class="note">
+        Local preview: connections and device settings reset when the backend
+        restarts. Disconnect removes this server's access; you can also revoke
+        Planoramic in your Google account permissions.
+      </p>
+    </main>
+  </body>
+</html>

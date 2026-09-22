@@ -17,12 +17,14 @@
  */
 
 import React from 'react';
+import {Platform} from 'react-native';
 import {
   createDrawerNavigator,
   DrawerContentComponentProps,
 } from '@react-navigation/drawer';
 import {
   HomeScreen,
+  CalendarScreen,
   MoviesScreen,
   SettingsScreen,
   TVShowsScreen,
@@ -42,10 +44,11 @@ const LeftHandNav = () => {
       screenOptions={{
         drawerType: 'permanent',
         drawerStyle: {
-          width: 'auto',
+          width: Platform.OS === 'web' ? 200 : 'auto',
         },
         headerShown: false,
       }}>
+      <Drawer.Screen name="Calendar" component={CalendarScreen} />
       <Drawer.Screen name="Home" component={HomeScreen} />
       <Drawer.Screen name="Movies" component={MoviesScreen} />
       <Drawer.Screen name="TVShows" component={TVShowsScreen} />
