@@ -1,18 +1,24 @@
 # Fire TV + Google Calendar + Phone Web Control Project TODO
 
-Last updated: 2026-09-17. Live Google sign-in and upcoming events across 29
-calendars confirmed in the connection preview.
+Last updated: 2026-09-22. User confirmed Google sign-in, display pairing, and live
+calendar events working end to end in the browser display. Earlier verification
+confirmed upcoming events across 29 calendars in the connection preview.
 
 ## Next implementation steps
-- [ ] Add a pairing-code entry form to the signed-in connection page
-- [ ] Register the TV/browser display with the backend, show its pairing code, and securely retain its device credential
+- [x] Add a pairing-code entry form to the signed-in connection page
+- [x] Register the shared display app with the backend and show its pairing code (verified in browser)
+- [x] Implement secure device credential persistence (HttpOnly browser cookie; native SecureStore)
+- [ ] Verify saved credentials after reopening the app on Fire TV
 - [x] Add `CalendarScreen` and a Calendar navigation item to the shared TV/browser app
-- [ ] Fetch events using the paired device credential and group them by local date, with calendar names
-- [ ] Add loading, empty, error, and refresh states; verify in the browser, then on Fire TV
+- [x] Fetch events using the paired device credential and group them by local date, with calendar names (verified in browser)
+- [x] Add loading, empty, error, and refresh states; verify in the browser
+- [ ] Verify loading, empty, error, and refresh states on Fire TV
 
-These steps connect the existing backend to the display. The full phone control UI
-follows afterward. Keep Google tokens on the backend and the development API key
-out of the display app.
+The backend-to-browser display flow is verified. Browser persistence and status
+handling have automated coverage; Fire TV device testing remains. Backend storage
+is still in memory, so restarting the backend requires sign-in and pairing again.
+The full phone control UI follows afterward. Keep Google tokens on the backend
+and the development API key out of the display app.
 
 ## 1. Set up the project structure
 - [x] Create a backend folder for API and Google Calendar integration
@@ -64,17 +70,20 @@ sections. Setup reference: [docs/google-calendar-setup.md](docs/google-calendar-
 - [x] Open the Fire TV React Native project
 - [x] Install dependencies
 - [x] Add a `CalendarScreen`
-- [ ] Fetch event data from backend
+- [x] Fetch event data from backend (verified in shared browser display)
 - [x] Display upcoming events in a TV-friendly list
 - [x] Add large text and clear focus states
-- [ ] Add refresh button
-- [ ] Add loading and empty states
-- [ ] Add error handling for API failures
+- [x] Add refresh button (browser verified)
+- [x] Add loading and empty states (browser verified)
+- [x] Add error handling for API failures (browser verified)
 
 The Calendar screen opens with labeled sample events grouped by local date,
 including all-day events and selectable details. List and focus styling are
 implemented; Fire TV rendering and remote navigation still need device testing.
-Existing pairing, fetch, and status handling await end-to-end verification.
+Pairing and live event fetching are verified end to end in the browser display.
+Browser tests cover loading, empty results, refresh, stale events after network
+failure, startup retry, and Google reauthorization without losing display pairing.
+Native secure storage requires a rebuilt TV app and device verification.
 
 ## 5. Set up the phone web app
 - [ ] Create a mobile-friendly web app
@@ -87,8 +96,8 @@ Existing pairing, fetch, and status handling await end-to-end verification.
 - [ ] Make sure the web app can talk to the backend
 
 ## 6. Set up device control flow
-- [ ] Add device registration from Fire TV app
-- [x] Generate a device ID or pairing code (backend endpoint; TV integration pending)
+- [x] Add device registration to the shared TV/browser app (verified in browser; Fire TV testing pending)
+- [x] Generate a device ID or pairing code (verified in browser display)
 - [ ] Let the phone register a Fire TV device
 - [x] Add API endpoints to update device state
 - [ ] Add phone-side controls for:
@@ -110,6 +119,8 @@ Existing pairing, fetch, and status handling await end-to-end verification.
 - [x] Test Google auth flow (live sign-in and automated failure cases)
 - [x] Test event fetch from Google Calendar (live multi-calendar preview)
 - [x] Test backend API (automated integration tests)
+- [x] Test Google sign-in, display pairing, and live events end to end in the browser (user confirmed 2026-09-22)
+- [x] Test browser persistence, loading, empty, refresh, and network/Google-auth recovery with automated tests
 - [ ] Test Fire TV app rendering
 - [ ] Test web app responsiveness on phone
 - [ ] Test phone-to-TV control flow
@@ -132,5 +143,5 @@ Existing pairing, fetch, and status handling await end-to-end verification.
 - [ ] Add proper error messages
 - [ ] Add offline fallback
 - [ ] Add event caching
-- [ ] Add the “pair device” flow
+- [x] Add the “pair device” flow (verified in browser; Fire TV testing pending)
 - [ ] Add docs for setup and run steps

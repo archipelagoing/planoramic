@@ -355,6 +355,57 @@ export function createApp(
       );
     res.json(await client({timeMin, timeMax}));
   };
+  const displayCookie = 'planoramic_display';
+  const displayCookieOptions = {
+    httpOnly: true,
+    sameSite: 'strict',
+    secure: config.backendOrigin.startsWith('https:'),
+    path: '/api/display',
+  };
+  app.use('/api/display', (req, res, next) => {
+    if (
+      ![config.displayOrigin, config.backendOrigin].includes(req.get('Origin'))
+    ) {
+      throw new ApiError(
+        403,
+        'INVALID_ORIGIN',
+        'Display origin is not allowed.',
+      );
+    }
+    next();
+  });
+  const browserDevice = (req, res, next) => {
+    const value = (req.headers.cookie || '')
+      .split(';')
+      .map(part => part.trim())
+      .find(part => part.startsWith(`${displayCookie}=`))
+      ?.slice(displayCookie.length + 1);
+    const [id, credential] = (value || '').split('.');
+    const device = devices.get(id);
+    if (!device || !credential || !matches(credential, device.credential)) {
+      res.clearCookie(displayCookie, displayCookieOptions);
+      throw new ApiError(401, 'UNAUTHORIZED', 'Pair this display to continue.');
+    }
+    req.device = device;
+    next();
+  };
+  app.post('/api/display/session', (req, res) => {
+    const {deviceId} = body(req, ['deviceId']);
+    const credential = bearer(req);
+    const device = devices.get(deviceId);
+    if (!device || !matches(credential, device.credential)) {
+      throw new ApiError(401, 'UNAUTHORIZED', 'Invalid device credential.');
+    }
+    res.cookie(displayCookie, `${device.id}.${credential}`, {
+      ...displayCookieOptions,
+      maxAge: 365 * 24 * 60 * 60 * 1000,
+    });
+    res.json({deviceId: device.id, deviceCredential: ''});
+  });
+  app.get('/api/display/session', browserDevice, (req, res) => {
+    res.json({deviceId: req.device.id, deviceCredential: ''});
+  });
+  app.get('/api/display/events', browserDevice, events);
   app.get('/api/calendar/events', controller, events);
   app.get('/api/devices/:deviceId/events', deviceAuth, events);
   app.use((req, res, next) =>

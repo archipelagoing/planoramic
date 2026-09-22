@@ -22,9 +22,8 @@ import {
   request,
 } from '../services/calendar';
 import {sampleEvents} from '../services/sampleEvents';
+import {clearDevice, loadDevice, saveDevice} from '../services/deviceStorage';
 
-// Credentials stay in process memory; reopening the app requires pairing again.
-let pairedDevice: Device | null = null;
 function Action({
   label,
   onPress,
@@ -93,15 +92,19 @@ function EventRow({event}: {event: CalendarEvent}) {
 }
 
 export default function CalendarScreen() {
-  const [preview, setPreview] = useState(!pairedDevice);
+  const [preview, setPreview] = useState(true);
+  const [restoring, setRestoring] = useState(true);
+  const [restoreAttempt, setRestoreAttempt] = useState(0);
+  const [restoreError, setRestoreError] = useState('');
   const [examples] = useState(sampleEvents);
-  const [device, setDevice] = useState<Device | null>(pairedDevice);
+  const [device, setDevice] = useState<Device | null>(null);
   const [pairing, setPairing] = useState<Pairing | null>(null);
   const [pairAttempt, setPairAttempt] = useState(0);
   const [refresh, setRefresh] = useState(0);
   const [response, setResponse] = useState<EventResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [reconnect, setReconnect] = useState(false);
   const [updatedAt, setUpdatedAt] = useState<Date | null>(null);
   const sections = useMemo(
     () => eventSections(preview ? examples : response?.events || []),
@@ -109,7 +112,31 @@ export default function CalendarScreen() {
   );
 
   useEffect(() => {
-    if (preview || device) {
+    const controller = new AbortController();
+    setRestoring(true);
+    setRestoreError('');
+    loadDevice(controller.signal)
+      .then(saved => {
+        if (!controller.signal.aborted) {
+          setDevice(saved);
+          setPreview(!saved);
+        }
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) {
+          setRestoreError(
+            'Could not restore this display. Check the connection and try again.',
+          );
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setRestoring(false);
+      });
+    return () => controller.abort();
+  }, [restoreAttempt]);
+
+  useEffect(() => {
+    if (restoring || restoreError || preview || device) {
       return;
     }
     const controller = new AbortController();
@@ -134,11 +161,15 @@ export default function CalendarScreen() {
           return;
         }
         if (result.status === 'paired') {
-          pairedDevice = {
-            deviceId: result.deviceId,
-            deviceCredential: result.deviceCredential,
-          };
-          setDevice(pairedDevice);
+          const saved = await saveDevice(
+            {
+              deviceId: result.deviceId,
+              deviceCredential: result.deviceCredential,
+            },
+            controller.signal,
+          );
+          if (!active()) return;
+          setDevice(saved);
           setPairing(null);
           return;
         }
@@ -176,7 +207,7 @@ export default function CalendarScreen() {
         clearTimeout(timer);
       }
     };
-  }, [preview, device, pairAttempt]);
+  }, [restoring, restoreError, preview, device, pairAttempt]);
 
   useEffect(() => {
     if (preview || !device) {
@@ -185,8 +216,11 @@ export default function CalendarScreen() {
     const controller = new AbortController();
     setLoading(true);
     setError('');
+    setReconnect(false);
     request<EventResponse>(
-      `/api/devices/${device.deviceId}/events`,
+      Platform.OS === 'web'
+        ? '/api/display/events'
+        : `/api/devices/${device.deviceId}/events`,
       controller.signal,
       device.deviceCredential,
     )
@@ -196,17 +230,32 @@ export default function CalendarScreen() {
           setUpdatedAt(new Date());
         }
       })
-      .catch(err => {
+      .catch(async err => {
         if (controller.signal.aborted) {
           return;
         }
-        if (err instanceof ApiError && err.status === 401) {
-          pairedDevice = null;
+        if (err instanceof ApiError && err.code === 'UNAUTHORIZED') {
+          try {
+            await clearDevice();
+          } catch {
+            if (!controller.signal.aborted)
+              setError('Could not clear the saved pairing. Try Refresh again.');
+            return;
+          }
+          if (controller.signal.aborted) return;
           setResponse(null);
           setUpdatedAt(null);
           setDevice(null);
         } else {
           setError(err.message);
+          setReconnect(
+            err instanceof ApiError &&
+              [
+                'CALENDAR_REAUTH_REQUIRED',
+                'CALENDAR_ACCESS_DENIED',
+                'CALENDAR_NOT_CONNECTED',
+              ].includes(err.code || ''),
+          );
         }
       })
       .finally(() => {
@@ -216,6 +265,31 @@ export default function CalendarScreen() {
       });
     return () => controller.abort();
   }, [preview, device, refresh]);
+
+  if (restoring || restoreError) {
+    return (
+      <SafeAreaView style={styles.page}>
+        <View style={styles.center}>
+          {restoring ? (
+            <>
+              <ActivityIndicator size="large" color="#FF9900" />
+              <Text style={styles.secondary}>Restoring display...</Text>
+            </>
+          ) : (
+            <>
+              <Text accessibilityRole="alert" style={styles.error}>
+                {restoreError}
+              </Text>
+              <Action
+                label="Retry"
+                onPress={() => setRestoreAttempt(value => value + 1)}
+              />
+            </>
+          )}
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.page}>
@@ -301,6 +375,23 @@ export default function CalendarScreen() {
               {error}
               {response ? ' Showing previously loaded events.' : ''}
             </Text>
+          )}
+          {!preview && reconnect && (
+            <View style={styles.reconnect}>
+              <Text
+                selectable
+                style={styles.address}>{`${API_URL}/connect`}</Text>
+              {Platform.OS === 'web' && (
+                <Action
+                  label="Reconnect Google"
+                  onPress={() => {
+                    Linking.openURL(`${API_URL}/connect`).catch(() =>
+                      setError('Unable to open the connection page.'),
+                    );
+                  }}
+                />
+              )}
+            </View>
           )}
           {!preview && updatedAt && (
             <Text style={styles.updated}>
@@ -411,6 +502,7 @@ const styles = StyleSheet.create({
   updated: {color: '#B9C8D8', fontSize: 16, marginBottom: 6},
   error: {color: '#FFB4AB', fontSize: 20, lineHeight: 28, marginVertical: 16},
   center: {padding: 40, alignItems: 'center', gap: 16},
+  reconnect: {gap: 12, marginBottom: 16},
   pairCard: {
     padding: 24,
     borderRadius: 12,

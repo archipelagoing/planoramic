@@ -1,6 +1,7 @@
 {
   "expo": {
     "plugins": [
+      "expo-secure-store",
       [
         "@react-native-tvos/config-tv",
         {

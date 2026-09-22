@@ -67,6 +67,17 @@ the development API key for manual testing in the separate development account.
 All controller routes enforce account ownership. Never ship the development key
 inside a phone app or TV bundle.
 
+The browser display exchanges its paired bearer credential using
+`POST /api/display/session` with `{ "deviceId": "..." }`. The backend stores the
+credential in a one-year HttpOnly, SameSite=Strict cookie scoped to `/api/display`
+(Secure when the backend origin uses HTTPS). `GET /api/display/session` restores
+the device ID without exposing its credential, and `GET /api/display/events`
+fetches its events. These routes require the configured display or backend Origin;
+the browser uses credentialed fetches. They do not authorize controller actions.
+An invalid or revoked device clears the cookie. Native displays retain bearer
+credentials in Expo SecureStore. Restarting this in-memory backend invalidates
+both browser and native pairings.
+
 Control body examples:
 
 ```json

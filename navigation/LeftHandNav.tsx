@@ -17,7 +17,7 @@
  */
 
 import React from 'react';
-import {Platform} from 'react-native';
+import {Platform, useWindowDimensions} from 'react-native';
 import {
   createDrawerNavigator,
   DrawerContentComponentProps,
@@ -34,6 +34,8 @@ import DrawerContent from './DrawerContent';
 const Drawer = createDrawerNavigator();
 
 const LeftHandNav = () => {
+  const {width} = useWindowDimensions();
+  const compact = Platform.OS === 'web' && width < 700;
   return (
     <Drawer.Navigator
       drawerContent={(props: DrawerContentComponentProps) => {
@@ -42,11 +44,13 @@ const LeftHandNav = () => {
         return <DrawerContent route={currentRoute} />;
       }}
       screenOptions={{
-        drawerType: 'permanent',
+        drawerType: compact ? 'front' : 'permanent',
         drawerStyle: {
           width: Platform.OS === 'web' ? 200 : 'auto',
         },
-        headerShown: false,
+        headerShown: compact,
+        headerStyle: {backgroundColor: '#232F3E'},
+        headerTintColor: '#FFFFFF',
       }}>
       <Drawer.Screen name="Calendar" component={CalendarScreen} />
       <Drawer.Screen name="Home" component={HomeScreen} />

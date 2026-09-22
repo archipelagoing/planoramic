@@ -1,6 +1,6 @@
 import {Platform} from 'react-native';
 
-export const API_URL = (
+export const API_URL: string = (
   process.env.EXPO_PUBLIC_API_URL ||
   (Platform.OS === 'web' ? 'http://localhost:3001' : '')
 ).replace(/\/$/, '');
@@ -36,6 +36,7 @@ export class ApiError extends Error {
   constructor(
     public status: number,
     message: string,
+    public code?: string,
   ) {
     super(message);
   }
@@ -67,13 +68,17 @@ export async function request<T>(
         ...(credential ? {Authorization: `Bearer ${credential}`} : {}),
       },
       body: body ? JSON.stringify(body) : undefined,
-      credentials: 'omit',
+      credentials:
+        Platform.OS === 'web' && path.startsWith('/api/display/')
+          ? 'include'
+          : 'omit',
     });
     const data = await response.json();
     if (!response.ok) {
       throw new ApiError(
         response.status,
         data.error?.message || 'Calendar request failed.',
+        data.error?.code,
       );
     }
     return data as T;

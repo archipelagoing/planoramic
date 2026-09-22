@@ -13,6 +13,7 @@ function setup(options = {}) {
   return {app, logs};
 }
 const auth = req => req.set('Authorization', `Bearer ${apiKey}`);
+const display = req => req.set('Origin', config.displayOrigin);
 async function register(app) {
   return (
     await request(app)
@@ -129,6 +130,72 @@ test('device credentials cannot access another device', async () => {
   await request(app)
     .get(`/api/devices/${b.deviceId}/events`)
     .set('Authorization', `Bearer ${a.deviceCredential}`)
+    .expect(401);
+});
+
+test('browser pairing persists in an HttpOnly cookie and is revoked with the device', async () => {
+  const {app, logs} = setup({
+    calendar: async range => ({...range, events: [], calendarCount: 1}),
+  });
+  const device = await pair(app);
+  const saved = await display(request(app).post('/api/display/session'))
+    .set('Authorization', `Bearer ${device.deviceCredential}`)
+    .send({deviceId: device.deviceId})
+    .expect(200);
+  const cookie = saved.headers['set-cookie'][0];
+  assert.match(cookie, /HttpOnly/);
+  assert.match(cookie, /SameSite=Strict/);
+  assert.match(cookie, /Path=\/api\/display/);
+  assert.match(cookie, /Max-Age=31536000/);
+  assert.equal(saved.body.deviceCredential, '');
+  const restored = await display(request(app).get('/api/display/session'))
+    .set('Cookie', cookie)
+    .expect(200);
+  assert.equal(restored.body.deviceId, device.deviceId);
+  assert.equal(restored.body.deviceCredential, '');
+  await display(request(app).get('/api/display/events'))
+    .set('Cookie', cookie)
+    .expect(200);
+  await request(app)
+    .get(`/api/devices/${device.deviceId}/state`)
+    .set('Cookie', cookie)
+    .expect(401);
+  await auth(request(app).delete(`/api/devices/${device.deviceId}`)).expect(
+    204,
+  );
+  const revoked = await display(request(app).get('/api/display/session'))
+    .set('Cookie', cookie)
+    .expect(401);
+  assert.match(revoked.headers['set-cookie'][0], /Expires=Thu, 01 Jan 1970/);
+  assert.ok(!logs.join('').includes(device.deviceCredential));
+});
+
+test('browser session rejects foreign origins, invalid credentials, and cookies after restart', async () => {
+  const {app} = setup();
+  const device = await pair(app);
+  for (const origin of ['https://untrusted.example', config.webOrigin, '']) {
+    await request(app)
+      .post('/api/display/session')
+      .set('Origin', origin)
+      .set('Authorization', `Bearer ${device.deviceCredential}`)
+      .send({deviceId: device.deviceId})
+      .expect(403);
+    await request(app)
+      .get('/api/display/events')
+      .set('Origin', origin)
+      .expect(403);
+  }
+  await display(request(app).post('/api/display/session'))
+    .set('Authorization', `Bearer ${apiKey}`)
+    .send({deviceId: device.deviceId})
+    .expect(401);
+  const saved = await display(request(app).post('/api/display/session'))
+    .set('Authorization', `Bearer ${device.deviceCredential}`)
+    .send({deviceId: device.deviceId})
+    .expect(200);
+  const restarted = setup().app;
+  await display(request(restarted).get('/api/display/session'))
+    .set('Cookie', saved.headers['set-cookie'][0])
     .expect(401);
 });
 
