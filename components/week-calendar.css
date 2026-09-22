@@ -86,6 +86,26 @@
   min-width: 770px;
   height: 100%;
 }
+.week-grid.day-grid {
+  min-width: 0;
+}
+.day-weather {
+  max-width: 100%;
+  white-space: normal;
+  font-size: calc(11px * var(--font-scale, 1)) !important;
+  text-transform: none !important;
+}
+.weather-location {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: calc(12px * var(--font-scale, 1));
+  color: var(--muted);
+  padding: 12px 0;
+}
+.weather-location a {
+  color: inherit;
+}
 .week-calendar .fc {
   font-family: inherit;
   font-size: calc(13px * var(--font-scale, 1));

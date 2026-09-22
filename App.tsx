@@ -39,6 +39,7 @@ import {CormorantGaramond_500Medium} from '@expo-google-fonts/cormorant-garamond
 import {CormorantInfant_500Medium} from '@expo-google-fonts/cormorant-infant/500Medium';
 import {FontProvider} from './theme/FontProvider';
 import {WorkspaceProvider} from './theme/WorkspaceProvider';
+import {TasksProvider} from './theme/TasksProvider';
 import {AveriaSerifLibre_300Light_Italic} from '@expo-google-fonts/averia-serif-libre/300Light_Italic';
 import {AveriaSerifLibre_300Light} from '@expo-google-fonts/averia-serif-libre/300Light';
 import {Montserrat_500Medium_Italic} from '@expo-google-fonts/montserrat/500Medium_Italic';
@@ -76,7 +77,9 @@ const App = () => {
     <ThemeProvider>
       <FontProvider>
         <WorkspaceProvider>
-          <ThemedApp />
+          <TasksProvider>
+            <ThemedApp />
+          </TasksProvider>
         </WorkspaceProvider>
       </FontProvider>
     </ThemeProvider>

@@ -26,6 +26,7 @@ import {CalendarScreen, SettingsScreen} from '../screens';
 import DrawerContent from './DrawerContent';
 import {useTheme} from '../theme/ThemeProvider';
 import {useFont} from '../theme/FontProvider';
+import TasksScreen from '../screens/TasksScreen';
 import GlassButton from '../components/GlassButton';
 import BriefScreen from '../screens/BriefScreen';
 import HouseholdScreen from '../screens/HouseholdScreen';
@@ -73,6 +74,7 @@ const LeftHandNav = () => {
       })}>
       <Drawer.Screen name="Calendar" component={CalendarScreen} />
       <Drawer.Screen name="Brief" component={BriefScreen} />
+      <Drawer.Screen name="Tasks" component={TasksScreen} />
       <Drawer.Screen name="Household" component={HouseholdScreen} />
       <Drawer.Screen name="Pomo" component={PomoScreen} />
       <Drawer.Screen name="Settings" component={SettingsScreen} />

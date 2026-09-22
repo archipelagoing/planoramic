@@ -4,6 +4,7 @@ import WorkspacePage from '../components/WorkspacePage';
 import Text from '../components/AppText';
 import {useTheme} from '../theme/ThemeProvider';
 import {useWorkspace} from '../theme/WorkspaceProvider';
+import PeopleSettings, {CalendarPerson} from '../components/PeopleSettings';
 
 export default function HouseholdScreen() {
   const {colors} = useTheme();
@@ -21,6 +22,7 @@ export default function HouseholdScreen() {
           ? 'Sample calendars · Preview'
           : 'Calendars with events in the next seven days'
       }>
+      <PeopleSettings />
       {!!filterError && (
         <Text accessibilityRole="alert" style={{color: colors.error}}>
           {filterError}
@@ -59,6 +61,7 @@ export default function HouseholdScreen() {
                 ? 'event'
                 : 'events'}
             </Text>
+            <CalendarPerson calendarId={id} />
           </View>
           <Switch
             thumbColor={colors.surface}

@@ -407,13 +407,32 @@ export function createApp(
     res.json({deviceId: req.device.id, deviceCredential: ''});
   });
   app.get('/api/display/events', browserDevice, events);
-  const taskClient = req => createTaskClient(force => auth.accessToken(req.device.ownerId, force), calendarFetch);
-  app.get('/api/display/task-calendars', browserDevice, async (req, res) => res.json({calendars: await taskClient(req).calendars()}));
-  app.get('/api/display/tasks', browserDevice, async (req, res) => res.json({tasks: await taskClient(req).list(req.query.calendarId)}));
-  app.post('/api/display/tasks', browserDevice, async (req, res) => res.json(await taskClient(req).mutate(req.body)));
-  app.get('/api/devices/:deviceId/task-calendars', deviceAuth, async (req, res) => res.json({calendars: await taskClient(req).calendars()}));
-  app.get('/api/devices/:deviceId/tasks', deviceAuth, async (req, res) => res.json({tasks: await taskClient(req).list(req.query.calendarId)}));
-  app.post('/api/devices/:deviceId/tasks', deviceAuth, async (req, res) => res.json(await taskClient(req).mutate(req.body)));
+  const taskClient = req =>
+    createTaskClient(
+      force => auth.accessToken(req.device.ownerId, force),
+      calendarFetch,
+    );
+  app.get('/api/display/task-calendars', browserDevice, async (req, res) =>
+    res.json({calendars: await taskClient(req).calendars()}),
+  );
+  app.get('/api/display/tasks', browserDevice, async (req, res) =>
+    res.json({tasks: await taskClient(req).list(req.query.calendarId)}),
+  );
+  app.post('/api/display/tasks', browserDevice, async (req, res) =>
+    res.json(await taskClient(req).mutate(req.body)),
+  );
+  app.get(
+    '/api/devices/:deviceId/task-calendars',
+    deviceAuth,
+    async (req, res) =>
+      res.json({calendars: await taskClient(req).calendars()}),
+  );
+  app.get('/api/devices/:deviceId/tasks', deviceAuth, async (req, res) =>
+    res.json({tasks: await taskClient(req).list(req.query.calendarId)}),
+  );
+  app.post('/api/devices/:deviceId/tasks', deviceAuth, async (req, res) =>
+    res.json(await taskClient(req).mutate(req.body)),
+  );
   app.get('/api/calendar/events', controller, events);
   app.get('/api/devices/:deviceId/events', deviceAuth, events);
   app.use((req, res, next) =>

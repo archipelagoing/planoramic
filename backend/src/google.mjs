@@ -5,7 +5,8 @@ export const CALENDAR_SCOPE =
   'https://www.googleapis.com/auth/calendar.events.readonly';
 export const CALENDAR_LIST_SCOPE =
   'https://www.googleapis.com/auth/calendar.calendarlist.readonly';
-export const CALENDAR_WRITE_SCOPE = 'https://www.googleapis.com/auth/calendar.events';
+export const CALENDAR_WRITE_SCOPE =
+  'https://www.googleapis.com/auth/calendar.events';
 
 export function createGoogleProvider(config) {
   const client = () =>
@@ -32,7 +33,10 @@ export function createGoogleProvider(config) {
         const oauth = client();
         const {tokens} = await oauth.getToken({code, codeVerifier: verifier});
         const scopes = new Set((tokens.scope || '').split(' '));
-        if ((!scopes.has(CALENDAR_SCOPE) && !scopes.has(CALENDAR_WRITE_SCOPE)) || !scopes.has(CALENDAR_LIST_SCOPE))
+        if (
+          (!scopes.has(CALENDAR_SCOPE) && !scopes.has(CALENDAR_WRITE_SCOPE)) ||
+          !scopes.has(CALENDAR_LIST_SCOPE)
+        )
           throw new ApiError(
             403,
             'CALENDAR_PERMISSION_REQUIRED',

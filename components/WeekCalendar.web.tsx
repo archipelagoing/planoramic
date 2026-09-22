@@ -10,6 +10,8 @@ import {useFont} from '../theme/FontProvider';
 import GlassButton from './GlassButton';
 import {Clock} from './CalendarOverview';
 import './week-calendar.css';
+import {useTasks} from '../theme/TasksProvider';
+import {useWeather, weatherLabel} from '../services/weather';
 
 function weekRange(date: Date) {
   const start = new Date(date.getFullYear(), date.getMonth(), date.getDate());
@@ -28,6 +30,9 @@ export default function WeekCalendar({
 }: WeekCalendarProps) {
   const {colors, dark} = useTheme();
   const {family, fontScale} = useFont();
+  const {personForCalendar, owners, people} = useTasks();
+  const weather = useWeather();
+  const [view, setView] = useState<'week' | 'day'>('week');
   const main = useRef<FullCalendar>(null);
   const mini = useRef<FullCalendar>(null);
   const dialog = useRef<HTMLDialogElement>(null);
@@ -78,18 +83,29 @@ export default function WeekCalendar({
           start: event.start.dateTime || event.start.date,
           end: event.end?.dateTime || event.end?.date,
           allDay: event.allDay,
-          extendedProps: {source: event},
+          borderColor:
+            personForCalendar(event.calendarId)?.color ||
+            (/^#[a-fA-F0-9]{6}$/.test(event.personColor || '')
+              ? event.personColor
+              : undefined),
+          extendedProps: {
+            source: event,
+            person: personForCalendar(event.calendarId)?.name || event.person,
+          },
         })),
-    [preview, events, loaded, hidden],
+    [preview, events, loaded, hidden, owners, people],
   );
-  const choose = (date: Date) => {
+  const choose = (date: Date, openDay = false) => {
     setSelectedDate(date);
-    main.current?.getApi().gotoDate(date);
+    if (openDay) {
+      setView('day');
+      main.current?.getApi().changeView('timeGridDay', date);
+    } else main.current?.getApi().gotoDate(date);
     mini.current?.getApi().gotoDate(date);
   };
   const move = (direction: number) => {
     const date = new Date(selectedDate);
-    date.setDate(date.getDate() + direction * 7);
+    date.setDate(date.getDate() + direction * (view === 'week' ? 7 : 1));
     choose(date);
   };
   const same = (a: Date, b: Date) => a.toDateString() === b.toDateString();
@@ -100,7 +116,7 @@ export default function WeekCalendar({
       aria-label={`Select ${date.toLocaleDateString(undefined, {weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'})}`}
       aria-pressed={same(date, selectedDate)}
       aria-current={same(date, now) ? 'date' : undefined}
-      onClick={() => choose(date)}>
+      onClick={() => choose(date, true)}>
       {date.getDate()}
     </button>
   );
@@ -120,16 +136,36 @@ export default function WeekCalendar({
         } as React.CSSProperties
       }>
       <div className="week-toolbar">
+        <div
+          role="radiogroup"
+          aria-label="Schedule view"
+          style={{display: 'flex', gap: 8}}>
+          <GlassButton
+            label="Day"
+            radio
+            selected={view === 'day'}
+            onPress={() => choose(selectedDate, true)}
+          />
+          <GlassButton
+            label="Week"
+            radio
+            selected={view === 'week'}
+            onPress={() => {
+              setView('week');
+              main.current?.getApi().changeView('timeGridWeek', selectedDate);
+            }}
+          />
+        </div>
         <GlassButton label="Today" onPress={() => choose(new Date())} />
         <GlassButton
-          label="Previous week"
+          label={view === 'week' ? 'Previous week' : 'Previous day'}
           icon="chevron-left"
           iconOnly
           circular
           onPress={() => move(-1)}
         />
         <GlassButton
-          label="Next week"
+          label={view === 'week' ? 'Next week' : 'Next day'}
           icon="chevron-right"
           iconOnly
           circular
@@ -172,14 +208,31 @@ export default function WeekCalendar({
           <div className="side-clock">
             <Clock now={now} compact />
           </div>
+          <div className="weather-location">
+            <span>East Brunswick, NJ · 08816</span>
+            <a href="https://open-meteo.com/" target="_blank" rel="noreferrer">
+              Weather by Open-Meteo
+            </a>
+            {weather.error && (
+              <>
+                <span role="status">{weather.error}</span>
+                <GlassButton
+                  label="Retry weather"
+                  icon="refresh"
+                  iconOnly
+                  onPress={weather.retry}
+                />
+              </>
+            )}
+          </div>
         </aside>
         <section
           className="week-main"
-          aria-label="Weekly schedule"
+          aria-label={view === 'week' ? 'Weekly schedule' : 'Daily schedule'}
           aria-busy={loading}>
           {loading && (
             <div role="status" className="week-status">
-              Loading week...
+              Loading {view}...
             </div>
           )}
           {error && (
@@ -188,12 +241,12 @@ export default function WeekCalendar({
               <button
                 type="button"
                 onClick={() => setRetry(value => value + 1)}>
-                Retry week
+                Retry {view}
               </button>
             </div>
           )}
           <div className="week-horizontal-scroll">
-            <div className="week-grid">
+            <div className={`week-grid ${view === 'day' ? 'day-grid' : ''}`}>
               <FullCalendar
                 ref={main}
                 plugins={[timeGridPlugin]}
@@ -235,6 +288,19 @@ export default function WeekCalendar({
                       })}
                     </span>
                     {dateButton(info.date)}
+                    {(() => {
+                      const date = `${info.date.getFullYear()}-${String(info.date.getMonth() + 1).padStart(2, '0')}-${String(info.date.getDate()).padStart(2, '0')}`;
+                      const forecast = weather.days.find(
+                        day => day.date === date,
+                      );
+                      return (
+                        <span className="day-weather">
+                          {forecast
+                            ? `${weatherLabel(forecast.code)} ${Math.round(forecast.high)}° / ${Math.round(forecast.low)}°F`
+                            : 'Forecast unavailable'}
+                        </span>
+                      );
+                    })()}
                   </div>
                 )}
                 eventClick={info => setDetail(info.event.extendedProps.source)}
@@ -248,6 +314,9 @@ export default function WeekCalendar({
                   <div className="week-event-content">
                     <strong>{info.event.title}</strong>
                     <span>{info.timeText}</span>
+                    {info.event.extendedProps.person && (
+                      <span>{info.event.extendedProps.person}</span>
+                    )}
                     <em>
                       {info.event.extendedProps.source.location ||
                         info.event.extendedProps.source.calendarName}

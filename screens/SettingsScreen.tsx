@@ -25,6 +25,7 @@ import GlassButton from '../components/GlassButton';
 import {useTheme} from '../theme/ThemeProvider';
 import ThemeControl from '../components/ThemeControl';
 import {fontOptions, useFont} from '../theme/FontProvider';
+import TaskSyncSettings from '../components/TaskSyncSettings';
 
 const SettingsScreen = () => {
   const {
@@ -170,6 +171,7 @@ const SettingsScreen = () => {
               </View>
             </View>
           </View>
+          <TaskSyncSettings />
           {[backgroundStorageError, storageError, fontError]
             .filter(Boolean)
             .map((error, index) => (
