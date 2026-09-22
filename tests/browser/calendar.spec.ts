@@ -1,5 +1,80 @@
 import {test, expect, Page} from '@playwright/test';
 
+for (const width of [1440, 390]) {
+  test(`settings appearance and text sizing ${width}`, async ({
+    page,
+  }, testInfo) => {
+    await page.setViewportSize({width, height: 1000});
+    await calendarApi(page, false);
+    await page.goto('/');
+    await navigateTo(page, 'Settings');
+    await expect(page.getByRole('combobox')).toHaveCount(0);
+    await expect(
+      page.getByRole('radiogroup', {name: 'Font'}).getByRole('radio'),
+    ).toHaveCount(5);
+    await page.getByRole('switch', {name: 'Show background image'}).check();
+    await expect(
+      page
+        .getByTestId('calendar-background')
+        .filter({visible: true})
+        .filter({visible: true}),
+    ).toBeVisible();
+    await page.getByRole('switch', {name: 'Flame text'}).uncheck();
+    await expect(
+      page.getByRole('heading', {name: 'Settings', exact: true}).first(),
+    ).not.toHaveCSS('-webkit-text-fill-color', 'rgba(0, 0, 0, 0)');
+    const larger = page.getByRole('button', {name: 'Increase font size'});
+    await larger.click();
+    await larger.click();
+    await larger.click();
+    await expect(larger).toBeDisabled();
+    await expect(page.getByTestId('font-size-value')).toHaveText('130%');
+    await expect(
+      page.getByRole('heading', {name: 'Settings', exact: true}).first(),
+    ).toHaveCSS('font-size', '41.6px');
+    for (const dark of [false, true]) {
+      await setTheme(page, dark);
+      await page.evaluate(() =>
+        (document.activeElement as HTMLElement)?.blur(),
+      );
+      await page.mouse.move(0, 0);
+      await page.screenshot({
+        path: testInfo.outputPath(dark ? 'dark.png' : 'light.png'),
+        fullPage: true,
+      });
+      expect(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= innerWidth,
+        ),
+      ).toBe(true);
+    }
+    await page.reload();
+    await navigateTo(page, 'Settings');
+    await expect(page.getByTestId('font-size-value')).toHaveText('130%');
+    await page.getByRole('switch', {name: 'Show background image'}).uncheck();
+    await expect(
+      page
+        .getByTestId('calendar-background')
+        .filter({visible: true})
+        .filter({visible: true}),
+    ).toHaveCount(0);
+    await navigateTo(page, 'Calendar');
+    await expect(
+      page.getByRole('heading', {name: 'Upcoming Events'}),
+    ).toHaveCSS('font-size', '41.6px');
+    await expect(page.locator('.week-calendar .fc').first()).toHaveCSS(
+      'font-size',
+      '16.9px',
+    );
+    await navigateTo(page, 'Settings');
+    await page.getByRole('button', {name: 'Reset font size'}).click();
+    await expect(page.getByTestId('font-size-value')).toHaveText('100%');
+    await expect(
+      page.getByRole('button', {name: 'Reset font size'}),
+    ).toBeDisabled();
+  });
+}
+
 async function setTheme(page: Page, dark: boolean) {
   const button = page.getByRole('button', {
     name: dark ? 'Switch to dark mode' : 'Switch to light mode',
@@ -32,9 +107,7 @@ for (const width of [1440, 390]) {
     expect(bounds!.width).toBeLessThan(300);
     expect(bounds!.height).toBeLessThan(175);
     await expect(page.getByRole('combobox')).toHaveCount(0);
-    await expect(page.getByRole('checkbox', {name: 'Flame text'})).toHaveCount(
-      0,
-    );
+    await expect(page.getByRole('switch', {name: 'Flame text'})).toHaveCount(0);
     await page.clock.install();
     const hand = page.getByTestId('clock-minute-hand');
     const before = await hand.evaluate(
@@ -63,10 +136,8 @@ for (const width of [1440, 390]) {
     if (width === 390)
       await page.getByRole('button', {name: 'Open navigation'}).click();
     await page.getByRole('button', {name: 'Settings', exact: true}).click();
-    await expect(page.getByRole('combobox')).toBeVisible();
-    await expect(
-      page.getByRole('checkbox', {name: 'Flame text'}),
-    ).toBeVisible();
+    await expect(page.getByRole('radiogroup', {name: 'Font'})).toBeVisible();
+    await expect(page.getByRole('switch', {name: 'Flame text'})).toBeVisible();
     await expect(
       page.getByRole('button', {name: 'Switch to light mode', exact: true}),
     ).toBeVisible();
@@ -177,7 +248,9 @@ for (const width of [1440, 390]) {
         await page.getByRole('button', {name: 'Open navigation'}).click();
       await page.getByRole('button', {name, exact: true}).click();
     };
-    await expect(page.getByTestId('calendar-background')).toBeVisible();
+    await expect(
+      page.getByTestId('calendar-background').filter({visible: true}),
+    ).toBeVisible();
     await navigate('Settings');
     const toggle = page.getByRole('switch', {name: 'Show background image'});
     await expect(toggle).toBeChecked();
@@ -188,7 +261,9 @@ for (const width of [1440, 390]) {
     await navigate('Calendar');
     for (const theme of ['Light', 'Dark']) {
       await setTheme(page, theme === 'Dark');
-      await expect(page.getByTestId('calendar-background')).toHaveCount(0);
+      await expect(
+        page.getByTestId('calendar-background').filter({visible: true}),
+      ).toHaveCount(0);
       await expect(page.getByTestId('app-background')).toHaveCount(0);
       await expect(
         page.getByText('Weekly planning', {exact: true}),
@@ -203,16 +278,22 @@ for (const width of [1440, 390]) {
     await expect(
       page.getByRole('heading', {name: 'Upcoming Events'}),
     ).toBeVisible();
-    await expect(page.getByTestId('calendar-background')).toHaveCount(0);
+    await expect(
+      page.getByTestId('calendar-background').filter({visible: true}),
+    ).toHaveCount(0);
     await navigate('Settings');
     await expect(toggle).not.toBeChecked();
     await toggle.click();
     await expect(toggle).toBeChecked();
     await navigate('Calendar');
-    await expect(page.getByTestId('calendar-background')).toBeVisible();
+    await expect(
+      page.getByTestId('calendar-background').filter({visible: true}),
+    ).toBeVisible();
     await page.reload();
     await page.getByRole('radio', {name: 'Agenda', exact: true}).click();
-    await expect(page.getByTestId('calendar-background')).toBeVisible();
+    await expect(
+      page.getByTestId('calendar-background').filter({visible: true}),
+    ).toBeVisible();
   });
 }
 
@@ -526,7 +607,7 @@ for (const width of [1440, 390]) {
     await page.goto('/');
     await page.getByRole('radio', {name: 'Agenda', exact: true}).click();
     const heading = page.getByRole('heading', {name: 'Upcoming Events'});
-    const toggle = page.getByRole('checkbox', {name: 'Flame text'});
+    const toggle = page.getByRole('switch', {name: 'Flame text'});
     await expect(heading).toHaveCSS(
       '-webkit-text-fill-color',
       'rgba(0, 0, 0, 0)',
@@ -619,7 +700,14 @@ for (const width of [1440, 390]) {
     await calendarApi(page, false);
     await page.goto('/');
     await page.getByRole('radio', {name: 'Agenda', exact: true}).click();
-    const picker = page.getByRole('combobox', {name: 'Font', exact: true});
+    const picker = page.getByRole('radiogroup', {name: 'Font', exact: true});
+    const labels: Record<string, string> = {
+      instrument: 'Instrument Serif',
+      garamond: 'Cormorant Garamond',
+      infant: 'Cormorant Infant',
+      'averia-light': 'Averia Light',
+      montserrat: 'Montserrat',
+    };
     for (const [id, family] of [
       ['instrument', 'InstrumentSerif_400Regular'],
       ['garamond', 'CormorantGaramond_500Medium'],
@@ -628,8 +716,10 @@ for (const width of [1440, 390]) {
       ['montserrat', 'Montserrat_500Medium'],
     ]) {
       await navigateTo(page, 'Settings');
-      await picker.selectOption(id);
-      await expect(picker).toHaveCSS('font-family', family);
+      await picker.getByRole('radio', {name: labels[id], exact: true}).click();
+      await expect(
+        picker.getByRole('radio', {name: labels[id], exact: true}),
+      ).toBeChecked();
       await navigateTo(page, 'Calendar');
       await expect(
         page.getByRole('heading', {name: 'Upcoming Events'}),
@@ -643,20 +733,17 @@ for (const width of [1440, 390]) {
         'Sample events · Preview',
         'Work · Studio',
       ]) {
-        await expect(page.getByText(text, {exact: true})).toHaveCSS(
-          'font-family',
-          `${family}_Italic`,
-        );
+        await expect(
+          page.getByText(text, {exact: true}).filter({visible: true}),
+        ).toHaveCSS('font-family', `${family}_Italic`);
       }
       for (const text of ['10:00 AM', 'Weekly planning']) {
-        await expect(page.getByText(text, {exact: true})).toHaveCSS(
-          'font-family',
-          family,
-        );
-        await expect(page.getByText(text, {exact: true})).toHaveCSS(
-          'font-style',
-          'normal',
-        );
+        await expect(
+          page.getByText(text, {exact: true}).filter({visible: true}),
+        ).toHaveCSS('font-family', family);
+        await expect(
+          page.getByText(text, {exact: true}).filter({visible: true}),
+        ).toHaveCSS('font-style', 'normal');
       }
       await page.evaluate(() => document.fonts.ready);
       expect(
@@ -676,19 +763,23 @@ for (const width of [1440, 390]) {
       });
     }
     await navigateTo(page, 'Settings');
-    await picker.selectOption('averia-light');
+    await picker.getByRole('radio', {name: 'Averia Light'}).click();
     await page.reload();
     await page.getByRole('radio', {name: 'Agenda', exact: true}).click();
     await navigateTo(page, 'Settings');
-    await expect(picker).toHaveValue('averia-light');
-    await expect(picker.locator('option')).toHaveCount(5);
+    await expect(
+      picker.getByRole('radio', {name: 'Averia Light'}),
+    ).toBeChecked();
+    await expect(picker.getByRole('radio')).toHaveCount(5);
     await page.evaluate(() =>
       localStorage.setItem('planoramic.font', 'averia'),
     );
     await page.reload();
     await page.getByRole('radio', {name: 'Agenda', exact: true}).click();
     await navigateTo(page, 'Settings');
-    await expect(picker).toHaveValue('averia-light');
+    await expect(
+      picker.getByRole('radio', {name: 'Averia Light'}),
+    ).toBeChecked();
     await navigateTo(page, 'Calendar');
     await expect(
       page.getByRole('heading', {name: 'Upcoming Events'}),
@@ -748,10 +839,14 @@ for (const mode of ['light', 'dark']) {
         mode === 'dark' ? 'rgb(247, 154, 34)' : 'rgb(168, 35, 2)',
       );
       await expect(
-        page.getByTestId('calendar-background').locator('img'),
+        page
+          .getByTestId('calendar-background')
+          .filter({visible: true})
+          .locator('img'),
       ).toHaveJSProperty('naturalWidth', 687);
       const backdrop = await page
         .getByTestId('calendar-background')
+        .filter({visible: true})
         .boundingBox();
       expect(backdrop!.width).toBeLessThanOrEqual(width);
       expect(backdrop!.height).toBeLessThanOrEqual(900);
@@ -778,10 +873,9 @@ for (const mode of ['light', 'dark']) {
           'backdrop-filter',
           'blur(8px) saturate(1.2) brightness(1.04)',
         );
-        await expect(page.getByTestId('calendar-background')).toHaveCSS(
-          'filter',
-          'saturate(0.5) contrast(0.72) brightness(1.1)',
-        );
+        await expect(
+          page.getByTestId('calendar-background').filter({visible: true}),
+        ).toHaveCSS('filter', 'saturate(0.5) contrast(0.72) brightness(1.1)');
         await expect(page.getByText('10:00 AM', {exact: true})).toHaveCSS(
           'color',
           'rgb(41, 37, 34)',

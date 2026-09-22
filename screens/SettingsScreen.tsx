@@ -90,7 +90,7 @@ const SettingsScreen = () => {
               <Text style={{color: colors.text, fontSize: 18, flex: 1}}>
                 Light / dark mode
               </Text>
-              <ThemeControl />
+              <ThemeControl tooltipAlign="right" />
             </View>
             <View style={row}>
               <Text style={{color: colors.text, fontSize: 18, flex: 1}}>

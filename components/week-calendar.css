@@ -169,6 +169,7 @@
   font-size: calc(14px * var(--font-scale, 1));
 }
 .mini-calendar .fc .fc-toolbar {
+  flex-wrap: wrap;
   gap: 3px;
   margin-bottom: 10px;
 }

@@ -35,7 +35,7 @@ const Drawer = createDrawerNavigator();
 
 const LeftHandNav = () => {
   const {colors} = useTheme();
-  const {family} = useFont();
+  const {family, fontScale} = useFont();
   const {width} = useWindowDimensions();
   const compact = Platform.OS === 'web' && width < 700;
   return (
@@ -55,7 +55,11 @@ const LeftHandNav = () => {
         headerShown: compact,
         headerStyle: {backgroundColor: colors.sidebar},
         headerTintColor: colors.text,
-        headerTitleStyle: {fontFamily: family, fontWeight: 'normal'},
+        headerTitleStyle: {
+          fontFamily: family,
+          fontWeight: 'normal',
+          fontSize: 18 * fontScale,
+        },
         headerLeft: compact
           ? () => (
               <GlassButton

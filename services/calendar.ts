@@ -15,6 +15,8 @@ export interface CalendarEvent {
   allDay: boolean;
   location: string;
   description: string;
+  person?: string;
+  personColor?: string;
 }
 export interface Device {
   deviceId: string;

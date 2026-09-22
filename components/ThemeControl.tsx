@@ -2,7 +2,11 @@ import React from 'react';
 import GlassButton from './GlassButton';
 import {useTheme} from '../theme/ThemeProvider';
 
-export default function ThemeControl() {
+export default function ThemeControl({
+  tooltipAlign = 'left',
+}: {
+  tooltipAlign?: 'left' | 'right';
+}) {
   const {dark, setMode} = useTheme();
   return (
     <GlassButton
@@ -10,7 +14,7 @@ export default function ThemeControl() {
       icon="theme-light-dark"
       iconOnly
       circular
-      tooltipAlign="left"
+      tooltipAlign={tooltipAlign}
       onPress={() => setMode(dark ? 'light' : 'dark')}
     />
   );

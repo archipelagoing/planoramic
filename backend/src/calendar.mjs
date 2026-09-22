@@ -121,6 +121,8 @@ export function createCalendarClient(config, fetchImpl = fetch) {
             allDay: Boolean(event.start?.date),
             location: event.location || '',
             description: event.description || '',
+            person: event.extendedProperties?.shared?.person || '',
+            personColor: event.extendedProperties?.shared?.personColor || '',
           });
         }
       }

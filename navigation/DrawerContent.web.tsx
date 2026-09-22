@@ -26,7 +26,7 @@ const browserMenuItems = menuItems.map(item => ({
 
 const DrawerContent = ({route}: DrawerContentProps) => {
   const {colors, dark} = useTheme();
-  const {family} = useFont();
+  const {family, fontScale} = useFont();
   const navigation = useNavigation<DrawerNavigationProp<ParamListBase>>();
 
   return (
@@ -48,7 +48,11 @@ const DrawerContent = ({route}: DrawerContentProps) => {
         <DrawerItem
           key={item.screen}
           label={item.name}
-          labelStyle={{fontFamily: family, fontWeight: 'normal'}}
+          labelStyle={{
+            fontFamily: family,
+            fontWeight: 'normal',
+            fontSize: 14 * fontScale,
+          }}
           icon={item.renderIcon}
           focused={route === item.screen}
           activeTintColor={colors.text}

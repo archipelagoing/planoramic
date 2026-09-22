@@ -48,7 +48,7 @@ const DrawerItem = ({
   hasTVPreferredFocus,
 }: DrawerItemProps) => {
   const {colors} = useTheme();
-  const {family} = useFont();
+  const {family, fontScale} = useFont();
   const navigation = useNavigation<DrawerNavigationProp<ParamListBase>>();
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const isActive = item.screen === route;
@@ -83,7 +83,12 @@ const DrawerItem = ({
         <Animated.Text
           style={[
             styles.menuItemText,
-            {opacity: textOpacityAnim, color: colors.text, fontFamily: family},
+            {
+              opacity: textOpacityAnim,
+              color: colors.text,
+              fontFamily: family,
+              fontSize: 14 * fontScale,
+            },
             isFocused && [
               styles.focusedMenuItem,
               {borderBottomColor: colors.accent},
