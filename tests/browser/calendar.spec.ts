@@ -1,5 +1,54 @@
 import {test, expect, Page} from '@playwright/test';
 
+for (const width of [1440, 390]) {
+  test(`background image preference persists ${width}`, async ({
+    page,
+  }, testInfo) => {
+    await page.setViewportSize({width, height: 900});
+    await calendarApi(page, false);
+    await page.goto('/');
+    const navigate = async (name: string) => {
+      if (width === 390)
+        await page.getByRole('button', {name: 'Open navigation'}).click();
+      await page.getByRole('button', {name, exact: true}).click();
+    };
+    await expect(page.getByTestId('calendar-background')).toBeVisible();
+    await navigate('Settings');
+    const toggle = page.getByRole('switch', {name: 'Show background image'});
+    await expect(toggle).toBeChecked();
+    await toggle.focus();
+    await page.keyboard.press('Space');
+    await expect(toggle).not.toBeChecked();
+    await expect(page.getByTestId('app-background')).toHaveCount(0);
+    await navigate('Calendar');
+    for (const theme of ['Light', 'Dark']) {
+      await page.getByRole('radio', {name: `${theme} theme`}).click();
+      await expect(page.getByTestId('calendar-background')).toHaveCount(0);
+      await expect(page.getByTestId('app-background')).toHaveCount(0);
+      await expect(
+        page.getByText('Weekly planning', {exact: true}),
+      ).toBeVisible();
+      await page.screenshot({
+        path: testInfo.outputPath(`${theme}.png`),
+        fullPage: true,
+      });
+    }
+    await page.reload();
+    await expect(
+      page.getByRole('heading', {name: 'Upcoming Events'}),
+    ).toBeVisible();
+    await expect(page.getByTestId('calendar-background')).toHaveCount(0);
+    await navigate('Settings');
+    await expect(toggle).not.toBeChecked();
+    await toggle.click();
+    await expect(toggle).toBeChecked();
+    await navigate('Calendar');
+    await expect(page.getByTestId('calendar-background')).toBeVisible();
+    await page.reload();
+    await expect(page.getByTestId('calendar-background')).toBeVisible();
+  });
+}
+
 test('real backend cookie restores a paired display in a new browser context', async ({
   page,
   browser,

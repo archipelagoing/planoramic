@@ -47,6 +47,7 @@ const palettes = {
 };
 export type Colors = typeof palettes.light;
 const key = 'planoramic.appearance';
+const backgroundKey = 'planoramic.backgroundImage';
 const ThemeContext = createContext<{
   mode: ThemeMode;
   dark: boolean;
@@ -56,6 +57,9 @@ const ThemeContext = createContext<{
   reduceMotion: boolean;
   flameText: boolean;
   setFlameText: (enabled: boolean) => void;
+  showBackgroundImage: boolean;
+  setShowBackgroundImage: (enabled: boolean) => void;
+  backgroundStorageError: string;
 }>({
   mode: 'system',
   dark: false,
@@ -65,10 +69,54 @@ const ThemeContext = createContext<{
   reduceMotion: true,
   flameText: true,
   setFlameText: () => {},
+  showBackgroundImage: false,
+  setShowBackgroundImage: () => {},
+  backgroundStorageError: '',
 });
 
 export function ThemeProvider({children}: {children: React.ReactNode}) {
   const [flameText, setFlameText] = useState(true);
+  const [showBackgroundImage, updateBackground] = useState(false);
+  const [backgroundStorageError, setBackgroundStorageError] = useState('');
+  const backgroundChanged = useRef(false);
+  const backgroundWrites = useRef(Promise.resolve());
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const saved =
+          Platform.OS === 'web'
+            ? localStorage.getItem(backgroundKey)
+            : await SecureStore.getItemAsync(backgroundKey);
+        if (active && !backgroundChanged.current)
+          updateBackground(saved !== 'false');
+      } catch {
+        if (active)
+          setBackgroundStorageError(
+            'Background preference could not be restored.',
+          );
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
+  const setShowBackgroundImage = (enabled: boolean) => {
+    backgroundChanged.current = true;
+    updateBackground(enabled);
+    backgroundWrites.current = backgroundWrites.current.then(async () => {
+      try {
+        if (Platform.OS === 'web')
+          localStorage.setItem(backgroundKey, String(enabled));
+        else await SecureStore.setItemAsync(backgroundKey, String(enabled));
+        setBackgroundStorageError('');
+      } catch {
+        setBackgroundStorageError(
+          'Background preference will only be saved for this session.',
+        );
+      }
+    });
+  };
   const system = useColorScheme();
   const [mode, updateMode] = useState<ThemeMode>('system');
   const [storageError, setStorageError] = useState('');
@@ -139,6 +187,9 @@ export function ThemeProvider({children}: {children: React.ReactNode}) {
         reduceMotion,
         flameText,
         setFlameText,
+        showBackgroundImage,
+        setShowBackgroundImage,
+        backgroundStorageError,
       }}>
       {children}
     </ThemeContext.Provider>

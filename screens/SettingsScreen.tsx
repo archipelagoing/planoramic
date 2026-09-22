@@ -18,29 +18,58 @@ import Text from '../components/AppText';
  */
 
 import React from 'react';
-import {StyleSheet, SafeAreaView} from 'react-native';
+import {StyleSheet, SafeAreaView, Switch, ScrollView} from 'react-native';
 import {Header} from '../components';
 import {useTheme} from '../theme/ThemeProvider';
 import ThemeControl from '../components/ThemeControl';
 import {View} from 'react-native';
 
 const SettingsScreen = () => {
-  const {colors, storageError} = useTheme();
+  const {
+    colors,
+    storageError,
+    showBackgroundImage,
+    setShowBackgroundImage,
+    backgroundStorageError,
+  } = useTheme();
   return (
     <SafeAreaView
       style={[styles.container, {backgroundColor: colors.background}]}>
       <Header headerText="Settings" />
-      <View style={{padding: 32, paddingLeft: 88, gap: 20}}>
+      <ScrollView contentContainerStyle={{padding: 28, gap: 20}}>
         <Text style={{color: colors.text, fontSize: 22, fontWeight: '600'}}>
           Appearance
         </Text>
         <ThemeControl />
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 16,
+            minHeight: 48,
+            maxWidth: 480,
+          }}>
+          <Text style={{color: colors.text, fontSize: 18, flex: 1}}>
+            Show background image
+          </Text>
+          <Switch
+            accessibilityLabel="Show background image"
+            value={showBackgroundImage}
+            onValueChange={setShowBackgroundImage}
+            trackColor={{false: colors.muted, true: colors.accent}}
+          />
+        </View>
+        {!!backgroundStorageError && (
+          <Text accessibilityRole="alert" style={{color: colors.error}}>
+            {backgroundStorageError}
+          </Text>
+        )}
         {!!storageError && (
           <Text accessibilityRole="alert" style={{color: colors.error}}>
             {storageError}
           </Text>
         )}
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };

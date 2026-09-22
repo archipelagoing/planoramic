@@ -81,12 +81,13 @@ const App = () => {
 };
 
 const ThemedApp = () => {
-  const {colors, dark} = useTheme();
+  const {colors, dark, showBackgroundImage} = useTheme();
   return (
     <View style={{flex: 1, backgroundColor: colors.background}}>
-      {Platform.OS === 'web' && (
+      {Platform.OS === 'web' && showBackgroundImage && (
         <>
           <Image
+            testID="app-background"
             source={require('./assets/images/frosted1.png')}
             accessible={false}
             resizeMode="cover"
