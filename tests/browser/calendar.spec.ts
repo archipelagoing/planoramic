@@ -46,7 +46,11 @@ test('real backend cookie restores a paired display in a new browser context', a
       restored.getByText('No upcoming events in the next seven days.'),
     ).toBeVisible();
   } finally {
+    for (const restored of reopened.pages()) {
+      await restored.unrouteAll({behavior: 'wait'});
+    }
     await reopened.close();
+    await page.unrouteAll({behavior: 'wait'});
   }
 });
 
@@ -316,11 +320,10 @@ for (const width of [1440, 390]) {
     ).not.toHaveCSS('-webkit-text-fill-color', 'rgba(0, 0, 0, 0)');
     for (const theme of ['Dark', 'Light']) {
       await page.getByRole('radio', {name: `${theme} theme`}).click();
-      await expect(heading.locator('canvas')).toHaveCSS(
-        'filter',
-        theme === 'Dark' ? /drop-shadow/ : 'none',
-      );
-      const icon = page.locator('[data-testid="flame-icon"]:visible').first();
+      await expect(heading.locator('canvas')).toHaveCSS('filter', 'none');
+      const icon = page
+        .getByRole('radio', {name: `${theme} theme`})
+        .getByTestId('flame-icon');
       await expect(icon.locator('canvas')).toBeVisible();
       expect(
         await icon.locator('canvas').evaluate((canvas: HTMLCanvasElement) => {
@@ -334,10 +337,15 @@ for (const width of [1440, 390]) {
         page
           .getByRole('heading', {name: /Wednesday, September/})
           .locator('canvas'),
-      ).toBeVisible();
+      ).toHaveCount(theme === 'Dark' ? 0 : 1);
       await expect(
         page.getByText('10:00 AM', {exact: true}).locator('canvas'),
-      ).toBeVisible();
+      ).toHaveCount(theme === 'Dark' ? 0 : 1);
+      if (theme === 'Dark') {
+        await expect(
+          page.getByRole('radio', {name: 'Light theme'}).locator('canvas'),
+        ).toHaveCount(0);
+      }
       if (width === 1440) {
         await expect(page.getByTestId('glass-sidebar')).toHaveCSS(
           'backdrop-filter',
@@ -346,7 +354,7 @@ for (const width of [1440, 390]) {
         await expect(page.getByTestId('glass-sidebar')).toHaveCSS(
           'background-color',
           theme === 'Dark'
-            ? 'rgba(33, 30, 32, 0.82)'
+            ? 'rgba(24, 23, 22, 0.82)'
             : 'rgba(246, 245, 245, 0.76)',
         );
       }
@@ -450,17 +458,21 @@ for (const mode of ['light', 'dark']) {
         const card = page.getByRole('button', {name: /Weekly planning/});
         await expect(card).toHaveCSS(
           'background-color',
-          'rgba(255, 255, 255, 0.08)',
+          'rgba(24, 22, 21, 0.42)',
         );
-        await expect(card).toHaveCSS('border-radius', '20px');
+        await expect(card).toHaveCSS('border-radius', '18px');
+        await expect(card).toHaveCSS(
+          'backdrop-filter',
+          'blur(20px) saturate(1.15)',
+        );
         await expect(card).toHaveCSS(
           'border-color',
-          'rgba(255, 255, 255, 0.18)',
+          'rgba(255, 255, 255, 0.14)',
         );
         await expect(card).toHaveCSS('background-image', 'none');
         await expect(card).toHaveCSS(
           'box-shadow',
-          'rgba(0, 0, 0, 0.18) 0px 8px 24px 0px, rgba(255, 255, 255, 0.2) 0px 1px 0px 0px inset, rgba(255, 255, 255, 0.04) 0px -1px 0px 0px inset',
+          'rgba(0, 0, 0, 0.2) 0px 8px 24px 0px, rgba(255, 255, 255, 0.08) 0px 1px 0px 0px inset',
         );
       }
       await expect(control).toHaveCSS('width', '48px');
@@ -476,7 +488,7 @@ for (const mode of ['light', 'dark']) {
       ).toBe(true);
       await expect(page.getByText('PLANORAMIC', {exact: true})).toHaveCSS(
         'color',
-        mode === 'dark' ? 'rgb(212, 160, 164)' : 'rgb(147, 79, 87)',
+        mode === 'dark' ? 'rgb(247, 154, 34)' : 'rgb(147, 79, 87)',
       );
       await expect(
         page.getByTestId('calendar-background').locator('img'),

@@ -3,8 +3,15 @@ const element = id => document.getElementById(id);
 let flameCleanups = [];
 function updateFlame() {
   flameCleanups.forEach(cleanup => cleanup());
+  const dark = document.documentElement.dataset.theme === 'dark';
   flameCleanups = element('flame-toggle').checked
-    ? [...document.querySelectorAll('.flame-text, .icon')].map(node =>
+    ? [
+        ...document.querySelectorAll(
+          dark
+            ? '.brand.flame-text, h1.flame-text, .appearance [aria-pressed="true"] .icon'
+            : '.flame-text, .icon',
+        ),
+      ].map(node =>
         attachFlameText(node, {
           dark: document.documentElement.dataset.theme === 'dark',
         }),

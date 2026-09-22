@@ -75,6 +75,7 @@ const DrawerItem = ({
           isFocused && {backgroundColor: colors.accentSoft},
         ]}>
         <Icon
+          active={isActive}
           source={item.icon}
           size={24}
           color={isActive ? colors.accent : colors.text}

@@ -66,14 +66,15 @@ export default function GlassButton({
             gap: 10,
             opacity: disabled ? 0.5 : 1,
           },
-          focused && {
-            borderWidth: 3,
-            paddingHorizontal: circular ? 0 : iconOnly ? 10 : 16,
-            paddingVertical: circular ? 0 : 10,
-          },
+          focused &&
+            !dark && {
+              borderWidth: 3,
+              paddingHorizontal: circular ? 0 : iconOnly ? 10 : 16,
+              paddingVertical: circular ? 0 : 10,
+            },
           focusStyle(colors, dark, focused, reduceMotion),
         ]}>
-        {!circular && (
+        {!circular && !dark && (
           <View
             pointerEvents="none"
             style={{
@@ -88,7 +89,14 @@ export default function GlassButton({
             }}
           />
         )}
-        {icon && <Icon source={icon} color={colors.accent} size={22} />}
+        {icon && (
+          <Icon
+            source={icon}
+            color={colors.accent}
+            size={22}
+            active={Boolean(selected)}
+          />
+        )}
         {!iconOnly && (
           <Text
             style={{

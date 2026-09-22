@@ -18,6 +18,16 @@ const palette = [
   '#FFE08A',
   '#FFF0B5',
 ].map(hex => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16)));
+const darkPalette = [
+  '#7A2108',
+  '#7A2108',
+  '#B83B08',
+  '#E9630B',
+  '#F79A22',
+  '#F79A22',
+  '#F6C56A',
+  '#FFE3A0',
+].map(hex => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16)));
 
 export function flameColor(x, y, time, options = {}) {
   const p = {...flameDefaults, ...options};
@@ -43,8 +53,9 @@ export function flameColor(x, y, time, options = {}) {
   let i = 0;
   while (i < stops.length - 2 && value > stops[i + 1]) i++;
   const t = smooth(clamp((value - stops[i]) / (stops[i + 1] - stops[i]), 0, 1));
-  return palette[i].map((v, channel) =>
-    Math.round(v + (palette[i + 1][channel] - v) * t),
+  const colors = p.dark ? darkPalette : palette;
+  return colors[i].map((v, channel) =>
+    Math.round(v + (colors[i + 1][channel] - v) * t),
   );
 }
 
@@ -55,9 +66,6 @@ export function attachFlameText(element, options = {}) {
   if (!context) return () => {};
   canvas.setAttribute('aria-hidden', 'true');
   canvas.dataset.flameCanvas = 'true';
-  if (options.dark)
-    canvas.style.filter =
-      'drop-shadow(0 1px 1px rgba(0,0,0,0.95)) drop-shadow(0 0 1px rgba(0,0,0,0.8))';
   Object.assign(canvas.style, {
     position: 'absolute',
     inset: '0',

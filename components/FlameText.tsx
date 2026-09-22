@@ -7,6 +7,8 @@ export default function FlameText({
   animationSpeed,
   highlightAmount,
   textureScale,
+  neutralInDark,
+  neutral,
   ...props
 }: FlameTextProps) {
   return <Text {...props} />;

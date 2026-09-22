@@ -116,17 +116,42 @@
 }
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --text: #f7f1f2;
-  --page-background: #141315;
-  --muted: #d0c4c7;
-  --accent: #d4a0a4;
+  --text: #f1ece5;
+  --page-background: #11100f;
+  --muted: #aaa29a;
+  --accent: #f79a22;
   --overlay: rgba(14, 10, 12, 0.48);
-  --fill: rgba(255, 255, 255, 0.08);
-  --border: rgba(255, 255, 255, 0.18);
-  --selected: rgba(212, 160, 164, 0.18);
-  --shadow: 0 8px 24px rgba(0, 0, 0, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.04);
+  --fill: rgba(24, 22, 21, 0.42);
+  --border: rgba(255, 255, 255, 0.14);
+  --selected: rgba(55, 52, 49, 0.65);
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+:root[data-theme='dark'] li {
+  border-radius: 18px;
+  padding: 28px;
+  margin: 22px 0;
+  backdrop-filter: blur(20px) saturate(115%);
+  -webkit-backdrop-filter: blur(20px) saturate(115%);
+}
+:root[data-theme='dark'] li::before,
+:root[data-theme='dark'] li::after {
+  display: none;
+}
+:root[data-theme='dark'] .event-time {
+  color: var(--text);
+}
+:root[data-theme='dark'] .icon {
+  color: var(--muted);
+}
+:root[data-theme='dark'] [aria-pressed='true'] .icon {
+  color: var(--accent);
+}
+:root[data-theme='dark'] button,
+:root[data-theme='dark'] #login {
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 * {
   box-sizing: border-box;

@@ -85,6 +85,7 @@ const ThemedApp = () => {
             style={[
               StyleSheet.absoluteFillObject,
               {width: '100%', height: '100%'},
+              !dark && {filter: 'saturate(50%) contrast(72%) brightness(110%)'},
             ]}
           />
           <View
@@ -94,7 +95,7 @@ const ThemedApp = () => {
               {
                 backgroundColor: dark
                   ? 'rgba(14,10,12,0.48)'
-                  : 'rgba(246,245,245,0.8)',
+                  : 'rgba(248,245,241,0.68)',
               },
             ]}
           />

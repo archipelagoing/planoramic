@@ -9,19 +9,19 @@ export const darkGlassFocus: ViewStyle = {
 };
 
 export const darkGlassCard: ViewStyle = {
-  backgroundColor: 'rgba(255,255,255,0.08)',
-  borderRadius: 20,
+  backgroundColor: 'rgba(24,22,21,0.42)',
+  borderRadius: 18,
   borderWidth: 1,
-  borderColor: 'rgba(255,255,255,0.18)',
+  borderColor: 'rgba(255,255,255,0.14)',
   position: 'relative',
   overflow: 'hidden',
   ...(Platform.OS === 'web'
     ? {
         backgroundImage: 'none',
-        backdropFilter: 'blur(15px)',
-        WebkitBackdropFilter: 'blur(15px)',
+        backdropFilter: 'blur(20px) saturate(115%)',
+        WebkitBackdropFilter: 'blur(20px) saturate(115%)',
         boxShadow:
-          '0 8px 24px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.20), inset 0 -1px 0 rgba(255,255,255,0.04)',
+          '0 8px 24px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.08)',
       }
     : {}),
 };

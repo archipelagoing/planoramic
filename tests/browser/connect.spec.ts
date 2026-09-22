@@ -79,13 +79,16 @@ for (const width of [1440, 390]) {
         name.toLowerCase(),
       );
       await page.evaluate(() => document.fonts.ready);
-      await expect(page.locator('.icon canvas')).toHaveCount(3);
-      await expect(page.locator('.event-time canvas')).toHaveCount(1);
-      await expect(page.locator('.event-date canvas')).toHaveCount(1);
-      await expect(page.locator('h1 canvas')).toHaveCSS(
-        'filter',
-        name === 'Dark' ? /drop-shadow/ : 'none',
+      await expect(page.locator('.icon canvas')).toHaveCount(
+        name === 'Dark' ? 1 : 3,
       );
+      await expect(page.locator('.event-time canvas')).toHaveCount(
+        name === 'Dark' ? 0 : 1,
+      );
+      await expect(page.locator('.event-date canvas')).toHaveCount(
+        name === 'Dark' ? 0 : 1,
+      );
+      await expect(page.locator('h1 canvas')).toHaveCSS('filter', 'none');
       for (const selector of [
         'h1',
         'p.brand',

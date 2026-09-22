@@ -24,10 +24,7 @@ import {
 import GlassButton from '../components/GlassButton';
 import ThemeControl from '../components/ThemeControl';
 import CalendarCanvas from '../components/CalendarCanvas';
-import DarkGlassEdges, {
-  darkGlassCard,
-  darkGlassFocus,
-} from '../components/DarkGlassEdges';
+import {darkGlassCard, darkGlassFocus} from '../components/DarkGlassEdges';
 import {Colors, focusStyle, glassStyle, useTheme} from '../theme/ThemeProvider';
 import {sampleEvents} from '../services/sampleEvents';
 import {clearDevice, loadDevice, saveDevice} from '../services/deviceStorage';
@@ -60,7 +57,7 @@ function Action({
 }
 function EventRow({event}: {event: CalendarEvent}) {
   const {colors, dark, reduceMotion} = useTheme();
-  const styles = makeStyles(colors);
+  const styles = makeStyles(colors, dark);
   const [focused, setFocused] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const time = event.allDay
@@ -85,8 +82,9 @@ function EventRow({event}: {event: CalendarEvent}) {
         dark && darkGlassCard,
         dark && focused && darkGlassFocus,
       ]}>
-      {dark && <DarkGlassEdges />}
-      <FlameText style={styles.time}>{time}</FlameText>
+      <FlameText neutral style={styles.time}>
+        {time}
+      </FlameText>
       <View style={styles.eventBody}>
         <Text style={styles.eventTitle}>{event.title}</Text>
         <Text style={styles.secondary}>
@@ -104,8 +102,8 @@ function EventRow({event}: {event: CalendarEvent}) {
 }
 
 export default function CalendarScreen() {
-  const {colors, storageError} = useTheme();
-  const styles = useMemo(() => makeStyles(colors), [colors]);
+  const {colors, storageError, dark} = useTheme();
+  const styles = useMemo(() => makeStyles(colors, dark), [colors, dark]);
   const [preview, setPreview] = useState(true);
   const [restoring, setRestoring] = useState(true);
   const [restoreAttempt, setRestoreAttempt] = useState(0);
@@ -414,7 +412,7 @@ export default function CalendarScreen() {
             </View>
           )}
           {!preview && updatedAt && (
-            <FlameText style={styles.updated}>
+            <FlameText neutral style={styles.updated}>
               Updated{' '}
               {updatedAt.toLocaleTimeString(undefined, {
                 hour: 'numeric',
@@ -434,7 +432,10 @@ export default function CalendarScreen() {
               contentContainerStyle={styles.list}
               stickySectionHeadersEnabled={false}
               renderSectionHeader={({section}) => (
-                <FlameText accessibilityRole="header" style={styles.day}>
+                <FlameText
+                  neutral
+                  accessibilityRole="header"
+                  style={styles.day}>
                   {section.title}
                 </FlameText>
               )}
@@ -453,7 +454,7 @@ export default function CalendarScreen() {
     </CalendarCanvas>
   );
 }
-const makeStyles = (colors: Colors) =>
+const makeStyles = (colors: Colors, dark: boolean) =>
   StyleSheet.create({
     page: {
       flex: 1,
@@ -467,7 +468,7 @@ const makeStyles = (colors: Colors) =>
       flexWrap: 'wrap',
       alignItems: 'center',
       justifyContent: 'space-between',
-      marginBottom: 20,
+      marginBottom: dark ? 28 : 20,
       gap: 16,
     },
     tools: {
@@ -500,12 +501,16 @@ const makeStyles = (colors: Colors) =>
       gap: 20,
       borderWidth: 2,
       borderColor: colors.border,
-      borderRadius: 8,
+      borderRadius: 18,
       backgroundColor: colors.surface,
-      padding: 20,
-      marginBottom: 12,
+      padding: dark ? 26 : 20,
+      marginBottom: dark ? 18 : 12,
     },
-    time: {color: colors.rose, fontSize: 23, minWidth: 130},
+    time: {
+      color: colors.rose,
+      fontSize: 23,
+      ...(dark ? {width: 140, flexShrink: 0} : {minWidth: 130}),
+    },
     eventBody: {flex: 1, minWidth: 180},
     eventTitle: {
       color: colors.text,
@@ -523,8 +528,8 @@ const makeStyles = (colors: Colors) =>
       color: colors.text,
       fontSize: 24,
       fontWeight: '600',
-      marginTop: 20,
-      marginBottom: 14,
+      marginTop: dark ? 30 : 20,
+      marginBottom: dark ? 18 : 14,
     },
     list: {paddingBottom: 40, paddingHorizontal: 16},
     updated: {color: colors.muted, fontSize: 16, marginBottom: 6},

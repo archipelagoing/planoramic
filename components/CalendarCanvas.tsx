@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   Image,
+  Platform,
   SafeAreaView,
   StyleProp,
   StyleSheet,
@@ -24,7 +25,7 @@ export default function CalendarCanvas({
         source={require('../assets/images/frosted1.png')}
         resizeMode="cover"
         accessible={false}
-        style={[StyleSheet.absoluteFillObject, {width: '100%', height: '100%'}]}
+        style={[StyleSheet.absoluteFillObject, {width: '100%', height: '100%'}, !dark && Platform.OS === 'web' && {filter: 'saturate(50%) contrast(72%) brightness(110%)'}]}
       />
       <View
         pointerEvents="none"
@@ -33,7 +34,7 @@ export default function CalendarCanvas({
           {
             backgroundColor: dark
               ? 'rgba(14,10,12,0.48)'
-              : 'rgba(246,245,245,0.80)',
+              : 'rgba(248,245,241,0.68)',
           },
         ]}
       />

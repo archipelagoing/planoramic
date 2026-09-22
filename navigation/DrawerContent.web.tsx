@@ -13,9 +13,15 @@ interface DrawerContentProps {
 
 const browserMenuItems = menuItems.map(item => ({
   ...item,
-  renderIcon: ({color, size}: {color: string; size: number}) => (
-    <Icon source={item.icon} color={color} size={size} />
-  ),
+  renderIcon: ({
+    color,
+    size,
+    focused,
+  }: {
+    color: string;
+    size: number;
+    focused: boolean;
+  }) => <Icon source={item.icon} color={color} size={size} active={focused} />,
 }));
 
 const DrawerContent = ({route}: DrawerContentProps) => {
@@ -30,8 +36,8 @@ const DrawerContent = ({route}: DrawerContentProps) => {
         styles.drawer,
         {
           backgroundColor: dark
-            ? 'rgba(33,30,32,0.82)'
-            : 'rgba(246,245,245,0.76)',
+            ? 'rgba(24,23,22,0.82)'
+            : 'rgba(248,247,245,0.62)',
           ...{backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)'},
           borderRightWidth: 1,
           borderRightColor: colors.glassBorder,
@@ -45,10 +51,10 @@ const DrawerContent = ({route}: DrawerContentProps) => {
           labelStyle={{fontFamily: family, fontWeight: 'normal'}}
           icon={item.renderIcon}
           focused={route === item.screen}
-          activeTintColor={colors.accent}
+          activeTintColor={colors.text}
           inactiveTintColor={colors.muted}
           activeBackgroundColor={
-            dark ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.5)'
+            dark ? 'rgba(255,255,255,0.045)' : 'rgba(255,255,255,0.5)'
           }
           onPress={() => navigation.navigate(item.screen)}
         />

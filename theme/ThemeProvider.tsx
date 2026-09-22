@@ -16,32 +16,32 @@ import * as SecureStore from 'expo-secure-store';
 export type ThemeMode = 'light' | 'dark' | 'system';
 const palettes = {
   light: {
-    background: '#F6F5F5',
+    background: '#F8F5F1',
     surface: '#FFFFFF',
-    sidebar: '#EEEAEA',
-    text: '#302829',
-    muted: '#6A5D60',
-    accent: '#934F57',
-    accentSoft: '#EEDFE0',
-    rose: '#934F57',
-    border: '#E2DADB',
+    sidebar: '#EEECE9',
+    text: '#292522',
+    muted: '#68615C',
+    accent: '#A82302',
+    accentSoft: 'rgba(255,255,255,0.5)',
+    rose: '#292522',
+    border: 'rgba(255,255,255,0.5)',
     error: '#AD3549',
-    glass: 'rgba(255,255,255,0.58)',
+    glass: 'rgba(255,255,255,0.34)',
     glassBorder: 'rgba(255,255,255,0.55)',
   },
   dark: {
-    background: '#141315',
-    surface: '#2B2628',
-    sidebar: '#211E20',
-    text: '#F7F1F2',
-    muted: '#D0C4C7',
-    accent: '#D4A0A4',
-    accentSoft: '#493438',
-    rose: '#D4A0A4',
-    border: '#4B3D41',
+    background: '#11100F',
+    surface: '#23211F',
+    sidebar: '#181716',
+    text: '#F1ECE5',
+    muted: '#AAA29A',
+    accent: '#F79A22',
+    accentSoft: 'rgba(255,255,255,0.06)',
+    rose: '#F1ECE5',
+    border: 'rgba(255,255,255,0.12)',
     error: '#FFA7B6',
-    glass: 'rgba(36,29,32,0.72)',
-    glassBorder: 'rgba(255,255,255,0.20)',
+    glass: 'rgba(25,23,22,0.5)',
+    glassBorder: 'rgba(255,255,255,0.12)',
   },
 };
 export type Colors = typeof palettes.light;
@@ -154,25 +154,21 @@ export function glassStyle(
   const web =
     Platform.OS === 'web'
       ? {
-          backdropFilter: 'blur(15px)',
-          WebkitBackdropFilter: 'blur(15px)',
-          backgroundImage: dark
-            ? 'linear-gradient(135deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.01) 42%, rgba(212,160,164,0.05) 100%)'
-            : 'linear-gradient(135deg, rgba(255,255,255,0.65) 0%, rgba(255,255,255,0.18) 42%, rgba(147,79,87,0.08) 100%)',
+          backdropFilter: dark ? 'blur(15px)' : 'blur(20px) saturate(120%)',
+          WebkitBackdropFilter: dark ? 'blur(15px)' : 'blur(20px) saturate(120%)',
+          backgroundImage: 'none',
           boxShadow: dark
-            ? '0 8px 24px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.20), inset 1px 0 0 rgba(255,255,255,0.08)'
-            : '0 8px 20px rgba(80,34,42,0.10), inset 0 1px 0 rgba(255,255,255,0.6), inset 1px 0 0 rgba(255,255,255,0.25)',
+            ? '0 6px 18px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.08)'
+            : '0 10px 30px rgba(45,35,30,0.05), inset 0 1px 0 rgba(255,255,255,0.70)',
         }
       : {};
   return {
     backgroundColor: active
       ? dark
-        ? 'rgba(212,160,164,0.18)'
-        : 'rgba(147,79,87,0.14)'
-      : dark
-        ? colors.glass
-        : 'rgba(255,255,255,0.22)',
-    borderColor: dark ? colors.glassBorder : 'rgba(170,115,125,0.35)',
+        ? 'rgba(55,52,49,0.65)'
+        : 'rgba(255,255,255,0.52)'
+      : colors.glass,
+    borderColor: colors.glassBorder,
     borderWidth: 1,
     ...web,
   };
@@ -194,8 +190,8 @@ export function focusStyle(
           ...(focused
             ? {
                 boxShadow: dark
-                  ? '0 0 12px rgba(212,160,164,0.20), 0 8px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.35)'
-                  : '0 0 10px rgba(147,79,87,0.18), 0 6px 18px rgba(80,34,42,0.12), inset 0 1px 0 white',
+                  ? '0 6px 18px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.08)'
+                  : '0 10px 30px rgba(45,35,30,0.08), inset 0 1px 0 rgba(255,255,255,0.7)',
               }
             : {}),
         }
@@ -204,10 +200,10 @@ export function focusStyle(
     transform: [{scale: focused && !reduceMotion ? scale : 1}],
     ...(focused
       ? {
-          borderColor: dark ? '#FFF0F2' : colors.accent,
+          borderColor: dark ? '#F1ECE5' : colors.text,
           backgroundColor: dark
-            ? 'rgba(64,35,41,0.95)'
-            : 'rgba(247,225,228,0.95)',
+            ? 'rgba(45,43,40,0.8)'
+            : 'rgba(255,255,255,0.52)',
           zIndex: 2,
           elevation: 8,
         }
