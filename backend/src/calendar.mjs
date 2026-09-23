@@ -97,6 +97,7 @@ export function createCalendarClient(config, fetchImpl = fetch) {
           ).values(),
         ];
       }
+      let eventColors;
       for (const calendar of calendars) {
         const url = new URL(
           `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendar.id)}/events`,
@@ -110,9 +111,21 @@ export function createCalendarClient(config, fetchImpl = fetch) {
         });
         for (const event of await pages(url)) {
           if (event.status === 'cancelled') continue;
+          if (event.colorId && !eventColors) {
+            const colors = await getPage(
+              new URL('https://www.googleapis.com/calendar/v3/colors'),
+            );
+            eventColors = colors.event || {};
+          }
+          const sourceColor =
+            eventColors?.[event.colorId]?.background ||
+            calendar.backgroundColor;
           events.push({
             id: event.id,
             calendarId: calendar.id,
+            ...(/^#[a-fA-F0-9]{6}$/.test(sourceColor || '')
+              ? {color: sourceColor}
+              : {}),
             calendarName:
               calendar.summaryOverride || calendar.summary || calendar.id,
             title: event.summary || '(Untitled)',

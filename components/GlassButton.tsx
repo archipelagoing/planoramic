@@ -14,6 +14,7 @@ export default function GlassButton({
   radio = false,
   circular = false,
   tooltipAlign = 'right',
+  compact = false,
 }: {
   label: string;
   icon?: string;
@@ -24,6 +25,7 @@ export default function GlassButton({
   radio?: boolean;
   circular?: boolean;
   tooltipAlign?: 'left' | 'right';
+  compact?: boolean;
 }) {
   const {colors, dark, reduceMotion} = useTheme();
   const [focused, setFocused] = useState(false);
@@ -48,16 +50,16 @@ export default function GlassButton({
               dark,
               Boolean(selected || hovered || pressed || focused),
             ),
-            minHeight: 48,
-            minWidth: 48,
+            minHeight: compact ? 32 : 48,
+            minWidth: compact ? 32 : 48,
             maxWidth: '100%',
-            paddingHorizontal: iconOnly ? 12 : 18,
-            paddingVertical: 12,
-            borderRadius: circular ? 24 : 14,
+            paddingHorizontal: compact ? 10 : iconOnly ? 12 : 18,
+            paddingVertical: compact ? 5 : 12,
+            borderRadius: circular ? (compact ? 16 : 24) : compact ? 8 : 14,
             ...(circular
               ? {
-                  width: 48,
-                  height: 48,
+                  width: compact ? 32 : 48,
+                  height: compact ? 32 : 48,
                   paddingHorizontal: 0,
                   paddingVertical: 0,
                 }
@@ -74,7 +76,7 @@ export default function GlassButton({
           <Icon
             source={icon}
             color={colors.accent}
-            size={22}
+            size={compact ? 17 : 22}
             active={Boolean(selected)}
           />
         )}
@@ -82,7 +84,7 @@ export default function GlassButton({
           <Text
             style={{
               color: colors.text,
-              fontSize: 18,
+              fontSize: compact ? 14 : 18,
               fontWeight: '600',
               flexShrink: 1,
             }}>

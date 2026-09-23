@@ -52,7 +52,7 @@ function DateButton({
   count: number;
   onPress: () => void;
 }) {
-  const {colors} = useTheme();
+  const {colors, dark} = useTheme();
   const [focused, setFocused] = useState(false);
   return (
     <Pressable
@@ -68,7 +68,12 @@ function DateButton({
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 6,
-        backgroundColor: selected ? colors.accentSoft : 'transparent',
+        backgroundColor:
+          today && !dark
+            ? colors.accent
+            : selected
+              ? colors.accentSoft
+              : 'transparent',
         borderWidth: 1,
         borderColor: focused
           ? colors.text
@@ -76,7 +81,10 @@ function DateButton({
             ? colors.accent
             : 'transparent',
       }}>
-      <Text style={{fontSize: 15, color: colors.text}}>{date.getDate()}</Text>
+      <Text
+        style={{fontSize: 15, color: today && !dark ? '#FFFFFF' : colors.text}}>
+        {date.getDate()}
+      </Text>
       <View
         style={{
           width: 4,
@@ -90,12 +98,25 @@ function DateButton({
   );
 }
 
-export function Clock({now, compact = false}: {now: Date; compact?: boolean}) {
+export function Clock({
+  now,
+  compact = false,
+  centerFace = false,
+}: {
+  now: Date;
+  compact?: boolean;
+  centerFace?: boolean;
+}) {
   const {colors} = useTheme();
   const hour = (now.getHours() % 12) * 30 + now.getMinutes() / 2;
   const minute = now.getMinutes() * 6 + now.getSeconds() / 10;
   return (
-    <View style={{alignItems: 'center', gap: compact ? 6 : 12}}>
+    <View
+      style={{
+        alignItems: 'center',
+        gap: compact ? 6 : 12,
+        ...(compact && centerFace ? {height: 72, position: 'relative'} : {}),
+      }}>
       <View style={compact ? {width: 72, height: 72} : undefined}>
         <View
           testID="analog-clock"
@@ -210,6 +231,14 @@ export function Clock({now, compact = false}: {now: Date; compact?: boolean}) {
       <Text
         testID="digital-clock"
         style={{
+          ...(compact && centerFace
+            ? ({
+                position: 'absolute',
+                top: 78,
+                width: 128,
+                textAlign: 'center',
+              } as const)
+            : {}),
           fontSize: compact ? 16 : 30,
           color: colors.text,
           fontVariant: ['tabular-nums'],
@@ -544,9 +573,6 @@ export default function CalendarOverview({
                   ))}
                 </View>
               )}
-            </View>
-            <View style={panel}>
-              <Clock now={now} />
             </View>
           </View>
         )}

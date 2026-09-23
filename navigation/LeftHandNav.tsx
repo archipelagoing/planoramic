@@ -16,7 +16,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import React from 'react';
+import React, {useState} from 'react';
 import {Platform, useWindowDimensions} from 'react-native';
 import {
   createDrawerNavigator,
@@ -39,17 +39,47 @@ const LeftHandNav = () => {
   const {family, fontScale} = useFont();
   const {width} = useWindowDimensions();
   const compact = Platform.OS === 'web' && width < 700;
+  const [collapsed, setCollapsed] = useState(() => {
+    try {
+      return (
+        Platform.OS === 'web' &&
+        localStorage.getItem('planoramic.sidebarCollapsed') === 'true'
+      );
+    } catch {
+      return false;
+    }
+  });
+  const toggleSidebar = () => {
+    setCollapsed(value => {
+      try {
+        if (Platform.OS === 'web')
+          localStorage.setItem('planoramic.sidebarCollapsed', String(!value));
+      } catch {
+        // Keep navigation usable when browser storage is unavailable.
+      }
+      return !value;
+    });
+  };
   return (
     <Drawer.Navigator
       drawerContent={(props: DrawerContentComponentProps) => {
         const {state} = props;
         const currentRoute = props.state.routeNames[state.index];
-        return <DrawerContent route={currentRoute} />;
+        return (
+          <DrawerContent
+            route={currentRoute}
+            collapsed={!compact && collapsed}
+            onToggle={
+              Platform.OS === 'web' && !compact ? toggleSidebar : undefined
+            }
+          />
+        );
       }}
       screenOptions={({navigation}) => ({
         drawerType: compact ? 'front' : 'permanent',
         drawerStyle: {
-          width: Platform.OS === 'web' ? 240 : 'auto',
+          width:
+            Platform.OS === 'web' ? (!compact && collapsed ? 72 : 240) : 'auto',
           backgroundColor:
             Platform.OS === 'web' ? 'transparent' : colors.sidebar,
         },

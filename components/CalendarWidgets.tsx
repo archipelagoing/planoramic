@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {View} from 'react-native';
 import Text from './AppText';
-import {Clock} from './CalendarOverview';
 import {glassStyle, useTheme} from '../theme/ThemeProvider';
 
 export default function CalendarWidgets() {
@@ -62,7 +61,11 @@ export default function CalendarWidgets() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   borderRadius: 4,
-                  backgroundColor: today ? colors.accentSoft : 'transparent',
+                  backgroundColor: today
+                    ? dark
+                      ? colors.accentSoft
+                      : colors.accent
+                    : 'transparent',
                   borderWidth: 1,
                   borderColor: today ? colors.accent : 'transparent',
                 }}>
@@ -72,7 +75,7 @@ export default function CalendarWidgets() {
                   }
                   style={{
                     fontSize: 11,
-                    color: colors.text,
+                    color: today && !dark ? '#FFFFFF' : colors.text,
                     fontWeight: today ? '700' : '400',
                   }}>
                   {valid ? day : ''}
@@ -81,9 +84,6 @@ export default function CalendarWidgets() {
             );
           })}
         </View>
-      </View>
-      <View style={[...surface, {width: 108, justifyContent: 'center'}]}>
-        <Clock now={now} compact />
       </View>
     </View>
   );

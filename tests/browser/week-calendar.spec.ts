@@ -1,10 +1,10 @@
 import {test, expect} from '@playwright/test';
 
-for (const width of [1440, 390]) {
+for (const width of [1440, 1280, 390]) {
   test(`timed week navigation, events, and appearance ${width}`, async ({
     page,
   }, testInfo) => {
-    await page.setViewportSize({width, height: 1000});
+    await page.setViewportSize({width, height: width === 1280 ? 720 : 1000});
     await page.clock.setFixedTime(new Date('2026-09-22T12:00:00'));
     const ranges: URL[] = [];
     let fail = false;
@@ -47,6 +47,7 @@ for (const width of [1440, 390]) {
               ...base,
               id: '1',
               title: 'Planning session',
+              color: '#345678',
               start: {dateTime: '2026-09-22T09:00:00'},
               end: {dateTime: '2026-09-22T11:00:00'},
             },
@@ -93,6 +94,25 @@ for (const width of [1440, 390]) {
       .locator('.week-grid .fc-event')
       .filter({hasText: 'Design review'});
     await expect(planning).toBeVisible();
+    if (width >= 700) {
+      await page.screenshot({path: testInfo.outputPath('fit.png')});
+      await expect
+        .poll(() =>
+          page
+            .locator('.week-grid .fc-scroller')
+            .evaluateAll(nodes =>
+                nodes.map(node => ({height: node.clientHeight, content: node.scrollHeight, width: node.clientWidth, contentWidth: node.scrollWidth})).filter(node => node.content > node.height + 2 || node.contentWidth > node.width + 2),
+            ),
+        )
+        .toEqual([]);
+      const gridBounds = await grid.boundingBox();
+      expect(gridBounds!.y + gridBounds!.height).toBeLessThanOrEqual(
+        width === 1280 ? 721 : 1001,
+      );
+      await expect(
+        page.locator('.week-grid .fc-timegrid-slot-lane'),
+      ).toHaveCount(12);
+    }
     const a = (await planning.boundingBox())!;
     const b = (await review.boundingBox())!;
     expect(a.x + a.width).toBeLessThanOrEqual(b.x + 1);
@@ -134,6 +154,14 @@ for (const width of [1440, 390]) {
     for (const mode of ['dark', 'light']) {
       const toggle = page.getByRole('button', {name: `Switch to ${mode} mode`});
       if (await toggle.count()) await toggle.click();
+      await expect(planning).toHaveCSS(
+        'border-left-color',
+        mode === 'light' ? 'rgb(52, 86, 120)' : 'rgb(247, 154, 34)',
+      );
+      await expect(review).toHaveCSS(
+        'border-left-color',
+        mode === 'light' ? 'rgb(113, 104, 98)' : 'rgb(247, 154, 34)',
+      );
       const current = page.getByRole('button', {
         name: `Switch to ${mode === 'dark' ? 'light' : 'dark'} mode`,
       });

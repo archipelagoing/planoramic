@@ -1,5 +1,67 @@
 import {test, expect, Page} from '@playwright/test';
 
+test('light color hierarchy keeps flame on identity and dark mode unchanged', async ({
+  page,
+}) => {
+  await page.setViewportSize({width: 1440, height: 1000});
+  await calendarApi(page);
+  await page.goto('/');
+  await setTheme(page, false);
+  const title = page.getByRole('heading', {name: 'Upcoming Events'});
+  const brand = page.getByText('PLANORAMIC', {exact: true});
+  await expect(title).toHaveCSS('color', 'rgb(81, 70, 64)');
+  await expect(title.locator('canvas')).toHaveCount(0);
+  await expect(brand.locator('canvas')).toHaveCount(1);
+  const sidebar = page.getByTestId('glass-sidebar');
+  await expect(sidebar.locator('canvas')).toHaveCount(0);
+  await expect(
+    sidebar
+      .getByRole('button', {name: 'Calendar', exact: true})
+      .getByTestId('flame-icon'),
+  ).toHaveCSS('color', 'rgb(173, 74, 48)');
+  for (const today of await page.locator('.date-circle.today').all()) {
+    await expect(today).toHaveCSS('background-color', 'rgb(173, 74, 48)');
+    await expect(today).toHaveCSS('color', 'rgb(255, 255, 255)');
+  }
+  await setTheme(page, true);
+  await expect(title.locator('canvas')).toHaveCount(1);
+  await expect(sidebar.locator('canvas')).toHaveCount(1);
+  await expect(brand).toHaveCSS('color', 'rgb(247, 154, 34)');
+});
+
+test('navigation collapses, persists, and keeps mobile drawer usable', async ({
+  page,
+}, testInfo) => {
+  await page.setViewportSize({width: 1440, height: 1000});
+  await calendarApi(page, false);
+  await page.goto('/');
+  const sidebar = page.getByTestId('glass-sidebar');
+  await expect(sidebar).toHaveCSS('width', /^(239|240)px$/);
+  await page.getByRole('button', {name: 'Collapse navigation'}).click();
+  await expect(sidebar).toHaveCSS('width', /^(71|72)px$/);
+  await sidebar.getByRole('button', {name: 'Settings', exact: true}).click();
+  await expect(
+    page.getByRole('heading', {name: 'Settings', exact: true}).first(),
+  ).toBeVisible();
+  await page.screenshot({path: testInfo.outputPath('collapsed.png')});
+  await page.reload();
+  await expect(sidebar).toHaveCSS('width', /^(71|72)px$/);
+  await page.getByRole('button', {name: 'Expand navigation'}).focus();
+  await page.keyboard.press('Enter');
+  await expect(sidebar).toHaveCSS('width', /^(239|240)px$/);
+  await page.getByRole('button', {name: 'Collapse navigation'}).click();
+  await page.setViewportSize({width: 390, height: 844});
+  await page.getByRole('button', {name: 'Open navigation'}).click();
+  await expect(sidebar).toHaveCSS('width', /^(239|240)px$/);
+  await expect(
+    page.getByRole('button', {name: 'Expand navigation'}),
+  ).toHaveCount(0);
+  await sidebar.getByRole('button', {name: 'Settings', exact: true}).click();
+  await expect(
+    page.getByRole('heading', {name: 'Settings', exact: true}).first(),
+  ).toBeVisible();
+});
+
 for (const width of [1440, 390]) {
   test(`settings appearance and text sizing ${width}`, async ({
     page,
@@ -99,6 +161,12 @@ for (const width of [1440, 390]) {
     await page.setViewportSize({width, height: 1000});
     await calendarApi(page);
     await page.goto('/');
+    const clock = page.getByTestId('header-clock');
+    await expect(clock).toBeVisible();
+    await expect(page.getByTestId('analog-clock')).toHaveCount(1);
+    await expect(clock).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+    await expect(clock).toHaveCSS('box-shadow', 'none');
+    await expect(clock).toHaveCSS('border-top-width', '0px');
     await page.getByRole('radio', {name: 'Agenda', exact: true}).click();
     const month = page.getByTestId('mini-month');
     await expect(month).toBeVisible();
@@ -609,7 +677,7 @@ for (const width of [1440, 390]) {
     await calendarApi(page, false);
     await page.goto('/');
     await page.getByRole('radio', {name: 'Agenda', exact: true}).click();
-    const heading = page.getByRole('heading', {name: 'Upcoming Events'});
+    const heading = page.getByText('PLANORAMIC', {exact: true}).filter({visible: true});
     const toggle = page.getByRole('switch', {name: 'Flame text'});
     await expect(heading).toHaveCSS(
       '-webkit-text-fill-color',
@@ -839,7 +907,7 @@ for (const mode of ['light', 'dark']) {
       ).toBe(true);
       await expect(page.getByText('PLANORAMIC', {exact: true})).toHaveCSS(
         'color',
-        mode === 'dark' ? 'rgb(247, 154, 34)' : 'rgb(168, 35, 2)',
+        mode === 'dark' ? 'rgb(247, 154, 34)' : 'rgb(173, 74, 48)',
       );
       await expect(
         page
@@ -881,7 +949,7 @@ for (const mode of ['light', 'dark']) {
         ).toHaveCSS('filter', 'saturate(0.5) contrast(0.72) brightness(1.1)');
         await expect(page.getByText('10:00 AM', {exact: true})).toHaveCSS(
           'color',
-          'rgb(41, 37, 34)',
+          'rgb(57, 51, 48)',
         );
         await expect(control.locator('canvas')).toHaveCount(0);
       }

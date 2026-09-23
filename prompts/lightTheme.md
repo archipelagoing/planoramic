@@ -509,3 +509,605 @@ DO NOT CHANGE ANY OTHER PART OF THE DESIGN.
 
 After implementing it, tell me exactly which CSS properties controlling the
 glass material were changed so I can tune them individually later.
+
+
+==================================================
+Refine the COLOR LANGUAGE of the existing Planoramic LIGHT THEME.
+
+This is a targeted visual refinement, NOT a redesign.
+
+The current light-mode structure, layout, glassmorphism, background treatment,
+typography, calendar layout, spacing, and controls are already close to the
+desired result.
+
+The problem I want to solve is:
+
+There are too many separate orange focal points, but I do NOT want to solve
+that by making the interface cold, black, gray, or corporate.
+
+The light theme should become softer, warmer, more luminous, and more
+sophisticated.
+
+Think:
+
+PEARL
+→ WARM STONE
+→ MUSHROOM
+→ TAUPE
+→ ESPRESSO
+→ TERRACOTTA EMBER
+→ FLAME AMBER
+
+NOT:
+
+WHITE
+→ BLACK
+→ ORANGE
+
+
+======================================================================
+DO NOT REDESIGN THE INTERFACE
+======================================================================
+
+Do NOT change:
+
+- layout
+- calendar structure
+- sidebar structure
+- background image
+- background positioning
+- existing glass material
+- backdrop blur behavior
+- card dimensions
+- spacing
+- border radii
+- typography family
+- font sizing hierarchy
+- responsive behavior
+- theme controls
+- functionality
+
+Do not introduce new components.
+
+This task is primarily about COLOR HIERARCHY and ACCENT RESTRAINT.
+
+
+======================================================================
+OVERALL LIGHT-MODE DIRECTION
+======================================================================
+
+The light theme should feel like:
+
+daylight passing through warm pearlescent architectural glass.
+
+It should feel:
+
+- luminous
+- warm
+- quiet
+- elegant
+- slightly organic
+- sophisticated
+- comfortable in a home environment
+- premium without looking luxurious for the sake of luxury
+
+The warmth should primarily come from:
+
+1. the existing background photograph
+2. warm-neutral typography
+3. subtle terracotta/ember states
+4. very selective flame typography
+
+Do NOT tint the entire UI beige, orange, yellow, or peach.
+
+
+======================================================================
+WARM NEUTRAL TYPOGRAPHY SYSTEM
+======================================================================
+
+Replace cold charcoal/black thinking with a warm-neutral hierarchy.
+
+Use approximately:
+
+PRIMARY TEXT
+#393330
+
+MAJOR HEADINGS
+#514640
+
+SECONDARY TEXT
+#716862
+
+MUTED TEXT
+#918882
+
+VERY SUBTLE TEXT
+#AAA29C
+
+These values can be adjusted slightly if necessary for accessibility and
+contrast, but preserve their relationships.
+
+The visual progression should feel like:
+
+deep warm espresso
+→ cocoa/taupe
+→ mushroom
+→ warm stone
+
+Do not use pure black for normal typography.
+
+Do not make all typography brown either.
+
+The colors should remain neutral enough that the interface still feels clean.
+
+
+======================================================================
+PLANORAMIC WORDMARK
+======================================================================
+
+KEEP the PLANORAMIC wordmark in flame text.
+
+This should remain one of the strongest expressions of the visual identity.
+
+Keep its italic/editorial treatment.
+
+The flame should exist inside the glyphs.
+
+Do NOT add:
+
+- orange outlines
+- black outlines
+- outer glow
+- embossed effects
+- strong shadows
+
+It should feel like a small piece of incandescent material rather than
+ordinary orange text.
+
+
+======================================================================
+"UPCOMING EVENTS"
+======================================================================
+
+REMOVE the flame treatment from the main "Upcoming Events" heading.
+
+Do NOT make it charcoal or black.
+
+Use the warm major-heading color:
+
+#514640
+
+The heading should remain visually important because of:
+
+- size
+- typography
+- placement
+- weight
+
+rather than saturated color.
+
+This creates the hierarchy:
+
+FLAME:
+PLANORAMIC
+
+WARM ESPRESSO:
+Upcoming Events
+
+MUTED:
+Sample events · Preview
+
+
+======================================================================
+SUBTITLE / EDITORIAL TEXT
+======================================================================
+
+Keep:
+
+"Sample events · Preview"
+
+italic.
+
+Use a warm secondary/muted color approximately:
+
+#716862
+
+or slightly softer if necessary.
+
+This text should feel editorial and atmospheric rather than structural.
+
+
+======================================================================
+SIDEBAR
+======================================================================
+
+Reduce flame/orange usage in the sidebar.
+
+INACTIVE ITEMS:
+
+Use warm-neutral icons and labels.
+
+Icons:
+approximately #716862
+
+Labels:
+approximately #625A55 to #716862
+
+Do NOT make inactive icons orange.
+
+
+ACTIVE ITEM:
+
+Keep the existing frosted-glass active surface.
+
+Let the GLASS SURFACE communicate most of the selected state.
+
+The active label should use the primary warm text color.
+
+The active icon may use either:
+
+A. the primary warm text color
+
+or
+
+B. a restrained terracotta ember
+
+Prefer a restrained terracotta ember if it looks balanced.
+
+Suggested:
+
+#AD4A30
+
+Do NOT use bright flame orange for the active navigation icon.
+
+The active state should feel integrated rather than highlighted with a
+highlighter.
+
+
+======================================================================
+TODAY / CURRENT DATE
+======================================================================
+
+KEEP today's date as a colored semantic accent.
+
+This is a good use of the ember identity because the color communicates
+meaning.
+
+Use the SAME semantic treatment for today's date in:
+
+- the mini calendar
+- the main week calendar
+- any other date representation
+
+Shift today's color away from bright red-orange and toward a warm terracotta
+ember.
+
+Preferred starting value:
+
+#AD4A30
+
+Alternative:
+
+#B64224
+
+The result should feel like fired terracotta / glowing ember rather than
+bright red.
+
+Keep sufficient contrast for the number inside the circle.
+
+
+======================================================================
+CURRENT TIME
+======================================================================
+
+If the calendar displays a current-time indicator, keep it as a restrained
+ember accent.
+
+Use the same semantic ember family as TODAY.
+
+Do not use bright generic orange.
+
+TODAY and CURRENT TIME can share the ember family because both represent
+"now."
+
+
+======================================================================
+EVENT COLORS
+======================================================================
+
+Do NOT force Planoramic flame colors onto calendar events.
+
+If an event/calendar has its own source color, preserve that color.
+
+Calendar colors should remain functional data visualization.
+
+Planoramic's brand accent should not override them.
+
+If an event does not have a color, use a quiet neutral/default treatment
+rather than automatically assigning orange.
+
+
+======================================================================
+BUTTONS AND CONTROLS
+======================================================================
+
+Keep buttons, segmented controls, arrows, theme controls, and other UI
+controls primarily neutral.
+
+Use:
+
+- translucent glass
+- warm-neutral text
+- warm-neutral icons
+- subtle borders
+- existing glass highlights
+
+Do NOT make normal controls orange.
+
+Do NOT make normal controls terracotta simply because terracotta exists in
+the palette.
+
+Color should communicate either:
+
+1. brand identity
+2. semantic state
+3. meaningful selection
+
+not simply "this is clickable."
+
+
+======================================================================
+FLAME PALETTE — LIGHT MODE
+======================================================================
+
+Refine the light-mode flame palette so it feels less like generic orange and
+more like incandescent ember/fire.
+
+Use approximately:
+
+DEEP EMBER
+#7A1D0B
+
+BURNT EMBER
+#A82A0D
+
+VERMILION
+#D6410C
+
+FLAME ORANGE
+#EF650D
+
+AMBER HIGHLIGHT
+#F49A28
+
+Bias strongly toward:
+
+#7A1D0B
+#A82A0D
+#D6410C
+#EF650D
+
+Use #F49A28 only as a relatively small highlight.
+
+Do NOT distribute all flame colors evenly.
+
+The effect should contain darker ember folds surrounding smaller luminous
+orange/amber regions.
+
+Avoid pale yellow and cream in light mode because those highlights disappear
+against the pearlescent background.
+
+
+======================================================================
+FLAME COLOR SHOULD BE RARE
+======================================================================
+
+Flame is the identity, NOT the general accent color.
+
+In the current calendar view, flame should primarily appear in:
+
+- PLANORAMIC wordmark
+- explicit flame-text content when enabled
+
+Terracotta ember may appear in:
+
+- today
+- current time
+- a very restrained selected-state detail if necessary
+
+Everything else should primarily use the warm-neutral system.
+
+
+======================================================================
+COLOR SEMANTICS
+======================================================================
+
+Establish this semantic system:
+
+PEARL / IVORY
+= environment
+
+FROSTED GLASS
+= surfaces and controls
+
+ESPRESSO / COCOA
+= primary information and headings
+
+TAUPE / MUSHROOM
+= secondary information
+
+TERRACOTTA EMBER
+= current state / today / now
+
+FLAME
+= Planoramic identity
+
+CALENDAR COLORS
+= event/category information
+
+
+These roles should remain visually distinct.
+
+
+======================================================================
+IMPORTANT: DO NOT MAKE EVERYTHING BROWN
+======================================================================
+
+"Warm" does NOT mean applying brown to every component.
+
+The interface should still read primarily as a very light pearl/ivory
+environment.
+
+Warm-neutral typography should be subtle enough that it often reads simply
+as a softer alternative to charcoal.
+
+Avoid:
+
+- sepia appearance
+- beige-on-beige
+- brown cards
+- orange glass
+- peach overlays
+- yellow backgrounds
+- vintage styling
+
+This should remain contemporary.
+
+
+======================================================================
+CONTRAST HIERARCHY
+======================================================================
+
+Use contrast intentionally.
+
+Highest neutral contrast:
+- event titles
+- important calendar information
+- major structural headings
+
+Medium contrast:
+- navigation
+- secondary information
+- controls
+
+Lower contrast:
+- metadata
+- weather details
+- preview/status text
+- tertiary information
+
+Saturated color:
+- brand
+- semantic state
+- event data when applicable
+
+Do not use saturated color merely to create hierarchy.
+
+
+======================================================================
+DESIGN PRINCIPLE
+======================================================================
+
+The light theme should follow this hierarchy:
+
+BACKGROUND provides ATMOSPHERE.
+
+GLASS provides MATERIAL.
+
+TYPOGRAPHY provides HIERARCHY.
+
+TERRACOTTA EMBER communicates NOW / CURRENT STATE.
+
+FLAME communicates PLANORAMIC IDENTITY.
+
+EVENT COLORS communicate CALENDAR DATA.
+
+
+The user should first perceive:
+
+"a beautiful warm glass calendar"
+
+then:
+
+"this has an unusual fire-inspired identity."
+
+The fire theme should reveal itself rather than dominate the screen.
+
+
+======================================================================
+TARGET VISUAL IMPRESSION
+======================================================================
+
+The finished light mode should resemble:
+
+PEARLESCENT RIBBED GLASS
+              ↓
+FROSTED TRANSLUCENT SURFACES
+              ↓
+WARM ESPRESSO TYPOGRAPHY
+              ↓
+SOFT TAUPE METADATA
+              ↓
+OCCASIONAL TERRACOTTA EMBER
+              ↓
+RARE INCANDESCENT FLAME
+
+It should feel harmonious with the warm architectural background without
+becoming monochromatically orange or brown.
+
+
+======================================================================
+DO NOT CHANGE DARK MODE
+======================================================================
+
+This task applies ONLY to light mode.
+
+Do not modify dark-mode colors, styling, flame treatment, glass treatment,
+or typography unless shared code absolutely requires a structural change.
+
+If shared variables currently control both modes, separate the necessary
+light-mode tokens rather than changing dark mode as a side effect.
+
+
+======================================================================
+IMPLEMENTATION
+======================================================================
+
+Inspect the existing theme implementation before changing values.
+
+Reuse the existing CSS custom property/theme-token architecture where
+possible.
+
+If these colors are currently repeated as hardcoded values, consolidate them
+into semantic LIGHT-MODE variables where reasonable, such as:
+
+--text-primary
+--text-heading
+--text-secondary
+--text-muted
+
+--accent-ember
+--accent-ember-soft
+
+--flame-deep
+--flame-ember
+--flame-vermilion
+--flame-orange
+--flame-amber
+
+Do not over-refactor unrelated styling.
+
+
+======================================================================
+WHEN FINISHED
+======================================================================
+
+Tell me:
+
+1. exactly which light-mode color variables/values changed
+2. which elements still use flame text
+3. which elements use terracotta ember
+4. which elements use warm-neutral typography
+5. whether any dark-mode styling was affected
+
+Do not make unrelated design changes.

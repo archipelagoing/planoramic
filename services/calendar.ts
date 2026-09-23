@@ -6,6 +6,7 @@ export const API_URL: string = (
 ).replace(/\/$/, '');
 
 export interface CalendarEvent {
+  color?: string;
   id: string;
   calendarId: string;
   calendarName: string;

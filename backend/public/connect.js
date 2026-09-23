@@ -7,7 +7,9 @@ function updateFlame() {
   flameCleanups = element('flame-toggle').checked
     ? [
         ...document.querySelectorAll(
-          '.brand.flame-text, h1.flame-text, .appearance [aria-pressed="true"] .icon',
+          dark
+            ? '.brand.flame-text, h1.flame-text, .appearance [aria-pressed="true"] .icon'
+            : '.brand.flame-text, h1.flame-text',
         ),
       ].map(node =>
         attachFlameText(node, {

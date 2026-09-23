@@ -8,7 +8,6 @@ import {CalendarEvent, EventResponse, request} from '../services/calendar';
 import {useTheme} from '../theme/ThemeProvider';
 import {useFont} from '../theme/FontProvider';
 import GlassButton from './GlassButton';
-import {Clock} from './CalendarOverview';
 import './week-calendar.css';
 import {useTasks} from '../theme/TasksProvider';
 import {useWeather, weatherLabel} from '../services/weather';
@@ -84,16 +83,19 @@ export default function WeekCalendar({
           end: event.end?.dateTime || event.end?.date,
           allDay: event.allDay,
           borderColor:
+            (!dark && /^#[a-fA-F0-9]{6}$/.test(event.color || '')
+              ? event.color
+              : undefined) ||
             personForCalendar(event.calendarId)?.color ||
             (/^#[a-fA-F0-9]{6}$/.test(event.personColor || '')
               ? event.personColor
-              : undefined),
+              : ''),
           extendedProps: {
             source: event,
             person: personForCalendar(event.calendarId)?.name || event.person,
           },
         })),
-    [preview, events, loaded, hidden, owners, people],
+    [preview, events, loaded, hidden, owners, people, dark],
   );
   const choose = (date: Date, openDay = false) => {
     setSelectedDate(date);
@@ -142,12 +144,14 @@ export default function WeekCalendar({
           style={{display: 'flex', gap: 8}}>
           <GlassButton
             label="Day"
+            compact
             radio
             selected={view === 'day'}
             onPress={() => choose(selectedDate, true)}
           />
           <GlassButton
             label="Week"
+            compact
             radio
             selected={view === 'week'}
             onPress={() => {
@@ -156,9 +160,10 @@ export default function WeekCalendar({
             }}
           />
         </div>
-        <GlassButton label="Today" onPress={() => choose(new Date())} />
+        <GlassButton compact label="Today" onPress={() => choose(new Date())} />
         <GlassButton
           label={view === 'week' ? 'Previous week' : 'Previous day'}
+          compact
           icon="chevron-left"
           iconOnly
           circular
@@ -166,6 +171,7 @@ export default function WeekCalendar({
         />
         <GlassButton
           label={view === 'week' ? 'Next week' : 'Next day'}
+          compact
           icon="chevron-right"
           iconOnly
           circular
@@ -204,9 +210,6 @@ export default function WeekCalendar({
               dayHeaderFormat={{weekday: 'narrow'}}
               dayCellContent={info => dateButton(info.date, true)}
             />
-          </div>
-          <div className="side-clock">
-            <Clock now={now} compact />
           </div>
           <div className="weather-location">
             <span>East Brunswick, NJ · 08816</span>
@@ -254,11 +257,12 @@ export default function WeekCalendar({
                 firstDay={1}
                 headerToolbar={false}
                 height="100%"
+                expandRows
                 allDaySlot
                 nowIndicator
-                scrollTime="07:00:00"
-                slotDuration="00:30:00"
-                slotLabelInterval="01:00:00"
+                scrollTime="00:00:00"
+                slotDuration="02:00:00"
+                slotLabelInterval="02:00:00"
                 slotLabelFormat={{
                   hour: 'numeric',
                   minute: '2-digit',
@@ -266,7 +270,7 @@ export default function WeekCalendar({
                   meridiem: 'short',
                 }}
                 slotEventOverlap={false}
-                eventMinHeight={24}
+                eventMinHeight={12}
                 editable={false}
                 events={items}
                 datesSet={info =>

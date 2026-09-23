@@ -29,14 +29,14 @@ const darkPalette = [
   '#FFE3A0',
 ].map(hex => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16)));
 const lightPalette = [
-  '#721500',
-  '#721500',
-  '#A82302',
-  '#D83B02',
-  '#D83B02',
-  '#F45D04',
-  '#FF820B',
-  '#FFAC24',
+  '#7A1D0B',
+  '#7A1D0B',
+  '#A82A0D',
+  '#A82A0D',
+  '#D6410C',
+  '#D6410C',
+  '#EF650D',
+  '#F49A28',
 ].map(hex => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16)));
 
 export function flameColor(x, y, time, options = {}) {

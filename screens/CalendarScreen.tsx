@@ -23,6 +23,7 @@ import {
 } from '../services/calendar';
 import GlassButton from '../components/GlassButton';
 import ThemeControl from '../components/ThemeControl';
+import HeaderClock from '../components/HeaderClock';
 import CalendarCanvas from '../components/CalendarCanvas';
 import {darkGlassCard, darkGlassFocus} from '../components/DarkGlassEdges';
 import {lightGlassCard} from '../components/lightGlassCard';
@@ -93,6 +94,11 @@ function EventRow({event}: {event: CalendarEvent}) {
           borderLeftWidth: 4,
           borderLeftColor: person?.color || event.personColor,
         },
+        !dark &&
+          /^#[a-fA-F0-9]{6}$/.test(event.color || '') && {
+            borderLeftWidth: 4,
+            borderLeftColor: event.color,
+          },
       ]}>
       <FlameText neutral style={styles.time}>
         {time}
@@ -356,7 +362,10 @@ export default function CalendarScreen() {
       <View style={styles.header}>
         <View style={styles.heading}>
           <FlameText style={styles.eyebrow}>PLANORAMIC</FlameText>
-          <FlameText accessibilityRole="header" style={styles.title}>
+          <FlameText
+            neutral={!dark}
+            accessibilityRole="header"
+            style={styles.title}>
             Upcoming Events
           </FlameText>
           <Text style={[styles.secondary, styles.context]}>
@@ -367,6 +376,7 @@ export default function CalendarScreen() {
         </View>
         <View style={styles.tools}>
           {range === 'agenda' && <CalendarWidgets />}
+          <HeaderClock />
           <ThemeControl />
           {preview ? (
             <Action
@@ -390,14 +400,16 @@ export default function CalendarScreen() {
       <View
         accessibilityRole="radiogroup"
         accessibilityLabel="Calendar range"
-        style={{flexDirection: 'row', gap: 10, marginBottom: 16}}>
+        style={{flexDirection: 'row', gap: 6, marginBottom: 6}}>
         <GlassButton
+          compact
           label="Agenda"
           radio
           selected={range === 'agenda'}
           onPress={() => setRange('agenda')}
         />
         <GlassButton
+          compact
           label="Week"
           radio
           selected={range === 'week'}
@@ -543,15 +555,15 @@ const makeStyles = (colors: Colors, dark: boolean) =>
       backgroundColor: 'transparent',
       paddingLeft: Platform.OS === 'web' ? 28 : 88,
       paddingRight: 28,
-      paddingTop: 24,
+      paddingTop: 12,
     },
     header: {
       flexDirection: 'row',
       flexWrap: 'wrap',
       alignItems: 'center',
       justifyContent: 'space-between',
-      marginBottom: dark ? 28 : 20,
-      gap: 16,
+      marginBottom: 8,
+      gap: 8,
     },
     tools: {
       maxWidth: '100%',
@@ -559,25 +571,25 @@ const makeStyles = (colors: Colors, dark: boolean) =>
       flexDirection: 'row',
       flexWrap: 'wrap',
       alignItems: 'center',
-      gap: 16,
+      gap: 8,
       zIndex: 10,
     },
     heading: {flexShrink: 1},
     eyebrow: {
       fontStyle: 'italic',
       color: colors.accent,
-      fontSize: 16,
+      fontSize: 13,
       letterSpacing: 0,
       fontWeight: '700',
     },
     title: {
-      color: colors.text,
-      fontSize: 32,
+      color: colors.heading,
+      fontSize: 24,
       fontWeight: '700',
-      marginVertical: 8,
+      marginVertical: 4,
     },
     secondary: {color: colors.muted, fontSize: 20, lineHeight: 28},
-    context: {fontStyle: 'italic'},
+    context: {fontStyle: 'italic', fontSize: 16, lineHeight: 20},
     focused: {borderColor: colors.accent},
     event: {
       flexDirection: 'row',
@@ -616,7 +628,7 @@ const makeStyles = (colors: Colors, dark: boolean) =>
       marginBottom: dark ? 18 : 14,
     },
     list: {paddingBottom: 40, paddingHorizontal: 16},
-    updated: {color: colors.muted, fontSize: 16, marginBottom: 6},
+    updated: {color: colors.tertiary, fontSize: 16, marginBottom: 6},
     error: {
       color: colors.error,
       fontSize: 20,

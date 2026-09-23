@@ -93,10 +93,10 @@
   --font-weight: 500;
   --font-style: normal;
   color-scheme: light;
-  --text: #292522;
+  --text: #393330;
   --page-background: #f8f5f1;
-  --muted: #68615c;
-  --accent: #a82302;
+  --muted: #716862;
+  --accent: #ad4a30;
   --overlay: rgba(248, 245, 241, 0.68);
   --image-filter: saturate(50%) contrast(72%) brightness(110%);
   --fill: rgba(255, 255, 255, 0.34);

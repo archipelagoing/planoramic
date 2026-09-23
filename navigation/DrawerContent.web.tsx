@@ -1,5 +1,6 @@
 import React from 'react';
-import {ScrollView, StyleSheet} from 'react-native';
+import {ScrollView, StyleSheet, View} from 'react-native';
+import GlassButton from '../components/GlassButton';
 import {useTheme} from '../theme/ThemeProvider';
 import {ParamListBase, useNavigation} from '@react-navigation/native';
 import {DrawerItem, DrawerNavigationProp} from '@react-navigation/drawer';
@@ -9,6 +10,8 @@ import {useFont} from '../theme/FontProvider';
 
 interface DrawerContentProps {
   route: string;
+  collapsed?: boolean;
+  onToggle?: () => void;
 }
 
 const browserMenuItems = menuItems.map(item => ({
@@ -24,7 +27,11 @@ const browserMenuItems = menuItems.map(item => ({
   }) => <Icon source={item.icon} color={color} size={size} active={focused} />,
 }));
 
-const DrawerContent = ({route}: DrawerContentProps) => {
+const DrawerContent = ({
+  route,
+  collapsed = false,
+  onToggle,
+}: DrawerContentProps) => {
   const {colors, dark} = useTheme();
   const {family, fontScale} = useFont();
   const navigation = useNavigation<DrawerNavigationProp<ParamListBase>>();
@@ -43,25 +50,48 @@ const DrawerContent = ({route}: DrawerContentProps) => {
           borderRightColor: colors.glassBorder,
         },
       ]}
-      contentContainerStyle={styles.content}>
+      contentContainerStyle={[
+        styles.content,
+        onToggle ? {paddingTop: 12} : {},
+      ]}>
+      {onToggle && (
+        <View
+          style={{
+            alignItems: 'flex-start',
+            paddingHorizontal: 12,
+            marginBottom: 8,
+          }}>
+          <GlassButton
+            label={collapsed ? 'Expand navigation' : 'Collapse navigation'}
+            icon={collapsed ? 'chevron-right' : 'chevron-left'}
+            iconOnly
+            circular
+            tooltipAlign="left"
+            onPress={onToggle}
+          />
+        </View>
+      )}
       {browserMenuItems.map(item => (
-        <DrawerItem
-          key={item.screen}
-          label={item.name}
-          labelStyle={{
-            fontFamily: family,
-            fontWeight: 'normal',
-            fontSize: 14 * fontScale,
-          }}
-          icon={item.renderIcon}
-          focused={route === item.screen}
-          activeTintColor={colors.text}
-          inactiveTintColor={colors.muted}
-          activeBackgroundColor={
-            dark ? 'rgba(255,255,255,0.045)' : 'rgba(255,255,255,0.5)'
-          }
-          onPress={() => navigation.navigate(item.screen)}
-        />
+        <div key={item.screen} title={collapsed ? item.name : undefined}>
+          <DrawerItem
+            label={collapsed ? () => null : item.name}
+            accessibilityLabel={item.name}
+            style={collapsed ? {width: 48, marginHorizontal: 12} : undefined}
+            labelStyle={{
+              fontFamily: family,
+              fontWeight: 'normal',
+              fontSize: 14 * fontScale,
+            }}
+            icon={item.renderIcon}
+            focused={route === item.screen}
+            activeTintColor={colors.text}
+            inactiveTintColor={colors.muted}
+            activeBackgroundColor={
+              dark ? 'rgba(255,255,255,0.045)' : 'rgba(255,255,255,0.5)'
+            }
+            onPress={() => navigation.navigate(item.screen)}
+          />
+        </div>
       ))}
     </ScrollView>
   );

@@ -7,6 +7,35 @@ import {readConfig} from '../src/config.mjs';
 
 const apiKey = 'test-controller-key-with-at-least-32-characters';
 const config = readConfig({DEV_API_KEY: apiKey});
+test('calendar source colors preserve event overrides and calendar defaults', async () => {
+  const client = createCalendarClient(
+    {calendarToken: 'test', includeAllCalendars: true},
+    async url => {
+      const path = new URL(url).pathname;
+      const body = path.endsWith('/calendarList')
+        ? {
+            items: [
+              {id: 'family', accessRole: 'reader', backgroundColor: '#123456'},
+            ],
+          }
+        : path.endsWith('/colors')
+          ? {event: {9: {background: '#345678'}}}
+          : {
+              items: [
+                {id: 'first', start: {date: '2026-09-23'}, colorId: '9'},
+                {id: 'second', start: {date: '2026-09-23'}},
+              ],
+            };
+      return {ok: true, status: 200, json: async () => body};
+    },
+  );
+  const result = await client({
+    timeMin: '2026-09-23T00:00:00Z',
+    timeMax: '2026-09-24T00:00:00Z',
+  });
+  assert.equal(result.events[0].color, '#345678');
+  assert.equal(result.events[1].color, '#123456');
+});
 function setup(options = {}) {
   const logs = [];
   const app = createApp(config, {logger: line => logs.push(line), ...options});

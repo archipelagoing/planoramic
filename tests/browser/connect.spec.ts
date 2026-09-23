@@ -94,7 +94,9 @@ for (const width of [1440, 390]) {
           ),
         ).toBe('saturate(0.5) contrast(0.72) brightness(1.1)');
       }
-      await expect(page.locator('.icon canvas')).toHaveCount(1);
+      await expect(page.locator('.icon canvas')).toHaveCount(
+        name === 'Dark' ? 1 : 0,
+      );
       await expect(page.locator('.event-time canvas')).toHaveCount(0);
       await expect(page.locator('.event-date canvas')).toHaveCount(0);
       await expect(page.locator('h1 canvas')).toHaveCSS('filter', 'none');

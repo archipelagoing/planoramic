@@ -33,6 +33,8 @@ const ANIMATION_DURATION = 300;
 
 interface DrawerContentProps {
   route: string;
+  collapsed?: boolean;
+  onToggle?: () => void;
 }
 
 const DrawerContent = ({route}: DrawerContentProps) => {

@@ -16,7 +16,7 @@ export default function FlameIcon({
   const {flameText, dark, colors} = useTheme();
   const code = glyphs[source as keyof typeof glyphs] || glyphs['help-circle'];
   useEffect(() => {
-    if (!flameText || !active || !ref.current) return;
+    if (!dark || !flameText || !active || !ref.current) return;
     return attachFlameText(ref.current as unknown as HTMLElement, {
       dark,
       textureScale: 0.65,
