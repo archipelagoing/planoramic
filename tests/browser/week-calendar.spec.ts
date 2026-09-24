@@ -101,7 +101,18 @@ for (const width of [1440, 1280, 390]) {
           page
             .locator('.week-grid .fc-scroller')
             .evaluateAll(nodes =>
-                nodes.map(node => ({height: node.clientHeight, content: node.scrollHeight, width: node.clientWidth, contentWidth: node.scrollWidth})).filter(node => node.content > node.height + 2 || node.contentWidth > node.width + 2),
+              nodes
+                .map(node => ({
+                  height: node.clientHeight,
+                  content: node.scrollHeight,
+                  width: node.clientWidth,
+                  contentWidth: node.scrollWidth,
+                }))
+                .filter(
+                  node =>
+                    node.content > node.height + 2 ||
+                    node.contentWidth > node.width + 2,
+                ),
             ),
         )
         .toEqual([]);

@@ -31,7 +31,12 @@ export default function GlassButton({
   const [focused, setFocused] = useState(false);
   const [hovered, setHovered] = useState(false);
   return (
-    <View style={{position: 'relative', maxWidth: '100%'}}>
+    <View
+      style={{
+        position: 'relative',
+        maxWidth: '100%',
+        zIndex: hovered || focused ? 30 : 0,
+      }}>
       <Pressable
         accessibilityRole={radio ? 'radio' : 'button'}
         accessibilityLabel={label}
@@ -93,22 +98,26 @@ export default function GlassButton({
         )}
       </Pressable>
       {iconOnly && (hovered || focused) && Platform.OS === 'web' && (
-        <View
-          pointerEvents="none"
+        <div
+          role="tooltip"
           style={{
             position: 'absolute',
-            top: 54,
+            bottom: 'calc(100% + 6px)',
             [tooltipAlign]: 0,
-            backgroundColor: colors.surface,
-            padding: 8,
-            borderRadius: 6,
-            borderWidth: 1,
-            borderColor: colors.border,
-            zIndex: 20,
-            width: 100,
+            backgroundColor: dark
+              ? 'rgba(24,23,22,0.12)'
+              : 'rgba(255,255,255,0.12)',
+            padding: '3px 6px',
+            borderRadius: 4,
+            pointerEvents: 'none',
+            zIndex: 30,
+            width: 'max-content',
+            maxWidth: 180,
           }}>
-          <Text style={{color: colors.text, fontSize: 13}}>{label}</Text>
-        </View>
+          <Text numberOfLines={1} style={{color: colors.text, fontSize: 11}}>
+            {label}
+          </Text>
+        </div>
       )}
     </View>
   );

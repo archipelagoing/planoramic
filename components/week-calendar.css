@@ -28,6 +28,8 @@
   cursor: pointer;
 }
 .week-toolbar {
+  position: relative;
+  z-index: 20;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
