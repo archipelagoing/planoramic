@@ -112,7 +112,7 @@ export function createTaskClient(getToken, fetchImpl = fetch) {
         throw new ApiError(
           409,
           'TASK_CONFLICT',
-          'This event is not a Planoramic task.',
+          'This event is not a Hearth task.',
         );
       if (action === 'delete') {
         if (existing) await call(`${path}/${task.id}`, 'DELETE');

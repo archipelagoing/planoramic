@@ -6,7 +6,7 @@
   font-display: swap;
 }
 @font-face {
-  font-family: 'Planoramic Icons';
+  font-family: 'Hearth Icons';
   src: url('/connect-assets/MaterialCommunityIcons.ttf') format('truetype');
 }
 @font-face {
@@ -358,7 +358,7 @@ button:disabled {
   height: 26px;
   line-height: 26px;
   font-style: normal;
-  font-family: 'Planoramic Icons';
+  font-family: 'Hearth Icons';
   font-size: 22px;
   font-weight: normal;
   color: var(--accent);

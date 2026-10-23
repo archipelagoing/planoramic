@@ -361,7 +361,7 @@ export default function CalendarScreen() {
     <CalendarCanvas style={styles.page}>
       <View style={styles.header}>
         <View style={styles.heading}>
-          <FlameText style={styles.eyebrow}>PLANORAMIC</FlameText>
+          <FlameText style={styles.eyebrow}>HEARTH</FlameText>
           <FlameText
             neutral={!dark}
             accessibilityRole="header"

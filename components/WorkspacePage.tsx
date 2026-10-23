@@ -34,7 +34,7 @@ export default function WorkspacePage({
           <View style={{flexShrink: 1}}>
             <FlameText
               style={{color: colors.accent, fontSize: 16, fontStyle: 'italic'}}>
-              PLANORAMIC
+              HEARTH
             </FlameText>
             <FlameText
               accessibilityRole="header"

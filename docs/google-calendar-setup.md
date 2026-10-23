@@ -7,7 +7,7 @@ completed in your account before a live calendar can be fetched.
 ## 1. Configure Google Cloud
 
 1. Open [Google Cloud Console](https://console.cloud.google.com/) and create or
-   select a project for Planoramic.
+   select a project for Hearth.
 2. In **APIs & Services → Library**, enable **Google Calendar API**.
 3. Open **Google Auth Platform** (also reachable through **OAuth consent screen**).
    Configure the app name, support email, and contact email in **Branding**.
@@ -57,7 +57,7 @@ npm run dev
    Use `localhost` consistently, including before sign-in; a cookie set on
    `127.0.0.1` will not accompany a callback to `localhost`.
 2. Choose **Connect Google Calendar**, select your test account, and grant the
-   requested calendar access. Event writes are used only for Planoramic tasks in the calendar selected in Settings.
+   requested calendar access. Event writes are used only for Hearth tasks in the calendar selected in Settings.
 3. Google returns you to `/connect`. Choose **Load upcoming events** to see the
    next seven days across all readable calendars on your Google Calendar list,
    including subsidiary/shared calendars and hidden or unchecked calendars. Each
@@ -67,7 +67,7 @@ npm run dev
    events. **Disconnect calendar** removes this backend's Google tokens and ends
    all local browser sessions for that account. Existing TVs cannot fetch calendar
    data until the same owner reconnects. To revoke Google's grant itself, remove
-   Planoramic from your [Google account connections](https://myaccount.google.com/connections).
+   Hearth from your [Google account connections](https://myaccount.google.com/connections).
 
 This connection page is a small local integration preview, not the future phone
 control UI. Devices must be paired using the signed-in session to access that user's

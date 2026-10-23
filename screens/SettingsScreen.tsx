@@ -73,7 +73,7 @@ const SettingsScreen = () => {
           <View>
             <FlameText
               style={{color: colors.accent, fontSize: 16, fontStyle: 'italic'}}>
-              PLANORAMIC
+              HEARTH
             </FlameText>
             <FlameText
               accessibilityRole="header"

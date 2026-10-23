@@ -15,7 +15,7 @@ renderer with the existing Material Community icon font.
   highlightAmount={0.075}
   textureScale={1}
   style={{fontSize: 48}}>
-  Planoramic
+  Hearth
 </FlameText>
 ```
 

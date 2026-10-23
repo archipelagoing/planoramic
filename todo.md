@@ -1,987 +1,225 @@
-# Fire TV + Google Calendar + Phone Web Control Project TODO
-
-Last updated: 2026-09-22. User confirmed Google sign-in, display pairing, and live
-calendar events working end to end in the browser display. Earlier verification
-confirmed upcoming events across 29 calendars in the connection preview.
-
-## Next implementation steps
-- [x] Add Tasks with due dates, completion, editing, deletion, and named person colors
-- [x] Choose an editable shared calendar in Settings and sync dated tasks as all-day events, with pending/error states and explicit retry
-- [x] Add daily weather for 08816 to the browser calendar and clickable single-day schedules
-- [x] Test shared-task loading across browser contexts, failed-sync retry, and mobile layout using API fixtures
-- [ ] Reconnect Google with write permission and verify task creation, completion, and deletion in a real shared calendar on another device
-- [ ] Verify Tasks on Fire TV; bring daily weather and the detailed day grid to native
-- [x] Add a browser timed Week view with hourly rows, circular date selection, side month navigation, and range-based event loading
-- [x] Keep the seven-day Agenda list as an alternate view
-- [x] Add compact live analog and digital clocks using device-local time
-- [x] Simplify appearance controls to one circular light/dark button; keep font and flame-text options in Settings
-- [ ] Bring the timed week grid to native Fire TV and verify remote navigation
-- [x] Replace starter sidebar sections with Brief, Household, and Pomo
-- [x] Add Today/Week calendar views and persistent calendar-source visibility filters
-- [x] Add a deterministic Brief with today's events and next upcoming timed event
-- [x] Add a Pomo timer with focus/break modes, adjustable durations, pause/resume/reset, and session completion count (continues across tabs; resets on app reload)
-- [ ] Verify the new sections and timer controls with the Fire TV remote
-- [x] Add a pairing-code entry form to the signed-in connection page
-- [x] Register the shared display app with the backend and show its pairing code (verified in browser)
-- [x] Implement secure device credential persistence (HttpOnly browser cookie; native SecureStore)
-- [ ] Verify saved credentials after reopening the app on Fire TV
-- [x] Add `CalendarScreen` and a Calendar navigation item to the shared TV/browser app
-- [x] Fetch events using the paired device credential and group them by local date, with calendar names (verified in browser)
-- [x] Add loading, empty, error, and refresh states; verify in the browser
-- [ ] Verify loading, empty, error, and refresh states on Fire TV
-
-The backend-to-browser display flow is verified. Browser persistence and status
-handling have automated coverage; Fire TV device testing remains. Backend storage
-is still in memory, so restarting the backend requires sign-in and pairing again.
-The full phone control UI follows afterward. Keep Google tokens on the backend
-and the development API key out of the display app.
-
-## 1. Set up the project structure
-- [x] Create a backend folder for API and Google Calendar integration
-- [x] Create a web app folder for the phone-friendly control UI
-- [x] Keep the Fire TV React Native app as the TV display app
-- [x] Decide on the shared device registration flow
-
-Structure and pairing design are documented in [docs/device-pairing.md](docs/device-pairing.md).
-The backend now contains a local development API; the phone app still contains a
-planning README. Implementation continues below.
-
-## 2. Set up the backend
-- [x] Create Node.js Express server
-- [x] Add health endpoint
-- [x] Add device registration endpoint
-- [x] Add device control endpoint
-- [x] Add calendar event fetch endpoint
-- [x] Add error handling and logging
-- [x] Add environment variables for Google OAuth and API keys
-
-Local development API implemented; see [backend/README.md](backend/README.md).
-Devices, Google tokens, and browser sessions are stored in memory. Pairing/control
-support Google user sessions and a separate development-key account. Live Google
-access is verified; restarting the backend still clears accounts, tokens, and devices.
-
-## 3. Set up Google Calendar integration
-- [x] Create a Google Cloud project
-- [x] Enable Google Calendar API
-- [x] Create OAuth client credentials
-- [x] Configure redirect URIs
-- [x] Set up Google login flow
-- [x] Request calendar access scopes
-- [x] Fetch upcoming events from `calendars/primary/events`
-- [x] Include readable subsidiary/shared calendars and label events with their source calendar
-- [x] Parse event fields: title, start, end, location, description
-- [x] Filter upcoming events
-- [x] Add refresh logic
-- [x] Handle expired tokens
-- [x] Verify live Google sign-in and event fetching after Cloud configuration
-
-Live sign-in and a seven-day event fetch across 29 calendars are confirmed through
-`http://localhost:3001/connect`. Backend tests cover multi-calendar fetching,
-authentication, ownership, and token-refresh failures (24 tests passed on rerun).
-The connection preview reloads events manually; automatic token refresh is tested
-with simulated Google responses. TV polling and event caching remain in later
-sections. Setup reference: [docs/google-calendar-setup.md](docs/google-calendar-setup.md).
-
-## 4. Set up Fire TV app
-- [x] Open the Fire TV React Native project
-- [x] Install dependencies
-- [x] Add a `CalendarScreen`
-- [x] Fetch event data from backend (verified in shared browser display)
-- [x] Display upcoming events in a TV-friendly list
-- [x] Add large text and clear focus states
-- [x] Add refresh button (browser verified)
-- [x] Add loading and empty states (browser verified)
-- [x] Add error handling for API failures (browser verified)
-
-The Calendar screen opens with labeled sample events grouped by local date,
-including all-day events and selectable details. List and focus styling are
-implemented; Fire TV rendering and remote navigation still need device testing.
-Pairing and live event fetching are verified end to end in the browser display.
-Browser tests cover loading, empty results, refresh, stale events after network
-failure, startup retry, and Google reauthorization without losing display pairing.
-Native secure storage requires a rebuilt TV app and device verification.
-
-## 5. Set up the phone web app
-- [ ] Create a mobile-friendly web app
-- [ ] Add login flow for Google
-- [ ] Add device pairing or device selection
-- [ ] Display event list
-- [ ] Add buttons for refresh, view changes, and controls
-- [ ] Add responsive design for phone screens
-- [ ] Add a “TV view” status display
-- [ ] Make sure the web app can talk to the backend
-
-## 6. Set up device control flow
-- [x] Add device registration to the shared TV/browser app (verified in browser; Fire TV testing pending)
-- [x] Generate a device ID or pairing code (verified in browser display)
-- [ ] Let the phone register a Fire TV device
-- [x] Add API endpoints to update device state
-- [ ] Add phone-side controls for:
-  - [ ] set date range
-  - [ ] set “today” or “week” view
-  - [ ] refresh events
-  - [ ] force a view update
-- [ ] Show current device status in the web app
-
-## 7. Fire TV UX design
-- [ ] Design the main calendar screen
-- [ ] Add event rows with title, date, and time
-- [ ] Add focusable selection states
-- [ ] Add detail screen for event details
-- [ ] Add “no upcoming events” state
-- [ ] Make navigation remote-friendly
-
-## 8. Testing
-- [x] Test Google auth flow (live sign-in and automated failure cases)
-- [x] Test event fetch from Google Calendar (live multi-calendar preview)
-- [x] Test backend API (automated integration tests)
-- [x] Test Google sign-in, display pairing, and live events end to end in the browser (user confirmed 2026-09-22)
-- [x] Test browser persistence, loading, empty, refresh, and network/Google-auth recovery with automated tests
-- [ ] Test Fire TV app rendering
-- [ ] Test web app responsiveness on phone
-- [ ] Test phone-to-TV control flow
-- [ ] Test no-network / expired-token cases
-- [x] Test manual event loading in the connection preview
-- [ ] Test refresh behavior end to end from phone to TV
-
-## 9. Deployment
-- [ ] Add durable storage for users, Google tokens, devices, and display settings before deployment
-- [ ] Deploy backend to a host
-- [ ] Deploy web app
-- [ ] Configure CORS
-- [ ] Configure environment variables in production
-- [ ] Test production auth flow
-- [ ] Test live data from Google Calendar
-- [ ] Release Fire TV app build
-
-## 10. Final polish
-- [ ] Add loading skeletons
-- [ ] Add proper error messages
-- [ ] Add offline fallback
-- [ ] Add event caching
-- [x] Add the “pair device” flow (verified in browser; Fire TV testing pending)
-- [ ] Add docs for setup and run steps
-
-
-# Planoramic Hackathon TODO
-
-Planoramic is an ambient household planning surface for Fire TV.
-
-The goal is to turn the existing calendar display into an intelligent, multimodal home planning experience that combines:
-
-- Fire TV for ambient visual information
-- Alexa+ for voice interaction
-- Fire TV remote for navigation and exploration
-- Phone/web controls for configuration
-- Amazon Bedrock for schedule intelligence
-- Google Calendar as the underlying schedule source
-
-## Hackathon Target
-
-### Primary Track
-- [ ] Fire TV
-
-### Fire TV Priority Categories
-- [ ] AI-enhanced viewing
-- [ ] Multi-modal UX
-- [ ] Family / household experience
-
-### Additional Track
-- [ ] Alexa+
-
-### Mini Challenges
-- [ ] AWS Builder
-- [ ] Open Source
-
----
-
-# P0: Make Fire TV Rock Solid
-
-Do this before adding major new features.
-
-## Fire TV Build
-
-- [ ] Produce a working Fire TV build
-- [ ] Install Planoramic on an actual Fire TV or supported Fire OS environment
-- [ ] Verify Google Calendar events render correctly
-- [ ] Verify backend is reachable from Fire TV
-- [ ] Verify pairing flow on Fire TV
-- [ ] Verify credentials persist after closing/reopening app
-- [ ] Verify Expo SecureStore behavior on Fire TV
-- [ ] Verify light theme
-- [ ] Verify dark theme
-- [ ] Verify system theme
-
-## Remote Navigation
-
-- [ ] Test every interactive element using only the Fire TV remote
-- [ ] Verify D-pad Up
-- [ ] Verify D-pad Down
-- [ ] Verify D-pad Left
-- [ ] Verify D-pad Right
-- [ ] Verify Select
-- [ ] Verify Back
-- [ ] Add clearly visible focus states
-- [ ] Make sure focus never becomes trapped
-- [ ] Test rapid remote navigation
-- [ ] Test long calendar lists
-- [ ] Investigate React Native TV focus-loss behavior if encountered
-
-## TV States
-
-- [ ] Loading state
-- [ ] Empty-calendar state
-- [ ] Backend unavailable state
-- [ ] Google authentication expired state
-- [ ] No-network state
-- [ ] Manual refresh
-- [ ] Reconnect behavior
-- [ ] Relaunch behavior
-
----
-
-# P1: Planoramic Schedule Engine
-
-Build deterministic schedule intelligence before using AI.
-
-The application should calculate facts itself and give those facts to Bedrock.
-
-## Calendar Normalization
-
-- [ ] Normalize events from all connected calendars
-- [ ] Normalize time zones
-- [ ] Sort events chronologically
-- [ ] Preserve calendar identity
-- [ ] Preserve event ownership
-- [ ] Handle all-day events
-- [ ] Handle overlapping events
-- [ ] Handle multi-day events
-
-## Conflict Detection
-
-Create schedule conflict detection.
-
-Example:
-
-```text
-3:00 PM – 4:00 PM    Class
-3:30 PM – 5:00 PM    Doctor
-
-⚠ Schedule conflict
-```
-
-- [ ] Detect overlapping events
-- [ ] Detect back-to-back events
-- [ ] Calculate transition time
-- [ ] Return structured conflict objects
-- [ ] Add conflict indicator to TV UI
-
-## Free-Time Detection
-
-Calculate open windows between events.
-
-Example:
-
-```text
-FREE TIME
-
-11:30 AM – 1:00 PM
-5:00 PM – 8:30 PM
-```
-
-- [ ] Calculate free windows
-- [ ] Support minimum free-window duration
-- [ ] Calculate longest free window
-- [ ] Calculate morning availability
-- [ ] Calculate afternoon availability
-- [ ] Calculate evening availability
-- [ ] Display free-time blocks visually
-
-## Schedule Density
-
-- [ ] Count events per day
-- [ ] Calculate scheduled hours per day
-- [ ] Identify busiest day
-- [ ] Identify lightest day
-- [ ] Detect unusually packed periods
-
----
-
-# P2: Amazon Bedrock Integration
-
-Goal: qualify for AWS Builder while adding genuinely useful intelligence.
-
-## Backend
-
-Add an AI service layer.
-
-Suggested structure:
-
-```text
-backend/
-  ai/
-    bedrock.ts
-    prompts.ts
-    schemas.ts
-```
-
-Architecture:
-
-```text
-Google Calendar
-      ↓
-Planoramic Schedule Engine
-      ↓
-Normalized schedule facts
-      ↓
-Amazon Bedrock
-      ↓
-Structured insights
-      ↓
-Planoramic UI
-```
-
-- [ ] Configure AWS account/environment
-- [ ] Configure Amazon Bedrock access
-- [ ] Add AWS SDK dependency
-- [ ] Store AWS credentials securely
-- [ ] Create Bedrock service
-- [ ] Add error handling
-- [ ] Add request timeout
-- [ ] Add fallback when AI is unavailable
-
-## Structured AI Output
-
-Do not return arbitrary paragraphs from the model.
-
-Create a structured response such as:
-
-```json
-{
-  "summary": "Tomorrow is busiest between 9 AM and 2 PM.",
-  "alerts": [
-    {
-      "type": "tight_transition",
-      "message": "Only 30 minutes between your interview and dentist appointment."
-    }
-  ],
-  "free_windows": [
-    {
-      "start": "14:30",
-      "end": "18:30"
-    }
-  ]
-}
-```
-
-- [ ] Define output schema
-- [ ] Validate model output
-- [ ] Reject malformed responses
-- [ ] Render structured responses with native Planoramic components
-
----
-
-# P3: Planoramic Brief
-
-Create the primary AI feature.
-
-## Daily Brief
-
-- [ ] Add "Planoramic Brief" card
-- [ ] Generate today's summary
-- [ ] Generate tomorrow's summary
-- [ ] Show number of events
-- [ ] Show conflicts
-- [ ] Show tight transitions
-- [ ] Show largest free window
-- [ ] Show first event
-- [ ] Show last event
-- [ ] Show important schedule observations
-
-Example:
-
-```text
-✦ PLANORAMIC BRIEF
-
-Tuesday looks busy.
-
-4 events
-2 deadlines
-
-⚠ Tight turnaround at 1:30 PM
-
-✦ Best free block
-3:30 – 6:00 PM
-
-Tomorrow starts at 9:00 AM
-```
-
-## Weekly Brief
-
-- [ ] Generate weekly summary
-- [ ] Identify busiest day
-- [ ] Identify lightest day
-- [ ] Identify major conflicts
-- [ ] Identify useful free periods
-- [ ] Summarize upcoming weekend
-
----
-
-# P4: Smart Context Cards
-
-Turn AI/schedule information into visual objects rather than paragraphs.
-
-## Card Types
-
-- [ ] Schedule Conflict
-- [ ] Leave Soon
-- [ ] Free Time
-- [ ] Busy Day
-- [ ] Tomorrow Morning
-- [ ] Tonight
-- [ ] Weekend Overview
-- [ ] First Event
-- [ ] Last Event
-
-Example:
-
-```text
-┌─────────────────────────────┐
-│ ⚠ LEAVE SOON               │
-│                             │
-│ Dentist                     │
-│ 2:30 PM                     │
-│                             │
-│ Starts in 42 minutes        │
-└─────────────────────────────┘
-```
-
-- [ ] Make cards compatible with glassmorphism design system
-- [ ] Make cards readable from TV distance
-- [ ] Make important cards focusable
-- [ ] Allow card expansion with remote
-
----
-
-# P5: Alexa+ Integration
-
-Goal: make Planoramic conversational.
-
-Alexa should communicate with the Planoramic backend rather than directly manipulating the React Native application.
-
-Architecture:
-
-```text
-Alexa+
-   ↓
-Planoramic MCP Server
-   ↓
-Planoramic Backend
-   ↓
-Calendar + Schedule Engine + Bedrock
-```
-
-## MCP Server
-
-Suggested structure:
-
-```text
-backend/
-  mcp/
-    server.ts
-    tools/
-      schedule.ts
-      freeTime.ts
-      conflicts.ts
-      display.ts
-```
-
-- [ ] Implement current MCP specification required by hackathon
-- [ ] Implement Streamable HTTP transport
-- [ ] Deploy MCP endpoint publicly
-- [ ] Add authentication if required
-- [ ] Test MCP requests independently
+# Hearth — Fire TV demo scope
 
-## Initial MCP Tools
-
-Keep the first tool surface small.
-
-- [ ] `get_schedule`
-- [ ] `get_schedule_summary`
-- [ ] `find_free_time`
-- [ ] `find_conflicts`
-
-Example interactions:
-
-```text
-"Alexa, what's happening tomorrow?"
-
-"Alexa, when am I free Friday?"
-
-"Alexa, do I have any conflicts this week?"
-
-"Alexa, what's my busiest day?"
-```
-
----
-
-# P6: Alexa → Fire TV Control
-
-This is the key multimodal feature.
-
-Alexa should not only answer questions. Voice commands should affect what the user sees on the television.
-
-## Device State
-
-Create shared display state.
-
-Example:
-
-```json
-{
-  "view": "day",
-  "date": "2026-09-25",
-  "highlight": {
-    "type": "free_time",
-    "start": "14:00",
-    "end": "17:00"
-  }
-}
-```
-
-- [ ] Store current display state
-- [ ] Associate state with paired Fire TV
-- [ ] Allow backend to update display state
-- [ ] Allow Fire TV to receive state updates
-- [ ] Decide between polling, WebSocket, or another push mechanism
-
-## Display MCP Tools
-
-- [ ] `show_today`
-- [ ] `show_date`
-- [ ] `show_week`
-- [ ] `show_event`
-- [ ] `highlight_free_time`
-- [ ] `highlight_conflicts`
-- [ ] `refresh_display`
-
-Example:
-
-```text
-USER
-"Alexa, show me Friday."
-
-       ↓
-
-Alexa+
-
-       ↓
-
-Planoramic MCP
-
-       ↓
-
-display state:
-view = day
-date = Friday
-
-       ↓
-
-Fire TV switches to Friday
-```
-
----
-
-# P7: Complete the Multimodal UX
-
-The modalities should share state rather than behave like separate applications.
-
-## Interaction Model
-
-```text
-VOICE
-Intent / questions
-      ↓
-   Alexa+
-      ↓
-Planoramic Backend
-      ↓
-   Fire TV
-Visual understanding
-      ↓
-Fire TV Remote
-Detailed exploration
-      ↓
-Phone
-Configuration
-```
+Last updated: 2026-10-23.
 
-### Voice
+## Vega platform setup — completed
 
-Use for:
+The user identified the physical target as **Fire TV Stick HD, 2nd generation, software OS 2.0**. Amazon lists the 2026 Fire TV Stick HD as a **Vega OS** device. Treat this as the Vega path unless further device identification shows otherwise. The existing Expo/react-native-tvos project is an Android TV target; an Android APK cannot be installed directly as a Vega app.
 
-- [ ] Ask questions
-- [ ] Jump to dates
-- [ ] Find free time
-- [ ] Find conflicts
-- [ ] Request summaries
-- [ ] Change TV views
+- [x] Confirm the device model/OS: Vega CLI reports physical `calypso`, ARMv7, OS 2.0, with Developer Mode enabled.
+- [x] Confirm access to an Amazon Developer account and the Vega SDK/CLI (SDK 0.24.9914; user confirmed successful authentication).
+- [x] Enable the physical device through [Vega Developer Mode](https://developer.amazon.com/docs/vega/0.24/developer-mode), completing browser authentication personally.
+- [x] Connect over TCP/IP at `10.0.0.186:5555`; `vega device list` confirms the physical TV. Restarting the local VDA server resolved the connection failure.
+- [x] Prove a minimal Vega app can build, install, and launch: `vega/` ARMv7 release installed on `10.0.0.186:5555`; process confirmed running; user confirmed its screen and remote navigation.
+- [x] Implement the minimal Vega calendar client using the existing pairing/events backend: Today/Next 7 days, calendar labels, next event, event details, refresh, and loading/empty/error states. TypeScript passes and five API/date tests pass; on-TV live calendar verification remains separate.
+- [x] Install and launch the calendar build on the physical TV. Backend logs confirm successful device registration (201) and repeated pairing polling (200) from the TV.
+- [x] Verify Google sign-in, TV pairing, and live event loading: user reported it working; backend recorded successful pairing and four successful device event fetches. Calendar remote/detail verification remains separate.
+- [ ] Verify calendar remote navigation, details, refresh after calendar membership changes, and app relaunch behavior. A later disconnect coincided with the app no longer running; the backend and VDA connection remained healthy. App was relaunched and requires pairing again because credentials are session-only.
+- [ ] Add secure credential persistence on Vega. The first calendar client keeps pairing in memory only; closing it requires pairing again. Expo SecureStore applies to the existing Android target, not the Vega client.
+The installed TV client is `vega/`. Follow [its README](vega/README.md) for the physical stick. Android/JDK instructions apply to the separate Expo target only.
 
-### Fire TV
+## Immediate submission priority
 
-Use for:
+The verified deadline is **October 23, 2026 at 3:00 PM Eastern**. Use [the submission pack](docs/v1-submission.md). Freeze feature work, publish the actual Vega source to GitHub, record the physical-TV demo, complete the required form fields, and submit. AI remains future scope for this v1.
 
-- [ ] Ambient information
-- [ ] Calendar visualization
-- [ ] AI insights
-- [ ] Conflict visualization
-- [ ] Free-time visualization
-- [ ] Household overview
+## Submission goal
 
-### Fire TV Remote
+**A household calendar on Fire TV that shows live shared Google Calendar events, supports remote exploration, and optionally explains the day with a short AI brief.**
 
-Use for:
+Ship the calendar experience first. Add one small intelligence feature only after the native app works. Keep the final 45–60 minutes for recording, documentation, and submission. Time estimates below are planning ranges, not guarantees; build and AWS setup delays can exceed them.
 
-- [ ] Navigate days
-- [ ] Navigate events
-- [ ] Expand cards
-- [ ] Inspect event details
-- [ ] Switch views
-- [ ] Dismiss/return
+The previous full roadmap and its detailed completion history are preserved in [the archived todo](docs/todo-before-scope-cut-2026-10-23.md).
 
-### Phone
+## Current status: implementation versus verification
 
-Use for:
+The browser flow and live calendar loading on the physical Vega TV are confirmed. The Vega client is a smaller native implementation; browser-only features and persistent credentials have not all been ported. Keep specific device checks unchecked until demonstrated.
 
-- [ ] Pair Fire TV
-- [ ] Select device
-- [ ] Select calendars
-- [ ] Configure household
-- [ ] Change date range
-- [ ] Trigger refresh
-- [ ] Change appearance
-- [ ] Configure Planoramic
+- [x] Node/Express backend with health, registration, pairing, event, and device-control endpoints.
+- [x] Google OAuth and live event fetching across readable personal/shared calendars; browser preview previously confirmed across 29 calendars.
+- [x] Browser display pairing and live calendar events verified end to end.
+- [x] Browser pairing persistence and native SecureStore implementation.
+- [x] Native/shared calendar screen with event details, calendar labels, refresh, and loading/empty/error UI; native behavior still needs verification.
+- [x] Existing Brief screen with today's event count/list and next upcoming timed event; this is deterministic, not AI-generated.
+- [x] Today/Week controls and persistent calendar visibility filters implemented; verify the native controls before including them in the demo.
+- [x] Backend and browser automated coverage recorded for authentication, calendar loading, pairing, persistence, and recovery. These checks have not been rerun for this scope rewrite.
+- [x] Fire TV installation and troubleshooting guide: [docs/fire-tv-install-guide.md](docs/fire-tv-install-guide.md).
+- [x] Build and install the native calendar on the physical Vega Fire TV.
+- [x] Verify live pairing and calendar rendering on that target.
+- [ ] Finish the calendar's remote/detail/refresh recording checks.
 
----
+**Known limitation:** Backend storage is in memory. Restarting it clears accounts, Google tokens, devices, and pairing state. Keep it running during the demo; sign in and pair again after a restart. A native debug build also needs Metro and the development connection active.
 
-# P8: Phone → Fire TV Control
+## P0 — Required working demo
 
-Complete the existing planned phone control experience.
+Complete remaining demo checks before recording. Follow the [Vega guide](vega/README.md).
 
-- [ ] Build phone-friendly control interface
-- [ ] Register/select paired Fire TV
-- [ ] Show TV connection status
-- [ ] Today button
-- [ ] Tomorrow button
-- [ ] Week button
-- [ ] Date picker
-- [ ] Refresh button
-- [ ] Calendar filters
-- [ ] Push selected view to TV
-- [ ] Keep phone and TV state synchronized
+### Install and connect
 
----
+- [x] Confirm physical Vega OS Fire TV Stick HD as the target.
+- [x] Confirm the Vega SDK and VDA recognize the device.
+- [x] Start the backend and verify `/health`.
+- [x] Forward backend port 3001 with VDA.
+- [x] Build/install the ARMv7 release with bundled JavaScript; Metro is not needed.
+- [x] Confirm the native calendar app launches and loads real events.
 
-# P9: Household Mode
+### Pair and show real events
 
-Make the Fire TV placement meaningful by turning Planoramic into a shared household surface.
+- [x] Generate a pairing code on the TV.
+- [x] Sign in on the Mac connection page and pair that display.
+- [x] Confirm recognizable live calendar events appear.
+- [ ] Verify timed and all-day events display sensible local dates/times.
+- [ ] Navigate the event list, select an event, and return using only the remote.
+- [ ] Refresh successfully.
+- [x] Confirm relaunch behavior: the Vega app currently requires pairing again. Secure persistence remains deferred; keep the app/backend running during the demo.
 
-## Calendar Identity
+### Fix only demo blockers
 
-- [ ] Preserve calendar owner/source
-- [ ] Assign display identity
-- [ ] Add household calendar filters
-- [ ] Allow individual calendars to be shown/hidden
+- [ ] Make the active remote focus clearly visible on the demonstrated controls.
+- [ ] Check the actual demo layout for readable text and clipping.
+- [ ] Verify a useful empty-calendar message.
+- [ ] Verify backend failure shows an error/retry state and recovery works after reconnection.
+- [ ] Choose one reliable calendar view and theme for recording.
+- [ ] Record a short successful baseline before changing features.
 
-Example:
+**P0 done:** The installed app pairs, displays real household events, supports remote inspection, and refreshes reliably. If P0 runs long, skip add-ons and finish submission assets.
 
-```text
-HOUSEHOLD
+## P1 — Deferred add-on: AI Daily Brief
 
-Archi        ●
-Mom          ●
-Dad          ●
-Family       ◇
-School       □
-```
+**Planning allowance: 45–75 minutes after P0, only if AWS access works promptly.** This is the smallest AI scheduling feature worth attempting: a short explanation of the existing day's schedule, with an optional focus-time suggestion from a computed free window. It does not create, move, or delete events.
 
-## Household Questions
+Reuse [BriefScreen.tsx](screens/BriefScreen.tsx), the existing calendar data, and the current backend. Keep one remote-focusable **Generate brief** button and one compact result card. No chat UI, voice integration, agent framework, or new screen system.
 
-Support queries such as:
+### Gate: prove one model call first — maximum 10 minutes
 
-```text
-"When is everyone free Saturday?"
+- [ ] Verify AWS credentials, chosen region, and access to a compatible Bedrock model/inference profile.
+- [ ] Make one successful backend-side text request before touching the UI.
+- [ ] If access, billing, permissions, or regional availability is still blocking after ten minutes, stop this add-on and use one deterministic option from P2.
 
-"Does anyone have anything Thursday night?"
+### Minimum version: explain the existing facts
 
-"Show only my calendar."
+- [ ] Add a small Bedrock service to the existing Node backend using `@aws-sdk/client-bedrock-runtime` and Converse. Configure region/model identifier through backend environment variables.
+- [ ] Keep AWS credentials on the backend using the SDK credential chain; never put them in the display bundle.
+- [ ] Add one endpoint protected by the existing paired-device credential; use that device owner's calendar data.
+- [ ] Limit the request to the selected local day and visible calendar sources; respect the same filters as the displayed Brief. Include an explicit date and timezone.
+- [ ] Compute event count, first/next/last timed event, and all-day event list in code. Send only the calendar facts needed for the summary.
+- [ ] Ask for a two-sentence summary. Treat event titles as data and prohibit invented appointments, travel estimates, or calendar changes.
+- [ ] Return a small validated response such as `{summary, generatedAt, source: "bedrock"}`. Reject missing, empty, or overlong summaries.
+- [ ] Set an explicit output-token cap (for example, 250), a short request timeout (for example, eight seconds), and bounded retries.
+- [ ] Add Generate brief loading/retry behavior without blocking the calendar UI. Prevent repeated submissions while a request is pending.
+- [ ] Retain the existing deterministic Brief if generation fails. Label it as a basic schedule summary; never label fallback text as generated AI.
+- [ ] Invalidate generated text when the selected day, visible calendars, or events change. If caching results, scope them to the authenticated owner, date, timezone, calendar selection, and schedule contents.
+- [ ] Verify one real successful generation and one failed-call fallback on the demo target.
 
-"Who has something tomorrow morning?"
-```
-
-- [ ] Find shared free time
-- [ ] Find household conflicts
-- [ ] Filter by person
-- [ ] Filter by calendar
-- [ ] Household weekly overview
-
----
-
-# P10: Open Source Mini Challenge
-
-Create something genuinely reusable from work Planoramic already needs.
-
-## Recommended Project
-
-Possible name:
-
-```text
-planoramic-tv-ui
-```
-
-or
-
-```text
-react-native-tv-focus-kit
-```
-
-Possible reusable components:
-
-- [ ] `FocusableGlassCard`
-- [ ] `TVButton`
-- [ ] `TVList`
-- [ ] `FocusRing`
-- [ ] `RemoteNavigation`
-- [ ] `TVSafeArea`
-- [ ] `TenFootText`
-
-## Repository Requirements
-
-- [ ] Create separate public GitHub repository during hackathon window
-- [ ] Add open-source license
-- [ ] Add README
-- [ ] Add installation instructions
-- [ ] Add component examples
-- [ ] Add screenshots/demo
-- [ ] Use package inside Planoramic
-- [ ] Document why the package was created
-- [ ] Save repository URL for hackathon submission
-
-## Optional Upstream Contribution
-
-Investigate React Native TV / Fire TV issues encountered during development.
-
-Potential contribution:
-
-- [ ] Reproduce Fire TV focus-loss issue
-- [ ] Create minimal reproduction
-- [ ] Add regression test
-- [ ] Investigate fix
-- [ ] Submit upstream PR if appropriate
-
----
-
-# P11: Production Backend
-
-Do after core demo functionality works.
-
-Current backend state is in-memory and should not be relied on for the final deployment.
-
-- [ ] Deploy production backend
-- [ ] Replace in-memory device storage
-- [ ] Replace in-memory token storage
-- [ ] Replace in-memory session storage
-- [ ] Add durable device pairing
-- [ ] Add event caching
-- [ ] Add offline fallback
-- [ ] Add backend logging
-- [ ] Add basic monitoring
-- [ ] Add rate limiting where appropriate
-- [ ] Secure secrets
-- [ ] Document deployment
-
----
-
-# P12: Demo Experience
-
-Build the demo deliberately rather than improvising it.
-
-## Suggested Demo Flow
-
-### 1. Establish Planoramic
-
-Show Fire TV displaying the household calendar.
-
-Explain:
-
-> Planoramic turns the largest screen in the home into an ambient planning surface.
-
-### 2. Show Calendar
-
-Navigate with Fire TV remote.
-
-Demonstrate:
-
-- multiple calendars
-- events
-- remote navigation
-- event details
-
-### 3. Show AI
-
-Open Planoramic Brief.
-
-Demonstrate:
-
-- schedule summary
-- conflict detection
-- free-time detection
-- Bedrock-generated insight
-
-### 4. Show Alexa
-
-Say:
-
-```text
-"Alexa, what's going on tomorrow?"
-```
-
-Alexa answers.
-
-Fire TV switches to tomorrow.
-
-### 5. Demonstrate Multimodal UX
-
-Say:
-
-```text
-"Alexa, when am I free?"
-```
-
-Alexa answers verbally.
-
-Planoramic highlights the free period visually.
-
-Use Fire TV remote to inspect the surrounding events.
-
-### 6. Show Phone
-
-Use phone interface to change the TV view.
-
-Demonstrate that:
-
-```text
-Voice → intent
-TV → understanding
-Remote → exploration
-Phone → configuration
-```
-
-### 7. Show Household Mode
-
-Ask:
-
-```text
-"Alexa, when is everyone free Saturday?"
-```
-
-Show shared availability on Fire TV.
-
-### 8. Mention Open Source
-
-Show reusable React Native TV components extracted during development.
-
----
-
-# P13: Hackathon Submission
-
-## Documentation
-
-- [ ] Update README
-- [ ] Explain product problem
-- [ ] Explain why Fire TV is appropriate
-- [ ] Explain architecture
-- [ ] Explain Google Calendar integration
-- [ ] Explain Bedrock integration
-- [ ] Explain Alexa+ integration
-- [ ] Explain multimodal interaction model
-- [ ] Explain household use case
-- [ ] Document open-source contribution
-- [ ] Add architecture diagram
-- [ ] Add screenshots
-- [ ] Add demo GIF/video where useful
-
-## Submission Assets
-
-- [ ] Final project description
-- [ ] Architecture diagram
-- [ ] Fire TV screenshots
-- [ ] Alexa demo
-- [ ] Bedrock demo
-- [ ] Phone controller demo
-- [ ] Open-source repository URL
-- [ ] GitHub username
-- [ ] Open-source contribution description
-- [ ] AWS integration description
-- [ ] Demo video
-- [ ] Public repository
-- [ ] Build/install instructions
-
----
-
-# P14: Friction Log
-
-Document development friction throughout the hackathon rather than reconstructing it at the end.
-
-For every meaningful issue record:
-
-```text
-Date:
-
-Task:
-
-What I tried:
-
-What I expected:
-
-What happened:
-
-Error / friction:
-
-Documentation used:
-
-Workaround:
-
-What would have made this easier:
-```
-
-Especially document friction involving:
-
-- [ ] Fire TV setup
-- [ ] React Native TV
-- [ ] D-pad/focus behavior
-- [ ] Fire OS
-- [ ] Amazon Bedrock
-- [ ] AWS configuration
-- [ ] Alexa+
-- [ ] MCP
-- [ ] Authentication
-- [ ] Amazon documentation
-- [ ] Deployment
-
----
-
-# Stretch Goals
-
-Only work on these once the core demo is solid.
-
-## Natural-Language Event Creation
-
-```text
-"Alexa, add dinner with Mom Friday at seven."
-```
-
-- [ ] Add Google Calendar write scope
-- [ ] Parse proposed event
-- [ ] Show confirmation
-- [ ] Require confirmation before
+**Minimum done:** A real Bedrock response appears in the existing Brief screen, matches the visible schedule, and fails gracefully. This is enough to demonstrate an AI feature; stop here if time is tight.
+
+### Optional extension: one suggested focus window
+
+Do this only if the minimum AI brief is already working and submission time remains.
+
+- [ ] Reuse the deterministic free-window calculation described in P2; send the computed windows with the facts.
+- [ ] Let AI explain one existing window, for example: “Your 2–3 PM opening could fit a focus session.”
+- [ ] Keep window start/end times from code. If returning a selected window identifier, validate it against the computed list.
+- [ ] Describe the suggestion as time free on the selected calendars, without claiming everyone in the household is available.
+
+Reference: [AWS Converse API](https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference.html). Resolve the actual model identifier from the configured account/region; do not hard-code an unverified model choice.
+
+## P2 — Other small add-ons: pick at most one
+
+These are alternatives or small follow-ups, not a second required roadmap. Prefer existing native components and no new permissions. Estimates assume the native app already runs and do not include toolchain setup.
+
+| Add-on | Rough effort | Visible benefit | Prerequisite |
+| --- | --- | --- | --- |
+| Next-event countdown | 10–20 min | “Dentist starts in 35 minutes” | Existing next-event data |
+| Today/Tomorrow Brief toggle | 15–25 min | Inspect tomorrow without a new screen | Events loaded for both days |
+| Conflict badge/list | 20–40 min | Identify simultaneous timed appointments | Valid event start/end times |
+| Largest open window | 25–45 min | Suggest a time for a focus session | Defined day bounds and overlap handling |
+| Connection/freshness text | 10–20 min | “Updated 2 minutes ago” and “Showing saved events” | Last successful fetch timestamp |
+
+### A. Next-event countdown — easiest visible improvement
+
+- [ ] Add a countdown beside the existing next-event title in Brief.
+- [ ] Update about once per minute and advance after an event begins.
+- [ ] Handle no upcoming timed events and label all-day events separately.
+- [ ] Verify the countdown at an event boundary.
+
+### B. Today/Tomorrow Brief toggle
+
+- [ ] Add two remote-focusable buttons to the existing Brief.
+- [ ] Select the day using calendar dates in the device timezone, rather than adding a fixed 24 hours.
+- [ ] Confirm events for the chosen date are loaded; handle a next-day empty state.
+- [ ] Keep AI results tied to the chosen date if P1 is implemented.
+
+### C. Conflict badge/list
+
+- [ ] Compare timed intervals on the selected day: overlap when `a.start < b.end && b.start < a.end`.
+- [ ] Treat end times as exclusive; back-to-back events are not overlaps.
+- [ ] Clip multi-day intervals to the selected day and skip invalid/missing durations. Keep all-day events separate.
+- [ ] Show the titles/times of overlapping events in one existing native card.
+- [ ] Check overlap, nested overlap, back-to-back, and no-conflict examples.
+
+### D. Largest open window
+
+- [ ] Define a simple planning window, such as 8 AM–8 PM in the device timezone.
+- [ ] Clip timed events to that window, sort them, and merge overlapping intervals before computing gaps.
+- [ ] Return the largest gap of at least 30 minutes. Include the gap before the first event and after the last.
+- [ ] Show the complete planning window on an empty day and a clear message when no qualifying gap exists.
+- [ ] Display all-day events separately and explain that the suggestion uses timed events only.
+- [ ] Check an empty day, fully booked day, nested overlaps, and events crossing midnight.
+
+### E. Connection/freshness text
+
+- [ ] Record and display the last successful calendar fetch time.
+- [ ] Keep that timestamp unchanged after a failed refresh.
+- [ ] If displaying retained events after failure, identify them as previously loaded and expose Retry.
+
+**Recommended choice:** P0 → P1 minimum AI brief if access is ready → stop adding features. If AWS blocks you, P0 → countdown or conflict badge → submission. Add the focus-window extension only with real spare time.
+
+## P3 — Submission and recording: reserve the final 45–60 minutes
+
+- [ ] Freeze features and run the complete demo once on the actual target.
+- [ ] Keep the backend, Metro, device connection, and Mac awake during recording.
+- [ ] Record 60–120 seconds: calendar → multiple sources → remote event details → Brief → AI result if implemented.
+- [ ] Capture two or three readable screenshots. Use events suitable for a public demo.
+- [ ] Update README around the implemented scope; identify emulator versus physical hardware accurately.
+- [ ] Remove or clearly label roadmap claims about Alexa+, Bedrock, phone control, and household availability that are not demonstrated.
+- [ ] Describe the real architecture: Google Calendar → backend → paired TV; add Bedrock only if implemented.
+- [ ] Document the local backend/Metro dependency, in-memory storage, and install steps.
+- [ ] Include repository URL, required build/install instructions, description, screenshots/video, and any organizer-required fields.
+- [ ] Check the actual submission requirements and deadline; do not assume a local demo or emulator meets every requirement.
+- [ ] Submit with time to verify that links open and the upload is complete.
+
+Suggested pitch after P0: “Hearth brings shared Google calendars to a household TV with a readable, remote-controlled daily view.” Add “A Bedrock-powered brief explains the day” only after P1 is verified.
+
+## Deferred until after submission
+
+Preserved here as future scope, not deadline requirements.
+
+- Alexa+ integration, MCP server, and voice-to-TV control.
+- Full phone controller and phone-to-TV state synchronization.
+- Natural-language event creation, rescheduling, and automatic calendar writes.
+- Weekly AI planning, travel-time estimates, and a full schedule engine.
+- Household identities and everyone-free availability calculations.
+- Native timed week-grid/weather parity with the browser.
+- Live shared-task Google write verification and task demo polish.
+- Production hosting, durable storage, and release/distribution work unless explicitly required by submission rules.
+- Open-source UI library extraction, upstream contributions, and extensive design polish.
+
+## Existing features retained outside the core demo
+
+These were marked implemented in the previous todo. They remain available, but do not add native validation obligations for this submission unless selected for the demo.
+
+- [x] Tasks: due dates, completion, edits, deletion, person colors, shared-calendar sync implementation, pending/error states, and retry. Real cross-device Google write verification remains deferred.
+- [x] Browser timed Week grid, Agenda alternative, date navigation, daily weather, and detailed day schedules.
+- [x] Compact clocks, appearance controls, font settings, and flame-text options.
+- [x] Brief, Household, and Pomo navigation sections.
+- [x] Pomo focus/break timer with duration controls, pause/resume/reset, and session count; continues across tabs and resets on app reload.
+- [x] Browser fixture checks for shared tasks, failed-sync retry, and mobile layout.
+
+## Scope rules
+
+- Mark implementation and native verification separately.
+- Fix failures in the demonstrated path before adding another feature.
+- Keep Google and AWS credentials on the backend.
+- Keep the calendar usable when AI is unavailable.
+- Stop optional work at the submission buffer, even if an add-on is unfinished.
+- Preserve a working recording and build before taking on changes that may break them.

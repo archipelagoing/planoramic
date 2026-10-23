@@ -8,7 +8,7 @@ test('light color hierarchy keeps flame on identity and dark mode unchanged', as
   await page.goto('/');
   await setTheme(page, false);
   const title = page.getByRole('heading', {name: 'Upcoming Events'});
-  const brand = page.getByText('PLANORAMIC', {exact: true});
+  const brand = page.getByText('HEARTH', {exact: true});
   await expect(title).toHaveCSS('color', 'rgb(81, 70, 64)');
   await expect(title.locator('canvas')).toHaveCount(0);
   await expect(brand.locator('canvas')).toHaveCount(1);
@@ -677,7 +677,7 @@ for (const width of [1440, 390]) {
     await calendarApi(page, false);
     await page.goto('/');
     await page.getByRole('radio', {name: 'Agenda', exact: true}).click();
-    const heading = page.getByText('PLANORAMIC', {exact: true}).filter({visible: true});
+    const heading = page.getByText('HEARTH', {exact: true}).filter({visible: true});
     const toggle = page.getByRole('switch', {name: 'Flame text'});
     await expect(heading).toHaveCSS(
       '-webkit-text-fill-color',
@@ -800,7 +800,7 @@ for (const width of [1440, 390]) {
         family,
       );
       for (const text of [
-        'PLANORAMIC',
+        'HEARTH',
         'Sample events · Preview',
         'Work · Studio',
       ]) {
@@ -905,7 +905,7 @@ for (const mode of ['light', 'dark']) {
           document.fonts.check('16px Montserrat_500Medium'),
         ),
       ).toBe(true);
-      await expect(page.getByText('PLANORAMIC', {exact: true})).toHaveCSS(
+      await expect(page.getByText('HEARTH', {exact: true})).toHaveCSS(
         'color',
         mode === 'dark' ? 'rgb(247, 154, 34)' : 'rgb(173, 74, 48)',
       );

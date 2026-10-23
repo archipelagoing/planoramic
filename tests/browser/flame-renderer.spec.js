@@ -19,7 +19,7 @@ test('procedural flame parameters, masking, motion and cleanup', async ({
       }
     const target = document.createElement('h2');
     target.id = 'flame-specimen';
-    target.textContent = 'Planoramic';
+    target.textContent = 'Hearth';
     Object.assign(target.style, {
       fontFamily: 'Montserrat',
       fontWeight: '500',
