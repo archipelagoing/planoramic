@@ -94,8 +94,8 @@ Control body examples:
 
 `{"refresh":true}` also works alone. Accepted updates increment `revision`; the TV
 will poll every 15 seconds and acknowledge the applied revision. A control response
-confirms state was saved, not that the TV applied it. The TV integration is still
-to be built. `today` and `week` are view settings; the client supplies explicit
+confirms state was saved, not that the TV applied it. The current Vega app uses
+local view controls; phone-to-TV state polling and acknowledgement remain future work. `today` and `week` are view settings; the client supplies explicit
 event-query bounds for its local time zone.
 
 ## Calendar connection
@@ -122,8 +122,8 @@ expands recurring events, follows pagination, and omits cancellations. Requests 
 a 30-second total timeout and a 20-page bound per listing. No event cache is implemented yet.
 
 Set `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and `GOOGLE_REDIRECT_URI` using
-`.env.example`. OAuth sign-in requests read-only calendar event access and offline
-refresh permission. Revoked credentials return `CALENDAR_REAUTH_REQUIRED`; reconnect
+`.env.example`. OAuth sign-in requests calendar list access, event read/write access for the
+browser task-sync feature, and offline refresh permission. The Vega calendar UI is read-only. Revoked credentials return `CALENDAR_REAUTH_REQUIRED`; reconnect
 through `/connect`. Private calendar access requires OAuth authorization; a Google
 API key alone cannot provide it. See the setup guide for auth routes and logout behavior.
 
@@ -145,5 +145,5 @@ payloads are limited to 16 KB. Registration and claims are limited to 10 request
 per minute per IP; API traffic is limited to 300 per minute per IP. The local server
 does not trust forwarded proxy headers.
 
-Next: verify live Google access, add durable device/token storage and calendar
-caching, and build TV/phone clients. See [the pairing design](../docs/device-pairing.md).
+Live Google access and the physical Vega calendar are verified. Next: durable
+device/token storage, AWS hosting, calendar caching, and phone control. See [the pairing design](../docs/device-pairing.md).

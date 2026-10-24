@@ -12,4 +12,4 @@ Planned screens:
 - Request a refresh or unlink a TV.
 
 This UI will call the backend; it will not communicate directly with the TV.
-See the [device pairing flow](../docs/device-pairing.md).
+See the [device pairing flow](../../device-pairing.md).

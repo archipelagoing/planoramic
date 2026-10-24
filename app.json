@@ -13,7 +13,7 @@
     ],
     "name": "Hearth",
     "web": {
-      "favicon": "./hearthIcon.png"
+      "favicon": "./assets/images/hearthIcon.png"
     },
     "slug": "ExpoTVDemo"
   }

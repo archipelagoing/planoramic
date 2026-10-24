@@ -19,3 +19,8 @@ playwright-report/
 .env
 .env.*
 !.env.example
+
+coverage/
+*.tsbuildinfo
+.aws-sam/
+cdk.out/

@@ -29,12 +29,10 @@ describe('Vega calendar API', () => {
   });
 
   it('registers without a device credential and sends the device name', async () => {
-    const fetchMock = jest
-      .fn()
-      .mockResolvedValue({
-        ok: true,
-        json: async () => ({pairingCode: 'ABCDEF12'}),
-      });
+    const fetchMock = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({pairingCode: 'ABCDEF12'}),
+    });
     globalThis.fetch = fetchMock;
     const signal = new AbortController().signal;
     await request('/api/devices/register', signal, undefined, {
@@ -54,15 +52,13 @@ describe('Vega calendar API', () => {
   });
 
   it('uses the paired credential and preserves the server error code for recovery', async () => {
-    const fetchMock = jest
-      .fn()
-      .mockResolvedValue({
-        ok: false,
-        status: 401,
-        json: async () => ({
-          error: {code: 'UNAUTHORIZED', message: 'Pair again'},
-        }),
-      });
+    const fetchMock = jest.fn().mockResolvedValue({
+      ok: false,
+      status: 401,
+      json: async () => ({
+        error: {code: 'UNAUTHORIZED', message: 'Pair again'},
+      }),
+    });
     globalThis.fetch = fetchMock;
     await expect(
       request(

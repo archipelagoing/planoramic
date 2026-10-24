@@ -21,36 +21,11 @@ import {
   request,
 } from './calendar';
 
-function TVButton({
-  label,
-  onPress,
-  preferred = false,
-  disabled = false,
-}: {
-  label: string;
-  onPress: () => void;
-  preferred?: boolean;
-  disabled?: boolean;
-}) {
-  const [focused, setFocused] = useState(false);
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      hasTVPreferredFocus={preferred}
-      disabled={disabled}
-      onFocus={() => setFocused(true)}
-      onBlur={() => setFocused(false)}
-      onPress={onPress}
-      style={[
-        styles.button,
-        focused && styles.focus,
-        disabled && styles.disabled,
-      ]}>
-      <Text style={styles.buttonText}>{label}</Text>
-    </Pressable>
-  );
-}
+import {TVButton} from './ui';
+import {Clock} from './Clock';
+import {WeatherProvider, WeatherPreview, WeatherScreen} from './WeatherPanel';
+import {PomodoroProvider, PomodoroScreen} from './Pomodoro';
+import {BriefScreen, CalendarSources, CalendarSource} from './Panels';
 
 const failureMessage = (error: unknown) =>
   error instanceof ApiError
@@ -59,6 +34,21 @@ const failureMessage = (error: unknown) =>
 const eventKey = (event: CalendarEvent) => `${event.calendarId}:${event.id}`;
 
 export function App() {
+  return (
+    <WeatherProvider>
+      <PomodoroProvider>
+        <HearthApp />
+      </PomodoroProvider>
+    </WeatherProvider>
+  );
+}
+
+function HearthApp() {
+  const [section, setSection] = useState<
+    'calendar' | 'brief' | 'weather' | 'pomo' | 'sources'
+  >('calendar');
+  const [hidden, setHidden] = useState<string[]>([]);
+  const [sources, setSources] = useState<CalendarSource[]>([]);
   const [device, setDevice] = useState<Device | null>(null);
   const [pairing, setPairing] = useState<Pairing | null>(null);
   const [pairAttempt, setPairAttempt] = useState(0);
@@ -79,8 +69,17 @@ export function App() {
   const [focused, setFocused] = useState('');
   const back = useKeplerBackHandler();
   const dayKey = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
-  const rangeKey = `${device?.deviceId}:${view}:${dayKey}`;
-  const data = loaded?.key === rangeKey ? loaded : null;
+  const effectiveView = section === 'brief' ? 'week' : view;
+  const rangeKey = `${device?.deviceId}:${effectiveView}:${dayKey}`;
+  const rawData = loaded?.key === rangeKey ? loaded : null;
+  const data = rawData
+    ? {
+        ...rawData,
+        events: rawData.events.filter(
+          (event) => !hidden.includes(event.calendarId),
+        ),
+      }
+    : null;
 
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 60000);
@@ -92,10 +91,14 @@ export function App() {
         setDetail(false);
         return true;
       }
+      if (section !== 'calendar') {
+        setSection('calendar');
+        return true;
+      }
       return false;
     });
     return () => subscription.remove();
-  }, [back, detail]);
+  }, [back, detail, section]);
 
   useEffect(() => {
     if (device) return;
@@ -164,7 +167,7 @@ export function App() {
   useEffect(() => {
     if (!device) return;
     const controller = new AbortController();
-    const range = dateRange(view);
+    const range = dateRange(effectiveView);
     setLoading(true);
     setError('');
     const query = `timeMin=${encodeURIComponent(
@@ -182,6 +185,15 @@ export function App() {
         const events = result.events
           .filter((event) => Number.isFinite(+eventDate(event)))
           .sort((a, b) => +eventDate(a) - +eventDate(b));
+        setSources((previous) => {
+          const known = new Map(previous.map((source) => [source.id, source]));
+          for (const event of events)
+            known.set(event.calendarId, {
+              id: event.calendarId,
+              name: event.calendarName,
+            });
+          return [...known.values()];
+        });
         setLoaded({
           key: rangeKey,
           events,
@@ -212,13 +224,15 @@ export function App() {
         if (!controller.signal.aborted) setLoading(false);
       });
     return () => controller.abort();
-  }, [device, view, dayKey, refresh, rangeKey]);
+  }, [device, effectiveView, dayKey, refresh, rangeKey]);
 
   function reconnect() {
     setDetail(false);
     setSelected(null);
     setLoaded(null);
     setDevice(null);
+    setSources([]);
+    setHidden([]);
     setPairAttempt((value) => value + 1);
   }
   const next = data?.events.find(
@@ -235,15 +249,33 @@ export function App() {
           <Text style={styles.eyebrow}>YOUR HOUSEHOLD, AT A GLANCE</Text>
           <Text style={styles.title}>Hearth</Text>
         </View>
-        <Text style={styles.date}>
-          {now.toLocaleDateString(undefined, {
-            weekday: 'long',
-            month: 'long',
-            day: 'numeric',
-          })}
-        </Text>
+        <Clock />
       </View>
-      {!device ? (
+      {!detail && (
+        <View style={styles.toolbar}>
+          {(
+            [
+              ['calendar', 'Calendar'],
+              ['brief', 'Brief'],
+              ['weather', 'Weather'],
+              ['pomo', 'Pomodoro'],
+              ['sources', 'Calendars'],
+            ] as const
+          ).map(([id, label]) => (
+            <TVButton
+              key={id}
+              label={label}
+              selected={section === id}
+              onPress={() => setSection(id)}
+            />
+          ))}
+        </View>
+      )}
+      {detail ? null : section === 'weather' ? (
+        <WeatherScreen />
+      ) : section === 'pomo' ? (
+        <PomodoroScreen />
+      ) : !device ? (
         <View style={styles.pairCard}>
           <Text style={styles.heading}>Connect your calendars</Text>
           <Text style={styles.body}>
@@ -277,6 +309,31 @@ export function App() {
             onPress={() => setPairAttempt((value) => value + 1)}
           />
         </View>
+      ) : section === 'sources' ? (
+        <CalendarSources
+          sources={sources}
+          hidden={hidden}
+          onToggle={(id) =>
+            setHidden((previous) =>
+              previous.includes(id)
+                ? previous.filter((value) => value !== id)
+                : [...previous, id],
+            )
+          }
+        />
+      ) : section === 'brief' ? (
+        <BriefScreen
+          events={data?.events || []}
+          now={now}
+          loading={loading}
+          error={error}
+          onOpenEvent={(event) => {
+            setSelected(event);
+            setDetail(true);
+          }}
+          onCalendar={() => setSection('calendar')}
+          onRefresh={() => setRefresh((value) => value + 1)}
+        />
       ) : (
         <>
           <View style={styles.toolbar}>
@@ -395,6 +452,7 @@ export function App() {
                   · {eventTime(next)}
                 </Text>
               )}
+              <WeatherPreview />
               {activeEvent && (
                 <View style={styles.preview}>
                   <Text style={styles.eyebrow}>SELECTED EVENT</Text>

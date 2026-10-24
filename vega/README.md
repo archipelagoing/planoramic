@@ -2,9 +2,9 @@
 
 This separate native target is for the physical Vega OS Fire TV Stick HD. The repository root remains the Expo/browser/Android TV application.
 
-Current stage: a native calendar client with display-code pairing, Today/Next 7 days views, source-calendar labels, event details, next-event preview, refresh, and loading/empty/error states. It uses the existing backend's paired-device endpoints. Google sign-in stays on the Mac connection page.
+Current stage: a native calendar client with display-code pairing, Today/Next 7 days views, calendar visibility controls, source-calendar labels, event details, next-event preview, refresh, and loading/empty/error states. Additional sections provide a daily Brief, seven-day weather forecast, analog/digital clocks, and a focus/break Pomodoro timer. It uses the existing backend's paired-device endpoints. Google sign-in stays on the Mac connection page.
 
-On 2026-10-23, the initial ARMv7 starter release built successfully, installed on `10.0.0.186:5555`, and `vega device is-app-running` confirmed `com.archi.planoramic.main` was running. The user confirmed its screen and remote navigation worked. Live calendar pairing/rendering need separate verification with the calendar build.
+On 2026-10-23, the initial ARMv7 starter release built successfully, installed on `10.0.0.186:5555`, and `vega device is-app-running` confirmed `com.archi.planoramic.main` was running. The user confirmed its screen and remote navigation worked. The user subsequently confirmed live calendar pairing and rendering. The expanded ARMv7 release was built and installed on the same physical TV. Its sections still require user verification with the remote.
 
 ## Connect the calendar
 
@@ -26,6 +26,14 @@ Launch Hearth. On your Mac, open `http://localhost:3001/connect`, sign in with G
 Use the D-pad to navigate events, Select to open details, and Back or the on-screen button to return. Failed refreshes retain previously loaded events for the same date range and mark them as previously loaded.
 
 **Current demo limitations:** The Vega client keeps its device credential only in memory; closing/restarting the app requires pairing again. No Google or AWS secrets are stored in this app. Backend storage also remains in memory, so restarting the backend requires signing in and pairing again. Secure credential persistence is still pending for Vega; the root Expo target's SecureStore implementation does not apply here. The backend request timeout is 60 seconds to accommodate multiple Google calendars.
+
+## Additional sections
+
+Calendar remains the default. Brief uses the same visible calendar sources and opens event details. Calendars lets you hide personal sources without removing them from Google; this selection currently resets when Hearth closes. Only sources with loaded events appear in the list.
+
+Weather uses Open-Meteo for East Brunswick, NJ (08816), matching the browser configuration. It refreshes every 30 minutes and has a manual retry. The forecast location is fixed in this build. Weather failures do not block calendar use.
+
+Pomodoro provides focus, short-break, and long-break modes, duration controls, pause/resume/reset, and a completed-focus count. It continues across sections, uses elapsed wall time, and resets when the app closes. Brief is deterministic; no AI model is called.
 
 ## Build and launch
 
@@ -57,10 +65,10 @@ The release package includes its JavaScript bundle and does not require Metro. L
 
 ```sh
 ./node_modules/.bin/tsc --noEmit
-npm test -- --runInBand test/calendar.spec.ts
+npm test -- --runInBand
 ```
 
-The calendar tests cover request credentials, unauthorized-response handling, cancellation, all-day local dates, and local date-range boundaries across daylight saving. They do not replace the on-TV pairing and remote checks.
+The calendar tests cover request credentials, unauthorized-response handling, cancellation, all-day local dates, and local date-range boundaries across daylight saving. Timer tests cover delayed ticks, pause/resume, and completion counts. Brief tests cover overlapping and all-day events; weather tests cover malformed forecast data. They do not replace the on-TV pairing and remote checks.
 
 ## Compatibility
 

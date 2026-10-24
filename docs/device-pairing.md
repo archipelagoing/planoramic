@@ -1,19 +1,16 @@
 # Device pairing and control
 
-Status: target design. The backend now implements in-memory registration, claim,
-polling, control, acknowledgement, and revocation. Google browser sessions now
-support per-user ownership and calendar access. The development API key accesses
-a separate account for manual tests. Persistent storage, TV integration, and the
-phone control UI are still pending.
-See [the backend API](../backend/README.md) for routes and limitations.
+Status: registration, claim, pairing polling, live calendar fetching, per-user ownership, and a physical Vega TV client are implemented. The backend still stores accounts and devices in memory. Vega credentials are session-only; the browser uses an HttpOnly display cookie and the separate Expo Android target uses SecureStore.
 
 ## App responsibilities
 
-- The existing Expo app at the repository root displays calendar content on TV.
-  Its browser build previews that same display.
-- The separate `web/` app handles Google sign-in, TV pairing, and phone controls.
-- The `backend/` service owns Google credentials, device links, calendar access,
-  and display settings.
+- The root Expo app provides the browser experience and the Android TV target.
+- `vega/` contains the separate native client for Vega OS Fire TV devices.
+- `backend/public/connect.html` handles Google sign-in and display-code pairing.
+- `backend/` owns Google credentials, device links, calendar access, and display settings.
+- A dedicated phone controller remains planned; its earlier notes are [archived](archive/phone-controller/README.md).
+
+See [the backend API](../backend/README.md) and [Vega setup](../vega/README.md) for current behavior.
 
 ## Pairing sequence
 
@@ -26,9 +23,10 @@ See [the backend API](../backend/README.md) for routes and limitations.
 4. The backend atomically consumes the code and links the pending TV to that
    user. A used or expired code cannot pair another device.
 5. The TV polls using its session secret. Once approved, it exchanges that secret
-   for a device ID and a dedicated device credential, then stores the credential
-   locally. Device IDs alone never authorize requests.
-6. On later launches, the TV uses its device credential. If the credential is
+   for a device ID and a dedicated device credential, then keeps the credential for authenticated event requests. Storage differs
+   by client; the Vega v1 currently keeps it in memory only. Device IDs alone never authorize requests.
+6. Clients with persistent storage reuse their device credential on later launches.
+   Vega v1 currently requires pairing again after an app restart. If the credential is
    revoked, the TV clears its linked state and starts pairing again.
 
 Pairing codes and session secrets must be randomly generated. Limit code-entry
@@ -36,9 +34,10 @@ attempts and session creation. Credential issuance must tolerate a lost response
 without allowing a code to be claimed twice. Google tokens remain on the backend;
 the TV credential permits access only to that device's data and settings.
 
-## Display updates
+## Planned phone-to-TV display updates
 
-For the first version, use HTTP polling instead of a persistent connection:
+The backend has endpoints for this planned controller flow. Vega v1 does not
+yet poll or acknowledge remote display-state changes:
 
 - While pairing, the TV checks its session every 5 seconds until it expires.
 - Once linked, the TV fetches its display state every 15 seconds while active.

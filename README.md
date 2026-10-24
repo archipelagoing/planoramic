@@ -13,7 +13,9 @@ Hearth runs natively on a physical **Amazon Fire TV Stick HD (2nd generation), V
 - D-pad navigation, selectable event details, Back, and manual refresh.
 - Loading, empty, error, and previously loaded event states.
 
-The existing Expo/browser application at the repository root has a broader feature set, including tasks, a timed week grid, weather, a basic daily Brief, and a focus timer. These browser features have not all been ported to Vega. Bedrock, Alexa+, and automated scheduling are future work; they are not part of the submitted v1.
+The expanded TV build also implements a daily Brief, calendar visibility controls, seven-day weather, analog/digital clocks, and Pomodoro. These additions require physical-device verification before being claimed as demonstrated.
+
+The existing Expo/browser application at the repository root has a broader feature set, including tasks, a timed week grid, weather, a basic daily Brief, and a focus timer. Tasks and the timed week grid remain browser features; the expanded Vega build adds Brief, weather, clocks, and Pomodoro. Bedrock, Alexa+, and automated scheduling are future work; they are not part of the submitted v1.
 
 ## Architecture
 
@@ -75,7 +77,7 @@ Detailed TV instructions and recovery commands: [Vega README](vega/README.md). T
 - The Vega TV client keeps pairing credentials in memory. Closing/restarting it requires pairing again.
 - The backend stores accounts, tokens, and devices in memory. Restarting it requires Google sign-in and pairing again.
 - Calendar schedules are read-only in the Vega client. It does not create or reschedule events.
-- The Vega client currently displays all readable calendar sources; it does not yet have source visibility controls.
+- Calendar visibility controls are session-only and list sources discovered from loaded events. Weather is fixed to East Brunswick, NJ (08816).
 
 ## Browser application
 
@@ -95,13 +97,28 @@ npm test --prefix backend
 npx tsc --noEmit
 cd vega
 ./node_modules/.bin/tsc --noEmit
-npm test -- --runInBand test/calendar.spec.ts
+npm test -- --runInBand
 ```
 
-The new Vega API/date tests cover registration headers, paired credentials, unauthorized errors, cancellation, all-day dates, and local date boundaries. The app was built, installed, and used to load live calendars on the physical stick. See [todo.md](todo.md) for remaining device checks and scope.
+Nine Vega tests cover timer behavior, Brief date overlap, forecast validation, and registration headers, paired credentials, unauthorized errors, cancellation, all-day dates, and local date boundaries. The app was built, installed, and used to load live calendars on the physical stick. See [todo.md](todo.md) for remaining device checks and scope.
+
+The latest browser test run passed 28 of 35 checks; seven checks failed around settings/navigation, connection layout, flame rendering, and weather fixtures. These failures remain under investigation. Backend tests passed all 32 checks.
 
 ## Hackathon development
 
 The project includes an existing React Native TV/Expo foundation. Work during the submission window added Google Calendar integration, display pairing, the browser planning experience, and a separate working Vega OS client with build/install instructions. The native Vega calendar is the demonstrated Fire TV v1.
 
-[Submission draft and recording outline](docs/v1-submission.md) · [License](LICENSE)
+## Repository layout
+
+| Path | Purpose |
+| --- | --- |
+| `App.tsx`, `screens/`, `components/`, `navigation/`, `theme/`, `services/` | Expo/browser and Android TV application |
+| `backend/` | Google OAuth, pairing, calendar API, and backend tests |
+| `vega/` | Separate native Vega OS Fire TV application and tests |
+| `assets/images/` | Browser/Expo images and favicon |
+| `assets/source/` | Original design assets retained for editing |
+| `tests/` | Browser integration tests |
+| `docs/` | Setup, demo, architecture, and project documentation |
+| `docs/archive/` | Historical prompts and task templates |
+
+[Documentation index](docs/README.md) · [Project tags](docs/project-metadata.md) · [Submission pack](docs/v1-submission.md) · [License](LICENSE)

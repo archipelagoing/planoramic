@@ -18,6 +18,18 @@ The user identified the physical target as **Fire TV Stick HD, 2nd generation, s
 - [ ] Add secure credential persistence on Vega. The first calendar client keeps pairing in memory only; closing it requires pairing again. Expo SecureStore applies to the existing Android target, not the Vega client.
 The installed TV client is `vega/`. Follow [its README](vega/README.md) for the physical stick. Android/JDK instructions apply to the separate Expo target only.
 
+## Expanded Vega scope — implemented, device checks pending
+
+- [x] Keep Calendar as the default screen with Today, Next 7 days, source labels, details, refresh, and next event.
+- [x] Add a daily Brief using the visible calendar events, with event details and next event.
+- [x] Add calendar visibility controls without changing Google calendar membership (session-only).
+- [x] Add analog/digital clocks, seven-day weather for 08816, and independent weather retry.
+- [x] Add Pomodoro focus/break modes, duration controls, pause/resume/reset, and completion count across tabs.
+- [x] Pass nine Vega API/date/timer/Brief/weather tests.
+- [x] Build and install the expanded ARMv7 release on the physical TV.
+- [ ] Verify each expanded section with the physical remote.
+- [ ] Verify weather networking and selected-calendar visibility on the TV.
+
 ## Immediate submission priority
 
 The verified deadline is **October 23, 2026 at 3:00 PM Eastern**. Use [the submission pack](docs/v1-submission.md). Freeze feature work, publish the actual Vega source to GitHub, record the physical-TV demo, complete the required form fields, and submit. AI remains future scope for this v1.
